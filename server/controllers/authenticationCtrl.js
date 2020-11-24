@@ -1,4 +1,5 @@
 const client = require('../config/db.client');
+const bcrypt= require('bcrypt');
 exports.postToken = (req, res) => {
     if (!req.body.usuario) {
         res.status(400).send({
@@ -13,12 +14,24 @@ exports.postToken = (req, res) => {
             });
             return;
     }
-    client.query('SELECT * FROM public.usuario where nombre = $1 and password=$2', [req.body.usuario,req.body.password], function (err, result) {
+    client.query('SELECT * FROM public.usuario where nombre = $1', [req.body.usuario], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
         }
-        console.log(result);
-        res.status(200).send(result.rows);
+        if(result.rows && result.rows.length>0){
+            if(bcrypt.compareSync(req.body.password,result.rows[0].password)){
+                res.status(200).send(result.rows);
+            }else{
+                res.status(400).send({
+                    message: "Credenciales incorrectas",
+                    success:false});
+            }
+        }else if(result.rows && result.rows.length==0){
+            res.status(400).send({
+            message: "No se ha encontrado un usuario válido con las credenciales ingresadas",
+            success:false});
+        }
+        
     });
 }
