@@ -1,28 +1,24 @@
 const express = require('express')
 const app = express()
 const {verifyToken} = require('../middlewares/authotization');
-const Sequelize=require('sequelize')
-var sqlz = new Sequelize('postgres://postgres:wsc2020@localhost:5432/wscargo');
-
-/*const { Client } = require('pg');
+const { Client } = require('pg');
 var connectionString = "postgres://postgres:wsc2020@localhost:5432/wscargo";
 const client = new Client({
     connectionString: connectionString
 });
 
-client.connect();*/
+client.connect();
 
-var User = sqlz.define('usuario', {});
+//app.get('/usuario',verifyToken,usuarioController.list);
 
 app.get('/usuario',verifyToken,function (req, res) {
-    /*client.query('SELECT * FROM public.usuarios', "", function (err, result) {
+    client.query('SELECT * FROM public.usuario', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
-    });*/
-    
+    });   
 })
 
 app.get('/usuario/:id', function (req, res) {
