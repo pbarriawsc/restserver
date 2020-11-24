@@ -1,5 +1,6 @@
 const client = require('../config/db.client');
 const bcrypt= require('bcrypt');
+const jwt= require('jsonwebtoken');
 exports.postToken = (req, res) => {
     if (!req.body.usuario) {
         res.status(400).send({
@@ -20,8 +21,12 @@ exports.postToken = (req, res) => {
             res.status(400).send(err);
         }
         if(result.rows && result.rows.length>0){
-            if(bcrypt.compareSync(req.body.password,result.rows[0].password)){
-                res.status(200).send(result.rows);
+            if(bcrypt.compareSync(req.body.password,result.rows[0].password)){//generando token y resguardando los campos que se envian para el encriptado
+                let token=jwt.sign({
+                    usuario:{id:result.rows[0].id,nombre:result.rows[0].nombre}
+                },process.env.SECRET,{expiresIn:process.env.EXPIRATION_TOKEN})
+                //res.status(200).send(result.rows);
+                res.json({success:true,token});
             }else{
                 res.status(400).send({
                     message: "Credenciales incorrectas",
