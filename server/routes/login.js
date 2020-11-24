@@ -1,9 +1,9 @@
 const express = require('express')
 const app = express()
 const bcrypt= require('bcrypt');
+const prefix='/api/token';
+const authenticationController=require('../controllers/authenticationCtrl');
 
-app.post('/token',(req,res)=>{
-    let body=req.body;
-    res.json({success:true})
-})
+app.post(`${prefix}`,authenticationController.postToken);
+
 module.exports=app;

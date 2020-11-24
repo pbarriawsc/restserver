@@ -1,5 +1,4 @@
 const client = require('../config/db.client');
-const moment= require('moment');
 exports.create = (req, res) => {
     // Validate request
     if (!req.body.nombre) {
