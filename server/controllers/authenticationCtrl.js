@@ -22,11 +22,12 @@ exports.postToken = (req, res) => {
         }
         if(result.rows && result.rows.length>0){
             if(bcrypt.compareSync(req.body.password,result.rows[0].password)){//generando token y resguardando los campos que se envian para el encriptado
+               const usuario={id:result.rows[0].id,nombre:result.rows[0].nombre};
                 let token=jwt.sign({
-                    usuario:{id:result.rows[0].id,nombre:result.rows[0].nombre}
+                    usuario
                 },process.env.SECRET,{expiresIn:process.env.EXPIRATION_TOKEN})
                 //res.status(200).send(result.rows);
-                res.json({success:true,token});
+                res.json({success:true,token,usuario});
             }else{
                 res.status(400).send({
                     message: "Credenciales incorrectas",
