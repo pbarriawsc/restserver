@@ -35,13 +35,33 @@ module.exports = (sequelize,DataTypes) => {
 			autoIncrement: true,
 			primaryKey: true,
 			type: DataTypes.INTEGER
-		},
+    },
+    usuario: {
+			allowNull: false,
+			type: DataTypes.STRING,
+			unique: true,
+    },
 		nombre: {
 			allowNull: false,
 			type: DataTypes.STRING,
 			unique: false,
     },
     password: {
+			allowNull: false,
+			type: DataTypes.STRING,
+			unique: false,
+    },
+    apellidos: {
+			allowNull: false,
+			type: DataTypes.STRING,
+			unique: false,
+    },
+    email: {
+			allowNull: false,
+			type: DataTypes.STRING,
+			unique: false,
+    },
+    telefono: {
 			allowNull: false,
 			type: DataTypes.STRING,
 			unique: false,
