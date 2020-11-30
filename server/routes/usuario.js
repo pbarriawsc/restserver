@@ -9,6 +9,8 @@ app.get(`${prefix}`,verifyToken,usuarioController.list);
 app.get(`${prefix}/:id`,verifyToken, usuarioController.findOneBy)
 
 app.post(`${prefix}`,verifyToken, usuarioController.create)
+
+app.delete(`${prefix}/:id`,verifyToken, usuarioController.delete)
 /*
 app.put(`${prefix}/:id`, function (req, res) {
     let id=req.params.id;

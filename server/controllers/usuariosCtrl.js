@@ -53,4 +53,24 @@ exports.create = (req, res) => {
         }
         res.status(200).send(result.rows);
     });
-};
+    };
+
+    exports.delete = (req,res) =>{
+        if (!req.params.id) {
+            res.status(400).send({
+                message: "El id es obligatorio",
+                success:false
+              });
+              return;
+        }
+        client.query('DELETE FROM public.usuario where id = $1', [req.params.id], function (err, result) {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send({
+                message: "El usuario ha sido eliminado correctamente",
+                success:TRUE
+              });
+        });
+        };
