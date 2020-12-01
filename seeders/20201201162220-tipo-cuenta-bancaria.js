@@ -11,7 +11,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('tipo_cuenta_bancaria', [{
+   await queryInterface.bulkInsert('cuenta_bancaria_tipo', [{
     nombre: 'Cuenta de Ahorro',
     },
     {
@@ -30,6 +30,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('tipo_cuenta_bancaria', null, {});
+    await queryInterface.bulkDelete('cuenta_bancaria_tipo', null, {});
   }
 };

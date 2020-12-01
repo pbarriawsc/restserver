@@ -11,7 +11,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('tipo_direccion', [{
+   await queryInterface.bulkInsert('direccion_tipo', [{
     nombre: 'Facturación',
     },
     {
@@ -30,6 +30,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('tipo_direccion', null, {});
+    await queryInterface.bulkDelete('direccion_tipo', null, {});
   }
 };
