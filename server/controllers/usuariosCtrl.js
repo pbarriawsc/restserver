@@ -26,9 +26,9 @@ exports.create = (req, res) => {
         }
         res.status(200).send(result.rows[0]);
     });
-}
+};
 
-  exports.list = (req, res) => {
+exports.list = (req, res) => {
     client.query('SELECT * FROM public.usuario', "", function (err, result) {
         if (err) {
             console.log(err);
@@ -36,15 +36,15 @@ exports.create = (req, res) => {
         }
         res.status(200).send(result.rows);
     });   
-  };
+};
 
-  exports.findOneBy = (req,res) =>{
+exports.findOneBy = (req,res) =>{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
             success:false
-          });
-          return;
+            });
+            return;
     }
     client.query('SELECT * FROM public.usuario where id = $1', [req.params.id], function (err, result) {
         if (err) {
@@ -53,24 +53,46 @@ exports.create = (req, res) => {
         }
         res.status(200).send(result.rows);
     });
+};
+
+exports.delete = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+    client.query('DELETE FROM public.usuario where id = $1', [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send({
+            message: "El usuario ha sido eliminado correctamente",
+            success:true
+            });
+    });
+};
+
+exports.update = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+    const query = {
+        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5 WHERE id=$6 RETURNING *',
+        values: [req.body.usuario, req.body.nombre, req.body.apellido, req.body.email, req.body.telefono, req.body.id],
     };
 
-    exports.delete = (req,res) =>{
-        if (!req.params.id) {
-            res.status(400).send({
-                message: "El id es obligatorio",
-                success:false
-              });
-              return;
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
         }
-        client.query('DELETE FROM public.usuario where id = $1', [req.params.id], function (err, result) {
-            if (err) {
-                console.log(err);
-                res.status(400).send(err);
-            }
-            res.status(200).send({
-                message: "El usuario ha sido eliminado correctamente",
-                success:TRUE
-              });
-        });
-        };
+        res.status(200).send(result.rows[0]);
+    });
+};
