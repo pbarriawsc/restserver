@@ -7,5 +7,7 @@ app.use(require('./login'))
 app.use(require('./tipoDireccion'))
 app.use(require('./tipoContacto'))
 app.use(require('./pais'))
+app.use(require('./banco'))
+app.use(require('./tipoCuentaBancaria'))
 
 module.exports=app;
