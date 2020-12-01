@@ -11,14 +11,20 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('tipo_direccion', [{
-    nombre: 'Facturación',
+   await queryInterface.bulkInsert('banco', [{
+    nombre: 'Falabella',
     },
     {
-      nombre: 'Personal',
+      nombre: 'Bci',
     },
     {
-      nombre: 'Bodega',
+      nombre: 'Scotiabank',
+    },
+    {
+      nombre: 'Itaú',
+    },
+    {
+      nombre: 'Banco Estado',
     }
     ], {});
   },
@@ -30,6 +36,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('tipo_direccion', null, {});
+    await queryInterface.bulkDelete('banco', null, {});
   }
 };

@@ -11,14 +11,14 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('tipo_direccion', [{
-    nombre: 'Facturación',
+   await queryInterface.bulkInsert('tipo_cuenta_bancaria', [{
+    nombre: 'Cuenta de Ahorro',
     },
     {
-      nombre: 'Personal',
+      nombre: 'Cuenta Vista',
     },
     {
-      nombre: 'Bodega',
+      nombre: 'Cuenta Corriente',
     }
     ], {});
   },
@@ -30,6 +30,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('tipo_direccion', null, {});
+    await queryInterface.bulkDelete('tipo_cuenta_bancaria', null, {});
   }
 };

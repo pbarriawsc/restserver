@@ -11,14 +11,14 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('tipo_direccion', [{
+   await queryInterface.bulkInsert('tipo_contacto', [{
     nombre: 'Facturación',
     },
     {
-      nombre: 'Personal',
+      nombre: 'Bodega',
     },
     {
-      nombre: 'Bodega',
+      nombre: 'Despacho',
     }
     ], {});
   },
@@ -30,6 +30,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('tipo_direccion', null, {});
+    await queryInterface.bulkDelete('tipo_contacto', null, {});
   }
 };
