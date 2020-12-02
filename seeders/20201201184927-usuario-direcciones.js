@@ -11,16 +11,6 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('direccion_tipo', [{
-    nombre: 'Facturación',
-    },
-    {
-      nombre: 'Personal',
-    },
-    {
-      nombre: 'Bodega',
-    }
-    ], {});
   },
 
   down: async (queryInterface, Sequelize) => {
@@ -30,6 +20,5 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('direccion_tipo', null, {});
   }
 };

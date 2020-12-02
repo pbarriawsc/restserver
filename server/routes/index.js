@@ -10,5 +10,10 @@ app.use(require('./pais'))
 app.use(require('./naves'))
 app.use(require('./equiposTipos'))
 app.use(require('./equiposMarcas'))
+app.use(require('./tipoContacto'))
+app.use(require('./pais'))
+app.use(require('./banco'))
+app.use(require('./tipoCuentaBancaria'))
+app.use(require('./usuarioDirecciones'))
 
 module.exports=app;
