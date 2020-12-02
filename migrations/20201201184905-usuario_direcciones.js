@@ -54,6 +54,14 @@ module.exports = {
       usuario_id:{
         type: Sequelize.INTEGER,
         allowNull: false,
+      },
+      direccion_tipo_id:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      observaciones:{
+        type: Sequelize.TEXT,
+        allowNull: true,
       }
     });
   },

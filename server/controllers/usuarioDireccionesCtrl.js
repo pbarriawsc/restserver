@@ -32,8 +32,8 @@ exports.create = (req, res) => {
           return;
     }
     const query = {
-        text: 'INSERT INTO public.usuario_direcciones(nombre,pais,region,comuna,direccion,numero,latitud,longitud,radio,usuario_id) VALUES($1, $2) RETURNING *',
-        values: [req.body.nombre, req.body.pais,req.body.region,req.body.comuna,req.body.direccion,req.body.numero,req.body.latitud,req.body.longitud,req.body.radio,req.body.usuario_id],
+        text: 'INSERT INTO public.usuario_direcciones(nombre,pais,region,comuna,direccion,numero,latitud,longitud,radio,usuario_id,direccion_tipo_id,observaciones) VALUES($1, $2,$3, $4, $5, $6, $7, $8, $9, $10, $11,$12) RETURNING *',
+        values: [req.body.nombre, req.body.pais,req.body.region,req.body.comuna,req.body.direccion,req.body.numero,req.body.latitud,req.body.longitud,req.body.radio,req.body.usuarioId,req.body.tipoDireccionId,req.body.observaciones],
     };
 
     client.query(query,"",function (err, result) {
@@ -54,8 +54,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.usuario_direcciones SET nombre=$1,pais=$2,region=$3,comuna=$4,direccion=$5,numero=$6,latitud=$7,longitud=$8,radio=$9,usuario_id=$10 WHERE id=$6 RETURNING *',
-        values: [req.body.nombre, req.body.pais,req.body.region,req.body.comuna,req.body.direccion,req.body.numero,req.body.latitud,req.body.longitud,req.body.radio,req.body.usuario_id],
+        text: 'UPDATE public.usuario_direcciones SET nombre=$1,pais=$2,region=$3,comuna=$4,direccion=$5,numero=$6,latitud=$7,longitud=$8,radio=$9,usuario_id=$10,direccion_tipo_id=$11,observaciones=$12 WHERE id=$13 RETURNING *',
+        values: [req.body.nombre,req.body.pais,req.body.region,req.body.comuna,req.body.direccion,req.body.numero,req.body.latitud,req.body.longitud,req.body.radio,req.body.usuario_id,req.body.direccion_tipo_id,req.body.observaciones,req.params.id],
     };
 
     client.query(query,"",function (err, result) {
