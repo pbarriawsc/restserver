@@ -15,8 +15,8 @@ exports.create = (req, res) => {
           return;
     }
     const query = {
-        text: 'INSERT INTO public.usuario(nombre, password) VALUES($1, $2) RETURNING *',
-        values: [req.body.nombre, req.body.password],
+        text: 'INSERT INTO public.usuario(nombre, password,usuario,apellidos,email,telefono) VALUES($1, $2, $3, $4, $5, $6) RETURNING *',
+        values: [req.body.nombre, req.body.password,req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono],
     };
 
     client.query(query,"",function (err, result) {
@@ -29,7 +29,7 @@ exports.create = (req, res) => {
 };
 
 exports.list = (req, res) => {
-    client.query('SELECT * FROM public.usuario', "", function (err, result) {
+    client.query('SELECT * FROM public.usuario ORDER BY id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
