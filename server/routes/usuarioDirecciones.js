@@ -4,7 +4,7 @@ const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/usuarioDirecciones';
 const usuarioDireccionesController=require('../controllers/usuarioDireccionesCtrl');
 
-app.get(`${prefix}`,verifyToken,usuarioDireccionesController.list);
+app.get(`${prefix}/:id`,verifyToken,usuarioDireccionesController.list);
 
 
 app.post(`${prefix}`,verifyToken, usuarioDireccionesController.create)
