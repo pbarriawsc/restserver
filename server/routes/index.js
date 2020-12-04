@@ -16,5 +16,6 @@ app.use(require('./banco'))
 app.use(require('./tipoCuentaBancaria'))
 app.use(require('./usuarioDirecciones'))
 app.use(require('./usuarioContactos'));
+app.use(require('./usuarioCuentasBancarias'));
 
 module.exports=app;

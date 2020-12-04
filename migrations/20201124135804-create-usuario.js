@@ -8,6 +8,9 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      rut: {
+        type: Sequelize.STRING
+      },
       usuario: {
         type: Sequelize.STRING
       },
