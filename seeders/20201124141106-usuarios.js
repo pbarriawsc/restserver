@@ -29,7 +29,7 @@ module.exports = {
       password: bcrypt.hashSync('123456',10),
       apellidos:'Vidal',
        email:'edo.v80@gmail.com',
-       telefono:'+56976631136'
+       telefono:'+56976631136',
        rut:'11111111-1'
       //createdAt:'2020-11-24 00:00:00',
       //updatedAt:'2020-11-24 00:00:00'
