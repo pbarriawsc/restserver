@@ -4,7 +4,7 @@ const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/usuarioContactos';
 const usuarioContactosController=require('../controllers/usuarioContactosCtrl');
 
-app.get(`${prefix}/:id`,verifyToken,usuarioContactosController.list);
+app.get(`${prefix}/:usuario_id`,verifyToken,usuarioContactosController.list);
 
 
 app.post(`${prefix}`,verifyToken, usuarioContactosController.create)

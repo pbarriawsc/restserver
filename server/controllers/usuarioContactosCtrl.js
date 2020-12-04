@@ -43,8 +43,8 @@ exports.create = (req, res) => {
           return;
     }
     const query = {
-        text: 'INSERT INTO public.usuario_contactos(nombre,apellidos,telefono,telefono2,email,forma_pago,comentario,contacto_tipo_id,usuario_id) VALUES($1, $2,$3, $4, $5, $6, $7, $8, $9) RETURNING *',
-        values: [req.body.nombre, req.body.apellidos,req.body.telefono,req.body.telefono2,req.body.email,req.body.forma_pago,req.body.comentario,req.body.contacto_tipo_id,req.body.usuario_id],
+        text: 'INSERT INTO public.usuario_contactos(nombre,apellidos,telefono,telefono2,email,forma_cargo,comentario,contacto_tipo_id,usuario_id) VALUES($1, $2,$3, $4, $5, $6, $7, $8, $9) RETURNING *',
+        values: [req.body.nombre, req.body.apellidos,req.body.telefono,req.body.telefono2,req.body.email,req.body.forma_cargo,req.body.comentario,req.body.contacto_tipo_id,req.body.usuario_id],
     };
 
     client.query(query,"",function (err, result) {
@@ -65,8 +65,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.usuario_contactos SET nombre=$1,apellidos=$2,telefono=$3,telefono2=$4,email=$5,forma_pago=$6,comentario=$7,contacto_tipo_id=$8,usuario_id=$9 WHERE id=$10 RETURNING *',
-        values: [req.body.nombre,req.body.apellidos,req.body.telefono,req.body.telefono2,req.body.email,req.body.forma_pago,req.body.comentario,req.body.contacto_tipo_id,req.body.usuario_id,req.params.id],
+        text: 'UPDATE public.usuario_contactos SET nombre=$1,apellidos=$2,telefono=$3,telefono2=$4,email=$5,forma_cargo=$6,comentario=$7,contacto_tipo_id=$8,usuario_id=$9 WHERE id=$10 RETURNING *',
+        values: [req.body.nombre,req.body.apellidos,req.body.telefono,req.body.telefono2,req.body.email,req.body.forma_cargo,req.body.comentario,req.body.contacto_tipo_id,req.body.usuario_id,req.params.id],
     };
 
     client.query(query,"",function (err, result) {

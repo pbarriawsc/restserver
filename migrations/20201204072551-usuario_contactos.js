@@ -30,7 +30,7 @@ module.exports = {
       email: {
         type: Sequelize.STRING
       },
-      forma_pago:{
+      forma_cargo:{
         type: Sequelize.STRING
       },
       comentario:{
