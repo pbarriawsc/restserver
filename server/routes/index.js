@@ -18,5 +18,6 @@ app.use(require('./usuarioDirecciones'))
 app.use(require('./usuarioContactos'));
 app.use(require('./usuarioCuentasBancarias'));
 app.use(require('./usuarioNotas'));
+app.use(require('./tracking'))
 
 module.exports=app;
