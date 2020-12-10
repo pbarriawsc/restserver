@@ -28,5 +28,7 @@ app.use(require('./usuarioCuentasBancarias'));
 app.use(require('./region'));
 app.use(require('./comunas'));
 app.use(require('./proveedores'));
+app.use(require('./usuarioNotas'));
+app.use(require('./tracking'))
 
 module.exports=app;
