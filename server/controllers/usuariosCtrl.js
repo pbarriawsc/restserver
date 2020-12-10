@@ -15,8 +15,8 @@ exports.create = (req, res) => {
           return;
     }
     const query = {
-        text: 'INSERT INTO public.usuario(nombre, password) VALUES($1, $2) RETURNING *',
-        values: [req.body.nombre, req.body.password],
+        text: 'INSERT INTO public.usuario(nombre, password,usuario,apellidos,email,telefono,rut) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+        values: [req.body.nombre, req.body.password,req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono,req.body.rut],
     };
 
     client.query(query,"",function (err, result) {
@@ -29,7 +29,7 @@ exports.create = (req, res) => {
 };
 
 exports.list = (req, res) => {
-    client.query('SELECT * FROM public.usuario', "", function (err, result) {
+    client.query('SELECT * FROM public.usuario ORDER BY id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -84,8 +84,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5 WHERE id=$6 RETURNING *',
-        values: [req.body.usuario, req.body.nombre, req.body.apellido, req.body.email, req.body.telefono, req.body.id],
+        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5,rut=$6 WHERE id=$7 RETURNING *',
+        values: [req.body.usuario, req.body.nombre, req.body.apellido, req.body.email, req.body.telefono,req.body.rut,req.body.id],
     };
 
     client.query(query,"",function (err, result) {

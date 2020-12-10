@@ -36,12 +36,17 @@ module.exports = (sequelize,DataTypes) => {
 			primaryKey: true,
 			type: DataTypes.INTEGER
     },
+    rut: {
+			allowNull: false,
+			type: DataTypes.STRING,
+			unique: true,
+    },
     usuario: {
 			allowNull: false,
 			type: DataTypes.STRING,
 			unique: true,
     },
-		nombre: {
+	nombre: {
 			allowNull: false,
 			type: DataTypes.STRING,
 			unique: false,

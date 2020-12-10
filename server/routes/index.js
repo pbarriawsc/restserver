@@ -23,5 +23,10 @@ app.use(require('./formasPago'))
 app.use(require('./giros'))
 app.use(require('./familiasArancelariasProductos'))
 app.use(require('./familiasComercialesProductos'))
+app.use(require('./usuarioContactos'));
+app.use(require('./usuarioCuentasBancarias'));
+app.use(require('./region'));
+app.use(require('./comunas'));
+app.use(require('./proveedores'));
 
 module.exports=app;
