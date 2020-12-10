@@ -23,7 +23,7 @@ module.exports = (sequelize,DataTypes) => {
             references: {
                 model: {
                     tableName: "pais",
-                    schema: "Authentication"
+                    schema: "public"
                 },
                 key: "id",
                 onDelete: "RESTRICT",
