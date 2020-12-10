@@ -26,7 +26,7 @@ module.exports = {
         references: {
             model: {
                 tableName: "pais",
-                schema: "Authentication"
+                schema: "public"
             },
             key: "id",
             onDelete: "RESTRICT",
@@ -39,7 +39,7 @@ module.exports = {
             references: {
                 model: {
                     tableName: "region",
-                    schema: "Authentication"
+                    schema: "public"
                 },
                 key: "id",
                 onDelete: "RESTRICT",
