@@ -29,6 +29,10 @@ app.use(require('./region'));
 app.use(require('./comunas'));
 app.use(require('./proveedores'));
 app.use(require('./usuarioNotas'));
-app.use(require('./tracking'))
+app.use(require('./tracking'));
+app.use(require('./roles'));
+app.use(require('./gc_registrocontactos'));
+app.use(require('./gc_contactos_tipos'));
+app.use(require('./clientes'));
 
 module.exports=app;
