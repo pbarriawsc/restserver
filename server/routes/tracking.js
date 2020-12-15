@@ -5,6 +5,7 @@ const prefix='/api/tracking';
 const trackingController=require('../controllers/trackingCtrl');
 
 app.post(`${prefix}`,verifyToken, trackingController.create)
+app.get(`${prefix}`,verifyToken, trackingController.list)
 
 /*
 app.put(`${prefix}/:id`, function (req, res) {

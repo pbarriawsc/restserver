@@ -11,19 +11,25 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-   await queryInterface.bulkInsert('banco', [{
+   await queryInterface.bulkInsert('bancos', [{
+    codigo:'',
     nombre: 'Falabella',
     },
     {
+      codigo:'',
       nombre: 'Bci',
     },
     {
+      codigo:'',
       nombre: 'Scotiabank',
     },
     {
+      codigo:'',
       nombre: 'Itaú',
     },
     {
+      codigo:'',
+      
       nombre: 'Banco Estado',
     }
     ], {});
@@ -36,6 +42,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('banco', null, {});
+    await queryInterface.bulkDelete('bancos', null, {});
   }
 };
