@@ -13,43 +13,99 @@ exports.list = (req, res) => {
         	for(var i=0;i<result.rows.length;i++){
         		ids.push(result.rows[i].id);
         	}
-        }
 
-        let queryIn='';
-        if(ids.length>0){
-        	queryIn+='WHERE tracking_id IN (';
-        	for(var x=0;x<ids.length;x++){
-        		if(x!==ids.length-1){
-        			queryIn+=ids[x]+','
-        		}else{
-        			queryIn+=ids[x]
-        		}
-        	}
-        	queryIn+=')';
-        }
+        	let queryIn='';
+		        if(ids.length>0){
+		        	queryIn+='WHERE tracking_id IN (';
+		        	for(var x=0;x<ids.length;x++){
+		        		if(x!==ids.length-1){
+		        			queryIn+=ids[x]+','
+		        		}else{
+		        			queryIn+=ids[x]
+		        		}
+		        	}
+		        	queryIn+=')';
+		        }
 
-        let queryFinal='SELECT * FROM public.tracking_detalle '+queryIn;
-        client.query(queryFinal, "", function (err, result) {
-	        if (err) {
-	            console.log(err);
-	            res.status(400).send(err);
-	        }
-	        if(resultHeader.rows.length>0){
-	        	for(var i=0;i<resultHeader.rows.length;i++){
-	        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
-	        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
-	        		if(arrayFind){
-	        			obj.tracking_detalle=arrayFind;
-	        		}else{
-	        			obj.tracking_detalle=[];
-	        		}
-	        		arrayFinal.push(obj);
-	        	}
-        		res.status(200).send(arrayFinal);
-	        }
-        });
+		        let queryFinal='SELECT * FROM public.tracking_detalle '+queryIn;
+		        client.query(queryFinal, "", function (err, result) {
+			        if (err) {
+			            console.log(err);
+			            res.status(400).send(err);
+			        }
+			        if(resultHeader.rows.length>0){
+			        	for(var i=0;i<resultHeader.rows.length;i++){
+			        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
+			        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
+			        		if(arrayFind){
+			        			obj.tracking_detalle=arrayFind;
+			        		}else{
+			        			obj.tracking_detalle=[];
+			        		}
+			        		arrayFinal.push(obj);
+			        	}
+		        		res.status(200).send(arrayFinal);
+			        }
+		        });
+        }else{
+        	res.status(200).send(arrayFinal);
+        }
     });   
   };
+
+exports.listByClient = (req, res) => {
+	const arrayFinal=[];
+    client.query('SELECT * FROM public.tracking where fk_cliente=$1', [parseInt(req.params.id)], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        const resultHeader=result;
+        const ids=[];
+        if(result.rows.length>0){
+        	for(var i=0;i<result.rows.length;i++){
+        		ids.push(result.rows[i].id);
+        	}
+
+        	let queryIn='';
+	        if(ids.length>0){
+	        	queryIn+='WHERE tracking_id IN (';
+	        	for(var x=0;x<ids.length;x++){
+	        		if(x!==ids.length-1){
+	        			queryIn+=ids[x]+','
+	        		}else{
+	        			queryIn+=ids[x]
+	        		}
+	        	}
+	        	queryIn+=')';
+	        }
+
+	        let queryFinal='SELECT * FROM public.tracking_detalle '+queryIn;
+	        client.query(queryFinal, "", function (err, result) {
+		        if (err) {
+		            console.log(err);
+		            res.status(400).send(err);
+		        }
+		        if(resultHeader.rows.length>0){
+		        	for(var i=0;i<resultHeader.rows.length;i++){
+		        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
+		        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
+		        		if(arrayFind){
+		        			obj.tracking_detalle=arrayFind;
+		        		}else{
+		        			obj.tracking_detalle=[];
+		        		}
+		        		arrayFinal.push(obj);
+		        	}
+	        		res.status(200).send(arrayFinal);
+		        }
+	        });
+        }else{
+        	res.status(200).send(arrayFinal);
+        } 
+    });   
+  };
+
 exports.create = (req, res) => {
 	let proveedorId;
     if (!req.body.proveedor) {
