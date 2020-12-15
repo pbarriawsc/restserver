@@ -42,7 +42,11 @@ module.exports = {
       tracking_id:{
         type: Sequelize.INTEGER,
         allowNull: false
-      }
+      },
+      estado:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
     });
   },
 

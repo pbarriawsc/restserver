@@ -18,14 +18,22 @@ module.exports = {
       fecha_creacion: {
         type: Sequelize.DATE
       },
-      proveedor_id:{
+      fk_proveedor:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
+      },
+      fk_cliente:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       tipo:{
         type: Sequelize.INTEGER,
         allowNull: false,
-      }
+      },
+      estado:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
     });
   },
 
