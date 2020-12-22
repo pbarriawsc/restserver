@@ -246,3 +246,71 @@ exports.create = (req, res) => {
     }
     
 };
+
+exports.update = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+    const query = {
+        text: 'UPDATE public.tracking SET tipo=$1,estado=$2,fk_cliente=$3,fk_proveedor=$4 WHERE id=$5 RETURNING *',
+        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,req.body.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+
+        if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
+    		for(var i=0;i<req.body.tracking_detalle.length;i++){
+    			if(req.body.tracking_detalle[i].id===0){
+    				const query2={
+		        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado) VALUES($1, $2,$3,$4,$5,$6,$7) RETURNING *',
+		        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,req.params.id,req.body.tracking_detalle[i].estado],
+    				};
+    				client.query(query2,"",function (err, result) {
+    					if (err) {
+	                      console.log(err);
+	                      res.status(400).send(err);
+	                    }	
+    				});
+    			}else{
+    				const query2={
+		        		text: 'UPDATE public.tracking_detalle SET fecha_recepcion=$1,tipo_producto=$2,producto=$3,peso=$4,observacion=$5,tracking_id=$6,estado=$7 WHERE id=$8 RETURNING *',
+		        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,req.params.id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].id],
+    				};
+    				client.query(query2,"",function (err, result) {
+    					if (err) {
+	                      console.log(err);
+	                      res.status(400).send(err);
+	                    }	
+    				});
+    			}	
+
+    		}
+    	}
+
+    	if(req.body.delete_tracking_detalle && req.body.delete_tracking_detalle.length>0){
+    		console.log('borrando');
+    		for(var i=0;i<req.body.delete_tracking_detalle.length;i++){
+    			console.log('id:',req.body.delete_tracking_detalle[i]);
+    			const query3={
+		        		text: 'DELETE FROM public.tracking_detalle WHERE id=$1',
+		        		values: [req.body.delete_tracking_detalle[i]],
+    				};
+    				client.query(query3,"",function (err, result) {
+    					if (err) {
+	                      console.log(err);
+	                      res.status(400).send(err);
+	                    }	
+    				});
+    		}
+    	}
+        res.status(200).send(result.rows[0]);
+    });
+};
