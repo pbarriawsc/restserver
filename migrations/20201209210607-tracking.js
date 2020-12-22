@@ -18,6 +18,26 @@ module.exports = {
       fecha_creacion: {
         type: Sequelize.DATE
       },
+      fecha_recepcion: {
+        type: Sequelize.DATE,
+        allowNull: true,
+      },
+      cantidad_bultos: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      peso: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      volumen: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      tipo_carga:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       fk_proveedor:{
         type: Sequelize.INTEGER,
         allowNull: true,
@@ -34,6 +54,18 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      foto1:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      foto2:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      foto3:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      }
     });
   },
 
