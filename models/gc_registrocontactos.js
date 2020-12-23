@@ -68,5 +68,15 @@ module.exports = (sequelize,DataTypes) => {
             type: DataTypes.STRING,
             unique: false,
         },
+        fechaCreacion: {
+            allowNull: false,
+            type: DataTypes.DATE,
+            unique: false,
+        },
+        fechaActualizacion: {
+            allowNull: false,
+            type: DataTypes.DATE,
+            unique: false,
+        },
 	});
 };
