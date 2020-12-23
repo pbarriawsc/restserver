@@ -41,32 +41,32 @@ module.exports = {
         },
         nombres: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         apellidos: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         email: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         telefono1: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         telefono2: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         texto: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         fechaCreacion: {

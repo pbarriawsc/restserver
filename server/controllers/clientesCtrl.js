@@ -27,6 +27,7 @@ exports.create = (req, res) => {
             console.log(err);
             res.status(400).send(err);
         }
+        console.log(result);
         res.status(200).send(result.rows[0]);
     });
 }
@@ -80,7 +81,7 @@ exports.update = (req, res) => {
           });
           return;
     }
-    client.query('SELECT * FROM public.clientes where id = $1', [req.params.id], function (err, result) {
+    client.query('SELECT * FROM public.clientes where id = $1', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
