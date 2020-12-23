@@ -2,7 +2,7 @@
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('gc_contactos_tipos', {
+    await queryInterface.createTable('gc_registrocontactos', {
         id: {
             allowNull: false,
             autoIncrement: true,
@@ -17,7 +17,7 @@ module.exports = {
             type: Sequelize.INTEGER,
             references: {
                 model: {
-                    tableName: "gc_contactos_tipos ",
+                    tableName: "gc_contactos_tipos",
                     schema: "public"
                 },
                 key: "id",
@@ -30,7 +30,7 @@ module.exports = {
             type: Sequelize.INTEGER,
             references: {
                 model: {
-                    tableName: "usuario ",
+                    tableName: "usuario",
                     schema: "public"
                 },
                 key: "id",
@@ -71,18 +71,18 @@ module.exports = {
         },
         fechaCreacion: {
             allowNull: false,
-            type: DataTypes.DATE,
+            type: Sequelize.DATE,
             unique: false,
         },
         fechaActualizacion: {
             allowNull: false,
-            type: DataTypes.DATE,
+            type: Sequelize.DATE,
             unique: false,
         },
     });
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('gc_contactos_tipos');
+        await queryInterface.dropTable('gc_registrocontactos');
     }
 };

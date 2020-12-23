@@ -55,12 +55,12 @@ module.exports = {
             },
             fechaCreacion: {
                 allowNull: false,
-                type: DataTypes.DATE,
+                type: Sequelize.DATE,
                 unique: false,
             },
             fechaActualizacion: {
                 allowNull: false,
-                type: DataTypes.DATE,
+                type: Sequelize.DATE,
                 unique: false,
             },
         });
