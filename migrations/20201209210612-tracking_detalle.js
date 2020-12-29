@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true
       },
+      codigo_interno:{
+        type: Sequelize.STRING,
+        allowNull: true
+      },
       tipo_producto:{
         type: Sequelize.STRING,
         allowNull: false
