@@ -1,5 +1,7 @@
 const client = require('../config/db.client');
+const jwt=require('jsonwebtoken');
 const lodash= require('lodash');
+const moment=require('moment');
 exports.list = (req, res) => {
 	const arrayFinal=[];
     client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor ', "", function (err, result) {
@@ -168,6 +170,28 @@ exports.create = (req, res) => {
 			        				});
 			        		}
 			        	}
+
+			        	let token= req.get('Authorization');
+					    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+				        if(err){
+				            return res.status(401).json({
+				                success:false,
+				                err
+				            })
+				        }
+				        req.usuario = decoded.usuario;
+				    	});
+			        	const query3={
+			        		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+			        		values:[req.body.fecha_creacion,'POST','Creación del registro de carga',req.usuario.id,result.rows[0].id]
+			        	}
+
+			        	client.query(query3,"",function (err, result) {
+        					if (err) {
+		                      console.log(err);
+		                      res.status(400).send(err);
+		                    }	
+        				});
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
@@ -201,6 +225,28 @@ exports.create = (req, res) => {
 			        				});
 			        		}
 			        	}
+
+			        	let token= req.get('Authorization');
+					    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+				        if(err){
+				            return res.status(401).json({
+				                success:false,
+				                err
+				            })
+				        }
+				        req.usuario = decoded.usuario;
+				        });
+			        	const query3={
+			        		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+			        		values:[req.body.fecha_creacion,'POST','Creación del registro de carga',req.usuario.id,result.rows[0].id]
+			        	}
+
+			        	client.query(query3,"",function (err, result) {
+        					if (err) {
+		                      console.log(err);
+		                      res.status(400).send(err);
+		                    }	
+        				});
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
@@ -240,6 +286,28 @@ exports.create = (req, res) => {
 			        				});
 			        		}
 			        	}
+
+			        	let token= req.get('Authorization');
+					    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+				        if(err){
+				            return res.status(401).json({
+				                success:false,
+				                err
+				            })
+				        }
+				        req.usuario = decoded.usuario;
+				        });
+			        	const query3={
+			        		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+			        		values:[req.body.fecha_creacion,'POST','Creación del registro de carga',req.usuario.id,result.rows[0].id]
+			        	}
+
+			        	client.query(query3,"",function (err, result) {
+        					if (err) {
+		                      console.log(err);
+		                      res.status(400).send(err);
+		                    }	
+        				});
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
@@ -311,6 +379,28 @@ exports.update = (req,res) =>{
     				});
     		}
     	}
+    	let token= req.get('Authorization');
+	    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+        if(err){
+            return res.status(401).json({
+                success:false,
+                err
+            })
+        }
+        req.usuario = decoded.usuario;
+        });
+
+    	const query4={
+    		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+    		values:[moment().format('YYYYMMDD HHmmss'),'PUT','Actualización del registro de carga',req.usuario.id,result.rows[0].id]
+    	}
+
+    	client.query(query4,"",function (err, result) {
+			if (err) {
+              console.log(err);
+              res.status(400).send(err);
+            }	
+		});
         res.status(200).send(result.rows[0]);
     });
 };

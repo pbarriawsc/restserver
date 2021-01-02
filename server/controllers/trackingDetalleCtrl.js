@@ -1,5 +1,7 @@
 const client = require('../config/db.client');
-
+const jwt=require('jsonwebtoken');
+const lodash= require('lodash');
+const moment=require('moment');
 exports.update = (req,res) =>{
     if (!req.params.id) {
         res.status(400).send({
@@ -41,6 +43,29 @@ exports.update = (req,res) =>{
 
 		        }
 	    	});  
+
+	    	let token= req.get('Authorization');
+		    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+	        if(err){
+	            return res.status(401).json({
+	                success:false,
+	                err
+	            })
+	        }
+	        req.usuario = decoded.usuario;
+	        });
+
+	    	const query4={
+	    		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+	    		values:[moment().format('YYYYMMDD HHmmss'),'PUT','Consolidación de carga',req.usuario.id,req.body.tracking_id]
+	    	}
+
+	    	client.query(query4,"",function (err, result) {
+				if (err) {
+	              console.log(err);
+	              res.status(400).send(err);
+	            }	
+			});
     	}
         res.status(200).send(result.rows[0]);
     });
