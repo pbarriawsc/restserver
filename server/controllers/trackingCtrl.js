@@ -4,7 +4,7 @@ const lodash= require('lodash');
 const moment=require('moment');
 exports.list = (req, res) => {
 	const arrayFinal=[];
-    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor ', "", function (err, result) {
+    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor ORDER BY T.id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -324,8 +324,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.tracking SET tipo=$1,estado=$2,fk_cliente=$3,fk_proveedor=$4,fecha_recepcion=$5,cantidad_bultos=$6,peso=$7,volumen=$8,tipo_carga=$9,foto1=$10 WHERE id=$11 RETURNING *',
-        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.foto1,req.body.id],
+        text: 'UPDATE public.tracking SET tipo=$1,estado=$2,fk_cliente=$3,fk_proveedor=$4,fecha_recepcion=$5,cantidad_bultos=$6,peso=$7,volumen=$8,tipo_carga=$9 WHERE id=$10 RETURNING *',
+        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.id],
     };
 
     client.query(query,"",function (err, result) {
@@ -402,5 +402,78 @@ exports.update = (req,res) =>{
             }	
 		});
         res.status(200).send(result.rows[0]);
+    });
+};
+
+exports.uploadFiles = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'UPDATE public.tracking SET foto1=$1 WHERE id=$2 RETURNING *',
+        values: [req.files.foto1.data,req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        console.log('files',req.files);
+        res.status(200).send(result.rows[0]);
+    });
+};
+
+exports.uploadFiles = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'UPDATE public.tracking SET foto1=$1 WHERE id=$2 RETURNING *',
+        values: [req.files.foto1.data,req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        console.log('files',req.files);
+        res.status(200).send(result.rows[0]);
+    });
+};
+
+
+exports.getImage = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto1 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        console.log(result);
+        res.end(result.rows[0].foto1);
     });
 };

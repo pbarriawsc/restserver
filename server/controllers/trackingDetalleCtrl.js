@@ -68,5 +68,7 @@ exports.update = (req,res) =>{
 			});
     	}
         res.status(200).send(result.rows[0]);
+        res.end();
+        res.connection.destroy();
     });
 }

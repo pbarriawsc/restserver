@@ -8,6 +8,8 @@ app.post(`${prefix}`,verifyToken, trackingController.create)
 app.get(`${prefix}`,verifyToken, trackingController.list)
 app.get(`${prefix}/cliente/:id`,verifyToken, trackingController.listByClient)
 app.put(`${prefix}/:id`,verifyToken, trackingController.update)
+app.post(`${prefix}/uploadFiles/:id`,verifyToken, trackingController.uploadFiles);
+app.get(`${prefix}/uploadFiles/:id`,[], trackingController.getImage);
 
 /*
 app.put(`${prefix}/:id`, function (req, res) {
