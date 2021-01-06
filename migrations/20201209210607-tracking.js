@@ -65,6 +65,14 @@ module.exports = {
       foto3:{
         type: Sequelize.BLOB,
         allowNull: true,
+      },
+      foto4:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      foto5:{
+        type: Sequelize.BLOB,
+        allowNull: true,
       }
     });
   },
