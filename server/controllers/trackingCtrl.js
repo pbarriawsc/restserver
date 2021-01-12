@@ -494,7 +494,6 @@ exports.getPhoto1 = (req,res) =>{
             console.log(err);
             res.status(400).send(err);
         }
-        console.log(result);
         res.end(result.rows[0].foto1);
     });
 };
@@ -518,7 +517,6 @@ exports.getPhoto2 = (req,res) =>{
             console.log(err);
             res.status(400).send(err);
         }
-        console.log(result);
         res.end(result.rows[0].foto2);
     });
 };
@@ -542,7 +540,6 @@ exports.getPhoto3 = (req,res) =>{
             console.log(err);
             res.status(400).send(err);
         }
-        console.log(result);
         res.end(result.rows[0].foto3);
     });
 };
@@ -566,7 +563,6 @@ exports.getPhoto4 = (req,res) =>{
             console.log(err);
             res.status(400).send(err);
         }
-        console.log(result);
         res.end(result.rows[0].foto4);
     });
 };
@@ -590,7 +586,6 @@ exports.getPhoto5 = (req,res) =>{
             console.log(err);
             res.status(400).send(err);
         }
-        console.log(result);
         res.end(result.rows[0].foto5);
     });
 };

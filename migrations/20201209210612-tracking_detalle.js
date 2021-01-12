@@ -51,6 +51,18 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      foto1:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      foto2:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      foto3:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
     });
   },
 
