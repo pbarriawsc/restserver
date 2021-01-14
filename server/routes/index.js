@@ -39,5 +39,6 @@ app.use(require('./gc_propuestas_tarifas'));
 app.use(require('./gc_propuestas_serviciosadicionales'));
 app.use(require('./trackingDetalle'));
 app.use(require('./trackingHistorial'));
+app.use(require('./contenedores'));
 
 module.exports=app;
