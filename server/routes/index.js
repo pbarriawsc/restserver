@@ -37,7 +37,13 @@ app.use(require('./clientes'));
 app.use(require('./gc_propuestas_cabeceras'));
 app.use(require('./gc_propuestas_tarifas'));
 app.use(require('./gc_propuestas_serviciosadicionales'));
+<<<<<<< HEAD
 app.use(require('./gc_clientes'));
 app.use(require('./clientes_direcciones'));
+=======
+app.use(require('./trackingDetalle'));
+app.use(require('./trackingHistorial'));
+app.use(require('./contenedores'));
+>>>>>>> 503ea754cca84361c57042413a8f8ef8fdbb2c59
 
 module.exports=app;

@@ -1,8 +1,10 @@
 const client = require('../config/db.client');
+const jwt=require('jsonwebtoken');
 const lodash= require('lodash');
+const moment=require('moment');
 exports.list = (req, res) => {
 	const arrayFinal=[];
-    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor ', "", function (err, result) {
+    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor ORDER BY T.id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -127,7 +129,7 @@ exports.create = (req, res) => {
     }
 
     if(req.body.proveedor){
-    	if(parseInt(req.body.proveedor.id)===0){
+    	if(parseInt(req.body.proveedor.id)===0 && req.body.proveedor.nombre.length>0){
     		const query0 = {
 		        text: 'INSERT INTO public.proveedores(codigo, nombre) VALUES($1, $2) RETURNING *',
 		        values: [req.body.proveedor.codigo, req.body.proveedor.nombre],
@@ -168,6 +170,28 @@ exports.create = (req, res) => {
 			        				});
 			        		}
 			        	}
+
+			        	let token= req.get('Authorization');
+					    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+				        if(err){
+				            return res.status(401).json({
+				                success:false,
+				                err
+				            })
+				        }
+				        req.usuario = decoded.usuario;
+				    	});
+			        	const query3={
+			        		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+			        		values:[req.body.fecha_creacion,'POST','Creación del registro de carga',req.usuario.id,result.rows[0].id]
+			        	}
+
+			        	client.query(query3,"",function (err, result) {
+        					if (err) {
+		                      console.log(err);
+		                      res.status(400).send(err);
+		                    }	
+        				});
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
@@ -201,6 +225,28 @@ exports.create = (req, res) => {
 			        				});
 			        		}
 			        	}
+
+			        	let token= req.get('Authorization');
+					    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+				        if(err){
+				            return res.status(401).json({
+				                success:false,
+				                err
+				            })
+				        }
+				        req.usuario = decoded.usuario;
+				        });
+			        	const query3={
+			        		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+			        		values:[req.body.fecha_creacion,'POST','Creación del registro de carga',req.usuario.id,result.rows[0].id]
+			        	}
+
+			        	client.query(query3,"",function (err, result) {
+        					if (err) {
+		                      console.log(err);
+		                      res.status(400).send(err);
+		                    }	
+        				});
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
@@ -240,6 +286,28 @@ exports.create = (req, res) => {
 			        				});
 			        		}
 			        	}
+
+			        	let token= req.get('Authorization');
+					    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+				        if(err){
+				            return res.status(401).json({
+				                success:false,
+				                err
+				            })
+				        }
+				        req.usuario = decoded.usuario;
+				        });
+			        	const query3={
+			        		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+			        		values:[req.body.fecha_creacion,'POST','Creación del registro de carga',req.usuario.id,result.rows[0].id]
+			        	}
+
+			        	client.query(query3,"",function (err, result) {
+        					if (err) {
+		                      console.log(err);
+		                      res.status(400).send(err);
+		                    }	
+        				});
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
@@ -311,6 +379,213 @@ exports.update = (req,res) =>{
     				});
     		}
     	}
+    	let token= req.get('Authorization');
+	    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+        if(err){
+            return res.status(401).json({
+                success:false,
+                err
+            })
+        }
+        req.usuario = decoded.usuario;
+        });
+
+    	const query4={
+    		text:'INSERT INTO public.tracking_historial(fecha, accion, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4,$5)',
+    		values:[moment().format('YYYYMMDD HHmmss'),'PUT','Actualización del registro de carga',req.usuario.id,result.rows[0].id]
+    	}
+
+    	client.query(query4,"",function (err, result) {
+			if (err) {
+              console.log(err);
+              res.status(400).send(err);
+            }	
+		});
         res.status(200).send(result.rows[0]);
+    });
+};
+
+exports.uploadFiles = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'UPDATE public.tracking SET foto1=$1 WHERE id=$2 RETURNING *',
+        values: [req.files.foto1.data,req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        console.log('files',req.files);
+        res.status(200).send(result.rows[0]);
+    });
+};
+
+exports.uploadFiles = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+    let queryValues=[null,null,null,null,null,req.params.id]
+    if(req.files.foto1){
+    	queryValues[0]=req.files.foto1.data;
+    }
+
+    if(req.files.foto2){
+    	queryValues[1]=req.files.foto2.data;
+    }
+
+    if(req.files.foto3){
+    	queryValues[2]=req.files.foto3.data;
+    }
+
+    if(req.files.foto4){
+    	queryValues[3]=req.files.foto4.data;
+    }
+
+    if(req.files.foto5){
+    	queryValues[4]=req.files.foto5.data;
+    }
+
+
+	const query = {
+        text: 'UPDATE public.tracking SET foto1=$1,foto2=$2,foto3=$3,foto4=$4,foto5=$5 WHERE id=$6 RETURNING *',
+        values: queryValues,
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows[0]);
+    });
+};
+
+
+exports.getPhoto1 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto1 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto1);
+    });
+};
+
+exports.getPhoto2 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto2 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto2);
+    });
+};
+
+exports.getPhoto3 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto3 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto3);
+    });
+};
+
+exports.getPhoto4 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto4 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto4);
+    });
+};
+
+exports.getPhoto5 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto5 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto5);
     });
 };

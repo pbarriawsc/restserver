@@ -1,3 +1,4 @@
+const path =require('path');
 //================================
 //port
 //================================
@@ -11,4 +12,5 @@ process.env.EXPIRATION_TOKEN=60 * 60 * 24 * 30; // 30 dias.
 //secret token
 //================================
 process.env.SECRET='QO2cvJmJdsIQ23SqU7ZYdgJGXamB9VIc9QCJV0wWeLw=';
+process.env.ROOT_DIR=path.resolve(__dirname).replace("config","");
 

@@ -5,6 +5,7 @@ const bodyParser = require('body-parser')
 const { request } = require('express')
 const Sequelize=require('sequelize')
 const cors = require('cors')
+const fileupload = require("express-fileupload");
 /*
 var corsOptions = {
   origin: 'http://example.com',
@@ -19,6 +20,7 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 app.use(cors())
+app.use(fileupload());
 app.use(require('./routes/index'))
 
 app.get('/', function (req, res) {

@@ -8,60 +8,32 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-     await queryInterface.createTable('tracking_detalle', {
+      await queryInterface.createTable('tracking_historial', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fecha_recepcion: {
+      fecha: {
         type: Sequelize.DATE,
         allowNull: true
       },
-      fecha_consolidado: {
-        type: Sequelize.DATE,
-        allowNull: true
-      },
-      codigo_interno:{
+      accion:{
         type: Sequelize.STRING,
         allowNull: true
-      },
-      tipo_producto:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      producto:{
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      peso:{
-        type: Sequelize.FLOAT,
-        allowNull: false
       },
       observacion:{
         type: Sequelize.TEXT,
         allowNull: false
       },
-      tracking_id:{
+      fk_usuario:{
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      estado:{
+      fk_tracking:{
         type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      foto1:{
-        type: Sequelize.BLOB,
-        allowNull: true,
-      },
-      foto2:{
-        type: Sequelize.BLOB,
-        allowNull: true,
-      },
-      foto3:{
-        type: Sequelize.BLOB,
-        allowNull: true,
+        allowNull: false
       },
     });
   },
@@ -73,6 +45,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('tracking_detalle');
+     await queryInterface.dropTable('tracking_historial');
   }
 };
