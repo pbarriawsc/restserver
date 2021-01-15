@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('gc_propuestas_serviciosadicionales', {
 		id: {
 				allowNull: false,
@@ -36,12 +36,12 @@ module.exports = (sequelize,DataTypes) => {
 		},
 		fechaCreacion: {
 				allowNull: false,
-				type: DataTypes.DATE,
+				type: Sequelize.DATE,
 				unique: false,
 		},
 		fechaActualizacion: {
 				allowNull: false,
-				type: DataTypes.DATE,
+				type: Sequelize.DATE,
 				unique: false,
 		},
 	});

@@ -1,16 +1,16 @@
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('direcciones_tipos', {
 		id: {
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.INTEGER
+			type: Sequelize.INTEGER
         },
         nombre: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
 	});

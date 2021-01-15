@@ -32,7 +32,7 @@ exports.create = (req, res) => {
         values: [req.body.codigo, req.body.nombre, req.body.fk_pais, req.body.fk_region],
     };
 
-    client.query(query,"",function (err, result) 
+    client.query(query,"",function (err, result)
     {
         if (err) {
             console.log(err);
@@ -78,6 +78,16 @@ exports.update = (req, res) => {
         res.status(200).send(result.rows[0]);
     });
 }
+
+  exports.listByRegion = (req, res) => {
+    client.query('SELECT * FROM public.comunas where fk_region = $1 order by nombre asc', [parseInt(Object.values(req.params))], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });
+  };
 
   exports.list = (req, res) => {
     client.query(`

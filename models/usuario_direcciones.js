@@ -2,16 +2,16 @@
 const {
   Model
 } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, Sequelize) => {
   class usuario extends Model {
     
     static associate(models) {
     }
   };
   usuario.init({
-    id: DataTypes.INTEGER,
-    nombre: DataTypes.STRING,
-    password: DataTypes.STRING
+    id: Sequelize.INTEGER,
+    nombre: Sequelize.STRING,
+    password: Sequelize.STRING
   }, {
     sequelize,
     modelName: 'usuario',
@@ -22,11 +22,11 @@ module.exports = (sequelize, DataTypes) => {
   return usuario;
 };*/
 
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 // We export a function that defines the model.
 // This function will automatically receive as parameter the Sequelize connection object.
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('usuario_direcciones', {
 		// The following specification of the 'id' attribute could be omitted
 		// since it is the default.
@@ -34,51 +34,51 @@ module.exports = (sequelize,DataTypes) => {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: DataTypes.INTEGER
+        type: Sequelize.INTEGER
     },
     nombre: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
     },
     pais: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
     },
     region: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
     },
     comuna: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
     },
     direccion: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
     },
     numero: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
         },
     latitud: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
         },
     longitud: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
         },
     radio: {
         allowNull: false,
-        type: DataTypes.STRING,
+        type: Sequelize.STRING,
         unique: false,
         },
 	});

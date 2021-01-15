@@ -2,16 +2,16 @@
 const {
   Model
 } = require('sequelize');
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, Sequelize) => {
   class usuario extends Model {
     
     static associate(models) {
     }
   };
   usuario.init({
-    id: DataTypes.INTEGER,
-    nombre: DataTypes.STRING,
-    password: DataTypes.STRING
+    id: Sequelize.INTEGER,
+    nombre: Sequelize.STRING,
+    password: Sequelize.STRING
   }, {
     sequelize,
     modelName: 'usuario',
@@ -22,11 +22,11 @@ module.exports = (sequelize, DataTypes) => {
   return usuario;
 };*/
 
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
 // We export a function that defines the model.
 // This function will automatically receive as parameter the Sequelize connection object.
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('usuario', {
 		// The following specification of the 'id' attribute could be omitted
 		// since it is the default.
@@ -34,41 +34,41 @@ module.exports = (sequelize,DataTypes) => {
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.INTEGER
+			type: Sequelize.INTEGER
     },
     rut: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: true,
     },
     usuario: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: true,
     },
 	nombre: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: false,
     },
     password: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: false,
     },
     apellidos: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: false,
     },
     email: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: false,
     },
     telefono: {
 			allowNull: false,
-			type: DataTypes.STRING,
+			type: Sequelize.STRING,
 			unique: false,
 		},
 	});

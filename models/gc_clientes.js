@@ -1,7 +1,7 @@
 const { Sequelize } = require('sequelize');
 
 module.exports = (sequelize,Sequelize) => {
-	sequelize.define('gc_propuestas_tarifas', {
+	sequelize.define('gc_clientes', {
 		id: {
 				allowNull: false,
 				autoIncrement: true,
@@ -12,32 +12,24 @@ module.exports = (sequelize,Sequelize) => {
 				allowNull: false,
 				type: Sequelize.INTEGER
 		},
-		origen: {
-				type: Sequelize.STRING
-		},
-		almacenaje: {
-				type: Sequelize.STRING
-		},
-		destino: {
-				type: Sequelize.STRING
-		},
-		cbmPeso: {
-				type: Sequelize.FLOAT
-		},
-		unidadesACobrar: {
-				type: Sequelize.FLOAT
-		},
-		valorUnitarioUsd: {
-				type: Sequelize.FLOAT
-		},
-		tarifaUsd: {
-				type: Sequelize.FLOAT
-		},
-		fk_cabecera: {
+		fk_contacto: {
 				type: Sequelize.INTEGER,
 				references: {
 						model: {
-								tableName: "gc_propuestas_cabeceras",
+								tableName: "gc_registrocontactos",
+								schema: "public"
+						},
+						key: "id",
+						onDelete: "RESTRICT",
+						onUpdate: "RESTRICT",
+				},
+				allowNull: false
+		},
+		fk_cliente: {
+				type: Sequelize.INTEGER,
+				references: {
+						model: {
+								tableName: "clientes",
 								schema: "public"
 						},
 						key: "id",
