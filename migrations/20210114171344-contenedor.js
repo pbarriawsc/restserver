@@ -31,6 +31,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
+      volumen:{
+        type: Sequelize.FLOAT,
+        allowNull: false,
+      },
       estado: {
         type: Sequelize.INTEGER,
         allowNull: false,

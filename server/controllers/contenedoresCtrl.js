@@ -21,8 +21,8 @@ exports.create = (req, res) => {
     }
 
     const query = {
-        text: 'INSERT INTO public.contenedor(codigo, reserva,viaje,estado) VALUES($1, $2, $3,$4) RETURNING *',
-        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.estado],
+        text: 'INSERT INTO public.contenedor(codigo, reserva,viaje,volumen,estado) VALUES($1, $2, $3,$4,$5) RETURNING *',
+        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.volumen,req.body.estado],
     };
 
     client.query(query,"",function (err, result) {
@@ -43,8 +43,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.contenedor SET codigo=$1,reserva=$2,viaje=$3,estado=$4 WHERE id=$5 RETURNING *',
-        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.estado,req.body.id],
+        text: 'UPDATE public.contenedor SET codigo=$1,reserva=$2,viaje=$3,estado=$4,volumen=$5 WHERE id=$6 RETURNING *',
+        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.estado,req.body.volumen,req.body.id],
     };
 
     client.query(query,"",function (err, result) {
