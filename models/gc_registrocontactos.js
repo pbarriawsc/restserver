@@ -1,12 +1,12 @@
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('gc_registrocontactos', {
 		id: {
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.INTEGER,
+			type: Sequelize.INTEGER,
         },
         estado: {
             allowNull: false,
@@ -40,42 +40,42 @@ module.exports = (sequelize,DataTypes) => {
         },
         nombres: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         apellidos: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         email: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         telefono1: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         telefono2: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         texto: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         fechaCreacion: {
             allowNull: false,
-            type: DataTypes.DATE,
+            type: Sequelize.DATE,
             unique: false,
         },
         fechaActualizacion: {
             allowNull: false,
-            type: DataTypes.DATE,
+            type: Sequelize.DATE,
             unique: false,
         },
 	});

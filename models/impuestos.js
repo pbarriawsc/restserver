@@ -1,26 +1,26 @@
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('impuestos', {
 		id: {
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.INTEGER
+			type: Sequelize.INTEGER
         },
         codigo: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         nombre: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         valor: {
             allowNull: false,
-            type: DataTypes.FLOAT,
+            type: Sequelize.FLOAT,
             unique: false,
         },
 	});

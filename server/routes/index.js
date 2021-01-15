@@ -37,5 +37,7 @@ app.use(require('./clientes'));
 app.use(require('./gc_propuestas_cabeceras'));
 app.use(require('./gc_propuestas_tarifas'));
 app.use(require('./gc_propuestas_serviciosadicionales'));
+app.use(require('./gc_clientes'));
+app.use(require('./clientes_direcciones'));
 
 module.exports=app;

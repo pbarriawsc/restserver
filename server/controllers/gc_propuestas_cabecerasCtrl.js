@@ -105,6 +105,83 @@ exports.update = (req, res) => {
     });
 }
 
+exports.findByPdfSerAd = (req, res) => {
+  client.query(`
+      Select
+      TO_CHAR(tar."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+      , TO_CHAR(tar."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
+      , tar.id
+      , tar.origen
+      , tar.tarifa
+      , tar.destino
+      , tar.estado
+      , tar.fk_cabecera
+      FROM public.gc_propuestas_serviciosadicionales as tar
+      where tar.estado=0 and tar.fk_cabecera = $1
+      `, [req.params.id], function (err, result) {
+      if (err) {
+          console.log(err);
+          res.status(400).send(err);
+      }
+      res.status(200).send(result.rows);
+  });
+};
+
+exports.findByPdfTarifa = (req, res) => {
+  client.query(`
+      Select
+      TO_CHAR(tar."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+      , TO_CHAR(tar."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
+      , tar.id
+      , tar.origen
+      , tar.almacenaje
+      , tar.destino
+      , tar."cbmPeso"
+      , tar."valorUnitarioUsd"
+      , tar."unidadesACobrar"
+      , tar."tarifaUsd"
+      , tar."fechaCreacion"
+      , tar."fechaActualizacion"
+      , tar.estado
+      , tar.fk_cabecera
+      FROM public.gc_propuestas_tarifas as tar
+      where tar.estado=0 and tar.fk_cabecera = $1
+      `, [req.params.id], function (err, result) {
+      if (err) {
+          console.log(err);
+          res.status(400).send(err);
+      }
+      res.status(200).send(result.rows);
+  });
+};
+
+exports.findByPdfCabecera = (req, res) => {
+  client.query(`
+      Select
+      cabe."volumenEstimado"
+      , TO_CHAR(cabe."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+      , TO_CHAR(cabe."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
+      , cabe."tipoDeCarga"
+      , cabe.servicio
+      , cabe."pesoEstimado"
+      , cabe.id
+      , cabe.fk_contacto
+      , cabe.estado
+      , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
+      WHEN cabe.estado = 1 THEN 'APROBADA'
+      WHEN cabe.estado = 2 THEN 'ELIMINADA'
+      else 'INDEFINIDO' end as estado_nombre
+      , cabe."direccionDespacho"
+      FROM public.gc_propuestas_cabeceras as cabe
+      where cabe.id = $1`, [req.params.id], function (err, result) {
+      if (err) {
+          console.log(err);
+          res.status(400).send(err);
+      }
+      res.status(200).send(result.rows);
+  });
+};
+
 exports.findByContacto = (req, res) => {
   client.query(`
     Select
@@ -117,9 +194,13 @@ exports.findByContacto = (req, res) => {
     , cabe.id
     , cabe.fk_contacto
     , cabe.estado
+    , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
+    WHEN cabe.estado = 1 THEN 'APROBADA'
+    WHEN cabe.estado = 2 THEN 'ELIMINADA'
+    else 'INDEFINIDO' end as estado_nombre
     , cabe."direccionDespacho"
     FROM public.gc_propuestas_cabeceras as cabe
-    where cabe.estado=0 and fk_contacto = $1
+    where fk_contacto = $1
     order by cabe.id desc
     `, [parseInt(Object.values(req.params))], function (err, result) {
       if (err) {
@@ -142,9 +223,12 @@ exports.findByContacto = (req, res) => {
       , cabe.id
       , cabe.fk_contacto
       , cabe.estado
+      , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
+      WHEN cabe.estado = 1 THEN 'APROBADA'
+      WHEN cabe.estado = 2 THEN 'ELIMINADA'
+      else 'INDEFINIDO' end as estado_nombre
       , cabe."direccionDespacho"
       FROM public.gc_propuestas_cabeceras as cabe
-      where cabe.estado=0
       order by cabe.id desc
     `, "", function (err, result) {
         if (err) {
@@ -191,3 +275,35 @@ exports.findByContacto = (req, res) => {
             });
         });
     };
+
+    exports.Aprobar = (req, res) => {
+        var moment = require('moment');
+
+        console.log(" VALIDAR ID EDITAR "+req.params.id);
+        console.log(" VALIDAR ID EDITAR "+req.params.id);
+        console.log(" VALIDAR ID EDITAR "+req.params.id);
+
+        if (!req.params.id) {
+            res.status(400).send({
+                message: "DEBE INGRESAR UN ID VALIDO",
+                success:false
+            });
+            return;
+        }
+
+        let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+
+        const query = {
+            text: 'UPDATE public.gc_propuestas_cabeceras SET estado=1, "fechaActualizacion"=$1 where id=$2 RETURNING *',
+            values: [fecha, req.params.id],
+        };
+
+        client.query(query,"",function (err, result)
+        {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows[0]);
+        });
+    }

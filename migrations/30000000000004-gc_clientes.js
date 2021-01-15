@@ -8,7 +8,7 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-        await queryInterface.createTable('gc_propuestas_cabeceras', {
+        await queryInterface.createTable('gc_clientes', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -19,26 +19,37 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.INTEGER
             },
-            servicio: {
-                type: Sequelize.STRING
-            },
-            tipoCarga: {
-                type: Sequelize.STRING
-            },
-            volumenEstimado: {
-                type: Sequelize.FLOAT
-            },
-            pesoEstimado: {
-                type: Sequelize.FLOAT
-            },
-            direccionDespacho: {
-                type: Sequelize.STRING
-            },
             fk_contacto: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: {
                         tableName: "gc_registrocontactos",
+                        schema: "public"
+                    },
+                    key: "id",
+                    onDelete: "RESTRICT",
+                    onUpdate: "RESTRICT",
+                },
+                allowNull: false
+            },
+            fk_cliente: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: {
+                        tableName: "clientes",
+                        schema: "public"
+                    },
+                    key: "id",
+                    onDelete: "RESTRICT",
+                    onUpdate: "RESTRICT",
+                },
+                allowNull: false
+            },
+            fk_direccion: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: {
+                        tableName: "clientes_direcciones",
                         schema: "public"
                     },
                     key: "id",
@@ -67,6 +78,6 @@ module.exports = {
          * Example:
          * await queryInterface.dropTable('users');
          */
-        await queryInterface.dropTable('comunas');
+        await queryInterface.dropTable('gc_clientes');
     }
 };

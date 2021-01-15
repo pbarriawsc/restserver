@@ -1,31 +1,31 @@
-const { DataTypes } = require('sequelize');
+const { Sequelize } = require('sequelize');
 
-module.exports = (sequelize,DataTypes) => {
+module.exports = (sequelize,Sequelize) => {
 	sequelize.define('menu', {
 		id: {
 			allowNull: false,
 			autoIncrement: true,
 			primaryKey: true,
-			type: DataTypes.INTEGER
+			type: Sequelize.INTEGER
         },
         nombre: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         permiso: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         menuPadre: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
         url: {
             allowNull: false,
-            type: DataTypes.STRING,
+            type: Sequelize.STRING,
             unique: false,
         },
 	});

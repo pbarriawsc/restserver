@@ -2,9 +2,12 @@ const express = require('express')
 const app = express()
 const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/comunas';
+const prefixByRegion='/api/comunas_region';
 const comunasController=require('../controllers/comunasCtrl');
 
 app.get(`${prefix}`,verifyToken,comunasController.list);
+
+app.get(`${prefixByRegion}/:id`,verifyToken,comunasController.listByRegion);
 
 app.get(`${prefix}/:id`,verifyToken, comunasController.findOneBy)
 
