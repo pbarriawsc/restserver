@@ -142,9 +142,10 @@ exports.create = (req, res) => {
 	            console.log(err0);
 	            res.status(400).send(err0);
 	        }
+	        console.log('aqui 1');
 	        const query = {
-		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado) VALUES($1,$2,$3,$4) RETURNING *',
-		        values: [result.rows[0].id, req.body.tipo,req.body.fecha_creacion,req.body.estado],
+		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+		        values: [result.rows[0].id,req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga],
 		    	};
 
 			    client.query(query,"",function (err, result) {
@@ -197,9 +198,10 @@ exports.create = (req, res) => {
 			    });
 	        });
     	}else{
+    		console.log('aqui 2');
     		const query = {
-		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado) VALUES($1,$2,$3,$4) RETURNING *',
-		        values: [req.body.proveedor.id, req.body.tipo,req.body.fecha_creacion,req.body.estado],
+		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+		        values: [req.body.proveedor.id, req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga],
 		    	};
 
 			    client.query(query,"",function (err, result) {
@@ -252,11 +254,13 @@ exports.create = (req, res) => {
 			    });
     	}
     }else{
-    	var textQuery='INSERT INTO public.tracking(tipo,fecha_creacion,estado) VALUES($1,$2,$3) RETURNING *';
-    	var valuesQuery=[req.body.tipo,req.body.fecha_creacion,req.body.estado];
+    	console.log('aqui 3');
+    	var textQuery='INSERT INTO public.tracking(tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,fk_proveedor) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *';
+    	var valuesQuery=[req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.fk_proveedor];
     	if(req.body.fk_cliente){
-    		textQuery='INSERT INTO public.tracking(tipo,fecha_creacion,estado,fk_cliente) VALUES($1,$2,$3,$4) RETURNING *'
-    		valuesQuery=[req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente];
+    		console.log('aqui 4');
+    		textQuery='INSERT INTO public.tracking(tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,fk_proveedor) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *'
+    		valuesQuery=[req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.fk_proveedor];
     	}
     	const query = {
 		        text: textQuery,
