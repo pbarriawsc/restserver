@@ -60,6 +60,67 @@ exports.list = (req, res) => {
     });   
   };
 
+  exports.listByEstado = (req, res) => {
+	const arrayFinal=[];
+    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.estado=$1 ORDER BY T.id DESC', [req.params.estado], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        const resultHeader=result;
+        const ids=[];
+        const idsClientes=[];
+        if(result.rows.length>0){
+        	for(var i=0;i<result.rows.length;i++){
+        		ids.push(result.rows[i].id);
+        	}
+
+        	let queryIn='';
+		        if(ids.length>0){
+		        	queryIn+='WHERE tracking_id IN (';
+		        	for(var x=0;x<ids.length;x++){
+		        		if(x!==ids.length-1){
+		        			queryIn+=ids[x]+','
+		        		}else{
+		        			queryIn+=ids[x]
+		        		}
+		        	}
+		        	queryIn+=')';
+		        }
+
+		        let queryFinal='SELECT * FROM public.tracking_detalle '+queryIn;
+		        if(req.params.estado===1 || req.params.estado==='1'){
+		        	queryFinal+=' and estado<2';
+		        }
+		        client.query(queryFinal, "", function (err, result) {
+			        if (err) {
+			            console.log(err);
+			            res.status(400).send(err);
+			        }
+			        if(resultHeader.rows.length>0){
+			        	for(var i=0;i<resultHeader.rows.length;i++){
+			        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
+			        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
+			        		if(arrayFind){
+			        			obj.tracking_detalle=arrayFind;
+			        		}else{
+			        			obj.tracking_detalle=[];
+			        		}
+			        		arrayFinal.push(obj);
+			        	}
+		        		
+			        }
+
+
+
+			        res.status(200).send(arrayFinal);
+		        });
+        }else{
+        	res.status(200).send(arrayFinal);
+        }
+    });   
+  };
+
 exports.listByClient = (req, res) => {
 	const arrayFinal=[];
     client.query('SELECT * FROM public.tracking where fk_cliente=$1', [parseInt(req.params.id)], function (err, result) {
