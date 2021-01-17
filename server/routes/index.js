@@ -42,5 +42,6 @@ app.use(require('./clientes_direcciones'));
 app.use(require('./trackingDetalle'));
 app.use(require('./trackingHistorial'));
 app.use(require('./contenedores'));
+app.use(require('./contenedorDetalle'));
 
 module.exports=app;
