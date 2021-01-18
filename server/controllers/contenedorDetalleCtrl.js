@@ -44,10 +44,6 @@ exports.create = (req, res) => {
     			arrayTracking.push(req.body.detalle[i].tracking_id);
     		}
     	}
-        const query0={
-            text: 'SELECT *FROM public.contenedor_detalle WHERE fk_contenedor=$1 AND fk_tracking_detalle=$2',
-            values: [req.params.id,req.body.detalle[i].id],
-        };
 
     	const query = {
 	        text: 'INSERT INTO public.contenedor_detalle(fk_contenedor, fk_tracking_detalle) VALUES($1, $2) RETURNING *',
@@ -59,32 +55,21 @@ exports.create = (req, res) => {
 	        	values: [req.body.detalle[i].id,2]
 	    };
 
-        /*client.query(query0,"",function (err, result) {
-            if (err) {
-                console.log(err);
-                res.status(400).send(err);
-            }
-            if(result.rows.length===0){//validar que no existe el registro en el contenedor para evitar duplicidad de data
-                //NO FUNCIONA
-            }
-           // res.status(200).send(result.rows[0]);
-        });*/
-
-        client.query(query,"",function (err, result) {
-                    if (err) {
-                        console.log(err);
-                        res.status(400).send(err);
-                    }
-                   // res.status(200).send(result.rows[0]);
-                });
+	    client.query(query,"",function (err, result) {
+	        if (err) {
+	            console.log(err);
+	            res.status(400).send(err);
+	        }
+	       // res.status(200).send(result.rows[0]);
+	    });
 
         client.query(query2,"",function (err, result) {
-            if (err) {
-                console.log(err);
-                res.status(400).send(err);
-            }
-            //res.status(200).send(result.rows[0]);
-         }); 
+	        if (err) {
+	            console.log(err);
+	            res.status(400).send(err);
+	        }
+	        //res.status(200).send(result.rows[0]);
+	     });
     }
 
     
