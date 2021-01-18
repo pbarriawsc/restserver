@@ -149,7 +149,7 @@ exports.findByCabecera = (req, res) => {
     FROM public.gc_propuestas_tarifas as tar
     where tar.estado=0 and tar.fk_cabecera = $1
     order by tar.id desc
-    `, [ parseInt(Object.values(req.params.id)) ], function (err, result) {
+    `, [ parseInt(Object.values(req.params)) ], function (err, result) {
     if (err) {
         console.log(err);
             res.status(400).send(err);

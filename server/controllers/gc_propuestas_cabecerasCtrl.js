@@ -3,7 +3,19 @@ const client = require('../config/db.client');
 exports.create = (req, res) => {
     var moment = require('moment');
 
-    if (!req.body.servicio) {
+    if (!req.body.nombreCliente) {
+        res.status(400).send({
+            message: "EL NOMBRE DEL CLIENTE ES OBLIGATORIO",
+            success:false
+        });
+        return;
+    }else if (!req.body.atencionA) {
+        res.status(400).send({
+            message: "LA ATENCION A ES OBLIGATORIA",
+            success:false
+        });
+        return;
+    }else if (!req.body.servicio) {
         res.status(400).send({
             message: "EL SERVICIO ES OBLIGATORIO",
             success:false
@@ -38,8 +50,8 @@ exports.create = (req, res) => {
     let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
 
     const query = {
-        text: 'INSERT INTO public.gc_propuestas_cabeceras("volumenEstimado", "tipoDeCarga", servicio, "pesoEstimado", fk_contacto, "direccionDespacho", "fechaCreacion", "fechaActualizacion", estado) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-        values: [req.body.volumenEstimado, req.body.tipoDeCarga, req.body.servicio, req.body.pesoEstimado, req.body.fk_contacto, req.body.direccionDespacho, fecha, fecha, 0],
+        text: 'INSERT INTO public.gc_propuestas_cabeceras("volumenEstimado", "tipoDeCarga", servicio, "pesoEstimado", fk_contacto, "direccionDespacho", "fechaCreacion", "fechaActualizacion", estado, "nombreCliente", "atencionA") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
+        values: [req.body.volumenEstimado, req.body.tipoDeCarga, req.body.servicio, req.body.pesoEstimado, req.body.fk_contacto, req.body.direccionDespacho, fecha, fecha, 0, req.body.nombreCliente, req.body.atencionA],
     };
 
     client.query(query,"",function (err, result)
@@ -56,7 +68,19 @@ exports.update = (req, res) => {
     var moment = require('moment');
 
     // Validate request
-    if (!req.body.servicio) {
+    if (!req.body.nombreCliente) {
+        res.status(400).send({
+            message: "EL NOMBRE DEL CLIENTE ES OBLIGATORIO",
+            success:false
+        });
+        return;
+    }else if (!req.body.atencionA) {
+        res.status(400).send({
+            message: "LA ATENCION A ES OBLIGATORIA",
+            success:false
+        });
+        return;
+    }else if (!req.body.servicio) {
         res.status(400).send({
             message: "EL SERVICIO ES OBLIGATORIO",
             success:false
@@ -91,8 +115,8 @@ exports.update = (req, res) => {
     let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
 
     const query = {
-        text: 'UPDATE public.gc_propuestas_cabeceras SET "volumenEstimado"=$1, "tipoDeCarga"=$2, servicio=$3, "pesoEstimado"=$4, fk_contacto=$5, "direccionDespacho"=$6,"fechaActualizacion"=$7 where id=$8 RETURNING *',
-        values: [req.body.volumenEstimado, req.body.tipoDeCarga, req.body.servicio, req.body.pesoEstimado, req.body.fk_contacto, req.body.direccionDespacho, fecha, req.body.id],
+        text: 'UPDATE public.gc_propuestas_cabeceras SET "volumenEstimado"=$1, "tipoDeCarga"=$2, servicio=$3, "pesoEstimado"=$4, fk_contacto=$5, "direccionDespacho"=$6, "fechaActualizacion"=$7, "nombreCliente"=$8, "atencionA"=$9 where id=$10 RETURNING *',
+        values: [req.body.volumenEstimado, req.body.tipoDeCarga, req.body.servicio, req.body.pesoEstimado, req.body.fk_contacto, req.body.direccionDespacho, fecha, req.body.nombreCliente, req.body.atencionA, req.body.id],
     };
 
     client.query(query,"",function (err, result)
@@ -167,6 +191,8 @@ exports.findByPdfCabecera = (req, res) => {
       , cabe.id
       , cabe.fk_contacto
       , cabe.estado
+      , cabe."nombreCliente"
+      , cabe."atencionA"
       , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
       WHEN cabe.estado = 1 THEN 'APROBADA'
       WHEN cabe.estado = 2 THEN 'ELIMINADA'
@@ -194,13 +220,16 @@ exports.findByContacto = (req, res) => {
     , cabe.id
     , cabe.fk_contacto
     , cabe.estado
+    , cabe."nombreCliente"
+    , cabe."atencionA"
     , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
     WHEN cabe.estado = 1 THEN 'APROBADA'
     WHEN cabe.estado = 2 THEN 'ELIMINADA'
     else 'INDEFINIDO' end as estado_nombre
     , cabe."direccionDespacho"
     FROM public.gc_propuestas_cabeceras as cabe
-    where fk_contacto = $1
+    where 
+    fk_contacto = $1 and (estado=0 or estado=1)
     order by cabe.id desc
     `, [parseInt(Object.values(req.params))], function (err, result) {
       if (err) {
@@ -223,12 +252,15 @@ exports.findByContacto = (req, res) => {
       , cabe.id
       , cabe.fk_contacto
       , cabe.estado
+      , cabe."nombreCliente"
+      , cabe."atencionA"
       , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
       WHEN cabe.estado = 1 THEN 'APROBADA'
       WHEN cabe.estado = 2 THEN 'ELIMINADA'
       else 'INDEFINIDO' end as estado_nombre
       , cabe."direccionDespacho"
       FROM public.gc_propuestas_cabeceras as cabe
+      where cabe.estado=0 or cabe.estado=1
       order by cabe.id desc
     `, "", function (err, result) {
         if (err) {
@@ -264,7 +296,7 @@ exports.findByContacto = (req, res) => {
             });
             return;
         }
-        client.query('DELETE FROM public.gc_propuestas_cabeceras where id = $1', [req.params.id], function (err, result) {
+        client.query('UPDATE public.gc_propuestas_cabeceras SET estado=2 where id = $1', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
@@ -278,10 +310,6 @@ exports.findByContacto = (req, res) => {
 
     exports.Aprobar = (req, res) => {
         var moment = require('moment');
-
-        console.log(" VALIDAR ID EDITAR "+req.params.id);
-        console.log(" VALIDAR ID EDITAR "+req.params.id);
-        console.log(" VALIDAR ID EDITAR "+req.params.id);
 
         if (!req.params.id) {
             res.status(400).send({

@@ -4,12 +4,15 @@ const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/gc_clientes';
 const prefixClientes='/api/gc_clientes_clientes';
 const prefixDirecciones='/api/gc_clientes_direcciones';
+const prefixEtiquetas='/api/gc_clientes_etiqueta';
 
 const gc_clientesCtrl=require('../controllers/gc_clientesCtrl');
 
 app.get(`${prefix}/:id`,verifyToken, gc_clientesCtrl.list);
 
 app.get(`${prefixDirecciones}/:id`,verifyToken, gc_clientesCtrl.listDirecciones);
+
+app.get(`${prefixEtiquetas}/:id`,verifyToken, gc_clientesCtrl.listEtiquetas);
 
 app.get(`${prefixClientes}`,verifyToken, gc_clientesCtrl.listClientes);
 

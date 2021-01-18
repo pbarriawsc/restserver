@@ -43,5 +43,7 @@ app.use(require('./trackingDetalle'));
 app.use(require('./trackingHistorial'));
 app.use(require('./contenedores'));
 app.use(require('./contenedorDetalle'));
+app.use(require('./gc_proveedores'));
+app.use(require('./gc_packingList'));
 
 module.exports=app;

@@ -3,6 +3,7 @@ const client = require('../config/db.client');
 exports.create = (req, res) => {
     var moment = require('moment');
 
+    var aux_qry=0;
     if (!req.body.fk_tipo || req.body.fk_tipo==0) {
         res.status(400).send({
             message: "EL TIPO ES OBLIGATORIO",
@@ -33,8 +34,7 @@ exports.create = (req, res) => {
             success:false
         });
         return;
-    }
-    /*
+    }    
     else if (req.body.email && req.body.fk_comercial) {
         client.query('SELECT * FROM public.gc_registrocontactos where email = $1 and fk_comercial!=$2', [req.body.email, req.body.fk_comercial], (err, result) => {
             if(result.rows.length>0){
@@ -42,31 +42,31 @@ exports.create = (req, res) => {
                     message: "EL MAIL ESTA ASOCIADO A OTRO COMERCIAL",
                     success:false
                 });
-                return;
+            }
+            else{
+                if (!req.body.email) { req.body.email = ''; }
+                if (!req.body.apellidos) { req.body.apellidos = ''; }
+                if (!req.body.telefono1) { req.body.telefono1 = ''; }
+                if (!req.body.telefono2) { req.body.telefono2 = ''; }
+            
+                let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+            
+                const query = {
+                    text: 'INSERT INTO public.gc_registrocontactos(fk_tipo, fk_comercial, nombres, apellidos, email, telefono1, telefono2, texto, estado, "fechaCreacion", "fechaActualizacion") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
+                    values: [req.body.fk_tipo, req.body.fk_comercial, req.body.nombres, req.body.apellidos, req.body.email, req.body.telefono1, req.body.telefono2, req.body.texto, req.body.estado, fecha, fecha],
+                };
+            
+                client.query(query,"",function (err, result)
+                {
+                    if (err) {
+                        console.log(err);
+                        res.status(400).send(err);
+                    }
+                    res.status(200).send(result.rows[0]);
+                });
             }
         });
     }
-    */
-    if (!req.body.email) { req.body.email = ''; }
-    if (!req.body.apellidos) { req.body.apellidos = ''; }
-    if (!req.body.telefono1) { req.body.telefono1 = ''; }
-    if (!req.body.telefono2) { req.body.telefono2 = ''; }
-
-    let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-
-    const query = {
-        text: 'INSERT INTO public.gc_registrocontactos(fk_tipo, fk_comercial, nombres, apellidos, email, telefono1, telefono2, texto, estado, "fechaCreacion", "fechaActualizacion") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-        values: [req.body.fk_tipo, req.body.fk_comercial, req.body.nombres, req.body.apellidos, req.body.email, req.body.telefono1, req.body.telefono2, req.body.texto, req.body.estado, fecha, fecha],
-    };
-
-    client.query(query,"",function (err, result)
-    {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.status(200).send(result.rows[0]);
-    });
 }
 
 exports.update = (req, res) => {
@@ -187,13 +187,13 @@ exports.update = (req, res) => {
             });
             return;
         }
-        client.query('DELETE FROM public.gc_registrocontactos where id = $1', [req.params.id], function (err, result) {
+        client.query('UPDATE public.gc_registrocontactos SET estado=1 where id = $1', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
             }
             res.status(200).send({
-                message: "LA MARCA DE EQUIPO FUE ELIMINADA CORRECTAMENTE",
+                message: "CONTACTO ELIMINADO CORRECTAMENTE",
                 success:true
             });
         });

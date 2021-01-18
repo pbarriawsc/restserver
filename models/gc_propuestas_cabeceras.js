@@ -24,9 +24,15 @@ module.exports = (sequelize,Sequelize) => {
         pesoEstimado: {
             type: Sequelize.FLOAT
         },
+        nombreCliente: {
+            type: Sequelize.TEXT
+        },
+        atencionA: {
+            type: Sequelize.TEXT
+        },
         direccionDespacho: {
             type: Sequelize.STRING
-        },
+        },                
         fk_contacto: {
             type: Sequelize.INTEGER,
             references: {

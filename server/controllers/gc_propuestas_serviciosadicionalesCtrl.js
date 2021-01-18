@@ -82,8 +82,6 @@ exports.update = (req, res) => {
 
 exports.findByCabecera = (req, res) => {
 
-    console.log("CARGAR LISTADO DE ID 0-0-0-0-0-0-0-0-0-0-"+parseInt(Object.values(req.params.id)));
-
     client.query(`
     Select
     TO_CHAR(tar."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
@@ -97,7 +95,7 @@ exports.findByCabecera = (req, res) => {
     FROM public.gc_propuestas_serviciosadicionales as tar
     where tar.estado=0 and tar.fk_cabecera = $1
     order by tar.id desc
-    `, [ parseInt(Object.values(req.params.id)) ], function (err, result) {
+    `, [ parseInt(Object.values(req.params)) ], function (err, result) {
     if (err) {
         console.log(err);
             res.status(400).send(err);

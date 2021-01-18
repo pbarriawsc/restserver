@@ -40,6 +40,34 @@ exports.create = (req, res) => {
     });
 }
 
+exports.listEtiquetas = (req, res) => {
+
+    client.query(`
+        SELECT 
+        CLI.id
+        , CLI.nombre
+        , CLI."razonSocial"
+        , CLI.rut
+        , concat(CLI_DIR.direccion,' ',CLI_DIR.numero,', ',COMU.nombre,', ',REG.nombre) as direccion
+        , CLI.telefono1
+        , CLI.codigo
+        FROM public.gc_clientes as GC_CLI
+        inner join public.gc_registrocontactos as GC_CONT on GC_CLI.fk_contacto=GC_CONT.id
+        inner join public.clientes as CLI on GC_CLI.fk_cliente=CLI.id
+        inner join public.clientes_direcciones as CLI_DIR on GC_CLI.fk_direccion=CLI_DIR.id
+        inner join public.comunas as COMU on CLI_DIR.fk_comuna=COMU.id
+        inner join public.region as REG on CLI_DIR.fk_region=REG.id
+        where
+        GC_CLI.id=$1`, [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });
+};
+
+
 exports.listDirecciones = (req, res) => {
 
     client.query(`
