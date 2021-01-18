@@ -73,7 +73,11 @@ module.exports = {
       foto5:{
         type: Sequelize.BLOB,
         allowNull: true,
-      }
+      },
+      packing_list:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
     });
   },
 

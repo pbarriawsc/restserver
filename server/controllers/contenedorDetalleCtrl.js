@@ -1,4 +1,21 @@
 const client = require('../config/db.client');
+
+exports.listByContenedor = (req, res) => {
+	if (!req.params.id) {
+      res.status(400).send({
+        message: "El id es obligatorio",
+        success:false
+      });
+      return;
+    }
+    client.query('SELECT td.*,t.fk_cliente,c.nombre as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });   
+};
 exports.create = (req, res) => {
     // Validate request
     if (!req.params.id) {
@@ -78,6 +95,19 @@ exports.create = (req, res) => {
 		        }
 	    	});  
     	}
+    }
+
+    if(req.body.estado){
+        const query4 = {
+                text: 'UPDATE public.contenedor SET estado=$1 WHERE id=$2 RETURNING *',
+                values: [req.body.estado, req.params.id],
+        };
+        client.query(query4,"",function (err, result) {
+                    if (err) {
+                        console.log(err);
+                        res.status(400).send(err);
+                    }
+        });
     }
     res.status(200).send({});
     

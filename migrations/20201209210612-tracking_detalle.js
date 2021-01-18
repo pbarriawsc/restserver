@@ -39,6 +39,10 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false
       },
+      volumen:{
+        type: Sequelize.FLOAT,
+        allowNull: false
+      },
       observacion:{
         type: Sequelize.TEXT,
         allowNull: false
