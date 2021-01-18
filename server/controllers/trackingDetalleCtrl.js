@@ -11,8 +11,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.tracking_detalle SET fecha_recepcion=$1,tipo_producto=$2,producto=$3,peso=$4,observacion=$5,tracking_id=$6,estado=$7 WHERE id=$8 RETURNING *',
-		values: [req.body.fecha_recepcion, req.body.tipo_producto,req.body.producto,req.body.peso,req.body.observacion,req.body.tracking_id,req.body.estado,req.params.id],
+        text: 'UPDATE public.tracking_detalle SET fecha_recepcion=$1,tipo_producto=$2,producto=$3,peso=$4,observacion=$5,tracking_id=$6,estado=$7,fecha_consolidado=$8 WHERE id=$9 RETURNING *',
+		values: [req.body.fecha_recepcion, req.body.tipo_producto,req.body.producto,req.body.peso,req.body.observacion,req.body.tracking_id,req.body.estado,moment().format('YYYYMMDD HHmmss'),req.params.id],
     };
 
     client.query(query,"",function (err, result) {
