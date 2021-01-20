@@ -8,7 +8,7 @@ exports.listByContenedor = (req, res) => {
       });
       return;
     }
-    client.query('SELECT td.*,t.fk_cliente,c.nombre as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
+    client.query('SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor,td.*,t.fk_cliente,c.nombre as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -173,4 +173,98 @@ exports.updateEstadoTracking = (req, res) => {
         });
     }
     res.status(200).send({});
+};
+
+exports.delete = (req, res) => {
+    if(!req.params.id){
+        res.status(400).send({
+        message: "El id es obligatorio",
+        success:false
+      });
+      return;
+    }
+
+    const query1={
+        text: 'SELECT *FROM public.contenedor_detalle where id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query1,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+
+        if(result.rows.length>0){
+            const query2={
+                text: 'SELECT *FROM public.tracking_detalle where id=$1',
+                values: [result.rows[0].fk_tracking_detalle],
+            };
+
+            client.query(query2,"",function (err2, result2) {
+                    if (err2) {
+                        console.log(err2);
+                        res.status(400).send(err2);
+                    }
+                    if(result2.rows.length>0){
+                        //borro y actualizo detalle
+                        const query3={
+                            text: 'DELETE FROM public.contenedor_detalle where id=$1',
+                            values: [req.params.id],
+                        };
+
+                        const query4={
+                            text: 'UPDATE public.tracking_detalle SET estado=$1 where id=$2',
+                            values: [1,result2.rows[0].id],
+                        };
+
+                        const query5={
+                            text:'SELECT * FROM public.tracking_detalle where tracking_id=$1 and estado<2',
+                            values:[result2.rows[0].tracking_id]
+                        };
+
+                        const query6={
+                            text: 'UPDATE public.tracking SET estado=$1 where id=$2',
+                            values: [1,result2.rows[0].tracking_id],
+                        };
+
+                        client.query(query3,"",function (err3, result3) {
+                                    if (err3) {
+                                        console.log(err3);
+                                        res.status(400).send(err3);
+                                    }
+                            client.query(query4,"",function (err4, result4) {
+                                    if (err4) {
+                                        console.log(err4);
+                                        res.status(400).send(err4);
+                                    }
+
+                                    client.query(query5,"",function (err5, result5) {
+                                        if (err5) {
+                                            console.log(err5);
+                                            res.status(400).send(err5);
+                                        }
+                                        if(result5.rows.length>0){
+                                            client.query(query6,"",function (err6, result6) {
+                                                        if (err6) {
+                                                            console.log(err6);
+                                                            res.status(400).send(err6);
+                                                        }
+                                            });
+                                        }
+                                    
+                                    });
+                                    
+                            });
+                        });
+
+                    }
+            });
+        }
+    });
+
+    res.status(200).send({
+            message: "El articulo ha sido eliminado correctamente del contenedor",
+            success:true
+            });
 };
