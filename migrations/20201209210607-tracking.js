@@ -74,7 +74,19 @@ module.exports = {
         type: Sequelize.BLOB,
         allowNull: true,
       },
-      packing_list:{
+      packing_list1:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      packing_list2:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      invoice1:{
+        type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      invoice2:{
         type: Sequelize.BLOB,
         allowNull: true,
       },

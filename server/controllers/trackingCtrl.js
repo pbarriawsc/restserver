@@ -470,29 +470,6 @@ exports.update = (req,res) =>{
     });
 };
 
-exports.uploadFiles = (req,res) =>{
-    if (!req.params.id) {
-        res.status(400).send({
-            message: "El id es obligatorio",
-            success:false
-            });
-            return;
-    }
-
-	const query = {
-        text: 'UPDATE public.tracking SET foto1=$1 WHERE id=$2 RETURNING *',
-        values: [req.files.foto1.data,req.params.id],
-    };
-
-    client.query(query,"",function (err, result) {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        console.log('files',req.files);
-        res.status(200).send(result.rows[0]);
-    });
-};
 
 exports.uploadFiles = (req,res) =>{
     if (!req.params.id) {
@@ -523,7 +500,6 @@ exports.uploadFiles = (req,res) =>{
     if(req.files.foto5){
     	queryValues[4]=req.files.foto5.data;
     }
-
 
 	const query = {
         text: 'UPDATE public.tracking SET foto1=$1,foto2=$2,foto3=$3,foto4=$4,foto5=$5 WHERE id=$6 RETURNING *',
@@ -652,5 +628,139 @@ exports.getPhoto5 = (req,res) =>{
             res.status(400).send(err);
         }
         res.end(result.rows[0].foto5);
+    });
+};
+
+exports.uploadFilesPackingInvoice = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+    let queryValues=[null,null,null,null,req.params.id];
+    if(req.files.packingList1){
+    	queryValues[0]=req.files.packingList1.data;
+    }
+
+    if(req.files.packingList2){
+    	queryValues[1]=req.files.packingList2.data;
+    }
+
+    if(req.files.invoice1){
+    	queryValues[2]=req.files.invoice1.data;
+    }
+
+    if(req.files.invoice2){
+    	queryValues[3]=req.files.invoice2.data;
+    }
+
+
+
+	const query = {
+        text: 'UPDATE public.tracking SET packing_list1=$1,packing_list2=$2,invoice1=$3,invoice2=$4 WHERE id=$5 RETURNING *',
+        values: queryValues,
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows[0]);
+    });
+};
+
+exports.getPackingList1 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT packing_list1 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].packing_list1);
+    });
+};
+
+exports.getPackingList2 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT packing_list2 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].packing_list2);
+    });
+};
+
+exports.getInvoice1 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT invoice1 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].invoice1);
+    });
+};
+
+exports.getInvoice2 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT invoice2 from public.tracking WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].invoice2);
     });
 };

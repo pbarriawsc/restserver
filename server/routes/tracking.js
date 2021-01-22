@@ -10,11 +10,16 @@ app.get(`${prefix}/cliente/:id`,verifyToken, trackingController.listByClient)
 app.get(`${prefix}/estado/:estado`,verifyToken, trackingController.listByEstado)
 app.put(`${prefix}/:id`,verifyToken, trackingController.update)
 app.post(`${prefix}/uploadFiles/:id`,verifyToken, trackingController.uploadFiles);
+app.post(`${prefix}/uploadFiles/packingList/invoice/:id`,verifyToken, trackingController.uploadFilesPackingInvoice);
 app.get(`${prefix}/photo1/:id`,[], trackingController.getPhoto1);
 app.get(`${prefix}/photo2/:id`,[], trackingController.getPhoto2);
 app.get(`${prefix}/photo3/:id`,[], trackingController.getPhoto3);
 app.get(`${prefix}/photo4/:id`,[], trackingController.getPhoto4);
 app.get(`${prefix}/photo5/:id`,[], trackingController.getPhoto5);
+app.get(`${prefix}/packingList1/:id`,[], trackingController.getPackingList1);
+app.get(`${prefix}/packingList2/:id`,[], trackingController.getPackingList2);
+app.get(`${prefix}/invoice1/:id`,[], trackingController.getInvoice1);
+app.get(`${prefix}/invoice2/:id`,[], trackingController.getInvoice1);
 /*
 app.put(`${prefix}/:id`, function (req, res) {
     let id=req.params.id;
