@@ -13,10 +13,16 @@ exports.create = (req, res) => {
             success:false
           });
           return;
+    }else if (!req.body.fk_rol){
+        res.status(400).send({
+            message: "El rol es obligatorio",
+            success:false
+          });
+          return;
     }
     const query = {
-        text: 'INSERT INTO public.usuario(nombre, password,usuario,apellidos,email,telefono,rut) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        values: [req.body.nombre, req.body.password,req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono,req.body.rut],
+        text: 'INSERT INTO public.usuario(nombre, password,usuario,apellidos,email,telefono,rut,fk_rol,estado) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+        values: [req.body.nombre, req.body.password,req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado],
     };
 
     client.query(query,"",function (err, result) {
@@ -29,7 +35,7 @@ exports.create = (req, res) => {
 };
 
 exports.list = (req, res) => {
-    client.query('SELECT * FROM public.usuario ORDER BY id DESC', "", function (err, result) {
+    client.query('SELECT u.*,r.nombre as fk_rol_nombre FROM public.usuario u inner join public.roles r on r.id = u.fk_rol ORDER BY id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -84,8 +90,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5,rut=$6 WHERE id=$7 RETURNING *',
-        values: [req.body.usuario, req.body.nombre, req.body.apellido, req.body.email, req.body.telefono,req.body.rut,req.body.id],
+        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5,rut=$6,fk_rol=$7,estado=$8 WHERE id=$9 RETURNING *',
+        values: [req.body.usuario, req.body.nombre, req.body.apellido, req.body.email, req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado,req.body.id],
     };
 
     client.query(query,"",function (err, result) {

@@ -19,7 +19,9 @@ module.exports = {
        apellidos:'Barria Reyes',
        email:'pbarria.reyes@gmail.com',
        telefono:'+56976631136',
-       rut:'16844428-1'
+       rut:'16844428-1',
+       fk_rol:1,
+       estado:true
        //createdAt:'2020-11-24 00:00:00',
       // updatedAt:'2020-11-24 00:00:00'
     },
@@ -30,7 +32,9 @@ module.exports = {
       apellidos:'Vidal',
        email:'edo.v80@gmail.com',
        telefono:'+56976631136',
-       rut:'11111111-1'
+       rut:'11111111-1',
+       fk_rol:1,
+       estado:true
       //createdAt:'2020-11-24 00:00:00',
       //updatedAt:'2020-11-24 00:00:00'
    }], {});

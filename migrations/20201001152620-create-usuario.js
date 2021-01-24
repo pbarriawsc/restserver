@@ -28,6 +28,13 @@ module.exports = {
       },
       telefono: {
         type: Sequelize.STRING
+      },
+      estado: {
+        type: Sequelize.BOOLEAN
+      },
+      fk_rol:{
+        type: Sequelize.INTEGER,
+        allowNull:true
       }
     });
   },
