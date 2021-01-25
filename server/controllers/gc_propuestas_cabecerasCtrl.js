@@ -209,6 +209,7 @@ exports.findByPdfCabecera = (req, res) => {
 };
 
 exports.findByContacto = (req, res) => {
+
   client.query(`
     Select
     cabe."volumenEstimado"

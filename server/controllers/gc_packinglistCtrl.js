@@ -20,6 +20,19 @@ exports.findOneBy = (req,res) =>{
 exports.create = (req, res) => {
     var moment = require('moment');
 
+    /*
+    let token= req.get('Authorization');
+    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+    if(err){
+        return res.status(401).json({
+            success:false,
+            err
+        })
+    }
+    req.usuario = decoded.usuario;
+    });
+    */
+   
     if (!req.body.pack_fk_proveedor || req.body.pack_fk_proveedor==0) {
         res.status(400).send({
             message: "EL PROVEEDOR ES OBLIGATORIO",
@@ -133,6 +146,101 @@ exports.create = (req, res) => {
     });
 }
 
+exports.Aprobar = async (req, res) => {
+    var moment = require('moment');
+
+    console.log(" LLEGA "+JSON.stringify(req.body));
+    if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
+        res.status(400).send({
+            message: "EL PROVEEDOR ES OBLIGATORIO",
+            success:false
+        });
+        return;
+    }
+    else if (!req.body.fk_contacto || req.body.fk_contacto==0) {
+        res.status(400).send({
+            message: "EL CONTACTO BASE ES OBLIGATORIO",
+            success:false
+        });
+        return;
+    }
+
+    let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+
+    var cli_info = await client.query(`SELECT 
+    *
+    FROM public.gc_clientes as CLI
+    WHERE 
+    CLI.fk_contacto=`+req.body.fk_contacto+`
+    `);
+
+    var prov_info = await client.query(`SELECT 
+    PROVE.*
+    FROM public.proveedores as PROVE
+    WHERE PROVE.id=`+req.body.fk_proveedor+`
+    `);
+
+    if(cli_info.rows.length<=0)
+    {
+        res.status(400).send({
+            message: "NO SE DETECTO CLIENTE",
+            success:false
+        });
+        return;
+    }
+    else if(prov_info.rows.length<=0)
+    {
+        res.status(400).send({
+            message: "NO SE DETECTO PROVEEDOR",
+            success:false
+        });
+        return;
+    }    
+    else
+    {
+        
+        await client.query(` UPDATE public.gc_packinglist SET "fechaActualizacion"='`+fecha+`', pack_estado=2 WHERE pack_fk_proveedor=`+req.body.id+` and pack_fk_contacto=`+req.body.fk_contacto);
+
+        await client.query(` UPDATE public.gc_proveedores SET "fechaActualizacion"='`+fecha+`', estado=2 WHERE id=`+req.body.id);
+
+        var tot_qry = await client.query(`SELECT 
+        *
+        FROM public.gc_packinglist as PCKL
+        WHERE 
+        PCKL.pack_estado=2 
+        AND PCKL.pack_fk_proveedor=`+req.body.id+` 
+        AND PCKL.pack_fk_contacto=`+req.body.fk_contacto+` 
+        ORDER BY PCKL.pack_id asc
+        `);
+
+        console.log(" TOTAL LINEAS "+tot_qry.rows.length);
+
+        if(tot_qry.rows.length>0)
+        {
+            for(var i=0; i<tot_qry.rows.length; i++)
+            {
+                console.log(" INSERT "+tot_qry.rows[i]['pack_id']);
+                await client.query(` 
+                INSERT INTO tracking 
+                (fecha_creacion, fecha_recepcion, cantidad_bultos, peso, volumen, tipo_carga, fk_proveedor, fk_cliente, tipo, estado, foto1, foto2, foto3) VALUES
+                ('`+fecha+`', null, `+tot_qry.rows[i]['pack_bultos']+`, `+tot_qry.rows[i]['pack_pesoBulto']+`, `+tot_qry.rows[i]['pack_cmbBulto']+`, 1, `+prov_info.rows[0]['id']+`, `+cli_info.rows[0]['fk_cliente']+`, 2, 0, null, null, null)
+                `);
+            }
+        }
+        else
+        {
+            res.status(400).send({
+                message: "NO EXISTE DETALLE EN EL PACKING LIST",
+                success:false
+            });
+            return;
+        }
+    }
+    
+
+    res.status(200).send(tot_qry.rows[0]);
+}
+
 exports.list = (req, res) => {
 
     client.query(`
@@ -186,7 +294,7 @@ exports.list = (req, res) => {
             });
             return;
         }
-        client.query('UPDATE public.gc_packinglist SET pack_estado=1 where pack_id = $1', [req.params.id], function (err, result) {
+        client.query('DELETE FROM public.gc_packinglist where pack_id = $1', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);

@@ -54,11 +54,16 @@ exports.list = (req, res) => {
       , GCPROV.fk_proveedor
       , GCPROV.fk_contacto
       , GCPROV.estado
+      , CASE 
+      WHEN GCPROV.estado=0 THEN 'DESARROLLO'
+      WHEN GCPROV.estado=1 THEN 'ELIMINADA'
+      WHEN GCPROV.estado=2 THEN 'APROBADA'
+      ELSE 'DESARROLLO' END as estado_nombre
       , PROV.codigo
       , PROV.nombre
       FROM public.gc_proveedores as GCPROV
       inner join public.proveedores as PROV on GCPROV.fk_proveedor=PROV.id
-      where GCPROV.estado=0 and GCPROV.fk_contacto=$1
+      where GCPROV.estado!=1 and GCPROV.fk_contacto=$1
       order by GCPROV.id desc
       `, [ parseInt(Object.values(req.params)) ], function (err, result) {
       if (err) {
