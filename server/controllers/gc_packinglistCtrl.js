@@ -228,7 +228,7 @@ exports.Aprobar = async (req, res) => {
             {
                 await client.query(` 
                 INSERT INTO tracking_detalle 
-                (fecha_recepcion, fecha_consolidado, codigo_interno, tipo_producto, producto, peso, volumen, observacion, tracking_id, estado, estado, foto1, foto2, foto3) VALUES
+                (fecha_recepcion, fecha_consolidado, codigo_interno, tipo_producto, producto, peso, volumen, observacion, tracking_id, estado, foto1, foto2, foto3) VALUES
                 (null, null, null, null, '`+tot_qry.rows[i]['pack_descripcion']+`', `+tot_qry.rows[i]['pack_pesoBulto']+`, `+tot_qry.rows[i]['pack_cmbBulto']+`, null, `+id_tracking.rows[0]['id']+`, 0, null, null, null)
                 `);
             }
