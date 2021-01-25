@@ -213,17 +213,23 @@ exports.Aprobar = async (req, res) => {
         ORDER BY PCKL.pack_id asc
         `);
 
-        console.log(" TOTAL LINEAS "+tot_qry.rows.length);
-
         if(tot_qry.rows.length>0)
         {
+
+            await client.query(` 
+            INSERT INTO tracking 
+            (fecha_creacion, fecha_recepcion, cantidad_bultos, peso, volumen, tipo_carga, fk_proveedor, fk_cliente, tipo, estado, foto1, foto2, foto3) VALUES
+            ('`+fecha+`', null, 0, 0, 0, 1, `+prov_info.rows[0]['id']+`, `+cli_info.rows[0]['fk_cliente']+`, 2, 0, null, null, null)
+            `);
+
+            var id_tracking = await client.query(`SELECT id FROM public.tracking WHERE fk_proveedor=`+prov_info.rows[0]['id']+` AND fk_cliente=`+cli_info.rows[0]['fk_cliente']+` AND tipo=2 AND estado=0 order by id desc limit 1`);
+
             for(var i=0; i<tot_qry.rows.length; i++)
             {
-                console.log(" INSERT "+tot_qry.rows[i]['pack_id']);
                 await client.query(` 
-                INSERT INTO tracking 
-                (fecha_creacion, fecha_recepcion, cantidad_bultos, peso, volumen, tipo_carga, fk_proveedor, fk_cliente, tipo, estado, foto1, foto2, foto3) VALUES
-                ('`+fecha+`', null, `+tot_qry.rows[i]['pack_bultos']+`, `+tot_qry.rows[i]['pack_pesoBulto']+`, `+tot_qry.rows[i]['pack_cmbBulto']+`, 1, `+prov_info.rows[0]['id']+`, `+cli_info.rows[0]['fk_cliente']+`, 2, 0, null, null, null)
+                INSERT INTO tracking_detalle 
+                (fecha_recepcion, fecha_consolidado, codigo_interno, tipo_producto, producto, peso, volumen, observacion, tracking_id, estado, estado, foto1, foto2, foto3) VALUES
+                (null, null, null, null, '`+tot_qry.rows[i]['pack_hsCode']+`', `+tot_qry.rows[i]['pack_pesoBulto']+`, `+tot_qry.rows[i]['pack_cmbBulto']+`, null, `+id_tracking.rows[0]['id']+`, 0, null, null, null)
                 `);
             }
         }
