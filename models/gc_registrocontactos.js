@@ -78,5 +78,18 @@ module.exports = (sequelize,Sequelize) => {
             type: Sequelize.DATE,
             unique: false,
         },
+        fk_responsable: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "usuario ",
+                    schema: "public"
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: false
+        },        
 	});
 };
