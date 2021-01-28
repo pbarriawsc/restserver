@@ -181,12 +181,6 @@ exports.create = (req, res) => {
             success:false
           });
           return;
-    }else if (!req.body.tracking_detalle){
-        res.status(400).send({
-            message: "El detalle del tracking es obligatorio",
-            success:false
-          });
-          return;
     }
 
     if(req.body.proveedor){
