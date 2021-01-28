@@ -1,133 +1,302 @@
 const client = require('../config/db.client');
+const jwt=require('jsonwebtoken');
 
-exports.create = (req, res) => {
-    var moment = require('moment');
-
-    if (!req.body.nombreCliente) {
-        res.status(400).send({
-            message: "EL NOMBRE DEL CLIENTE ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.atencionA) {
-        res.status(400).send({
-            message: "LA ATENCION A ES OBLIGATORIA",
-            success:false
-        });
-        return;
-    }else if (!req.body.servicio) {
-        res.status(400).send({
-            message: "EL SERVICIO ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.tipoDeCarga) {
-        res.status(400).send({
-            message: "EL TIPO DE CARGA ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.volumenEstimado) {
-        res.status(400).send({
-            message: "EL VOLUMEN ESTIMADO ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.pesoEstimado) {
-        res.status(400).send({
-            message: "EL PESO ESTIMADO ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.direccionDespacho) {
-        res.status(400).send({
-            message: "LA DIRECCION DE DESPACHO ES OBLIGATORIA",
-            success:false
-        });
-        return;
-    }
-
-    let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-
-    const query = {
-        text: 'INSERT INTO public.gc_propuestas_cabeceras("volumenEstimado", "tipoDeCarga", servicio, "pesoEstimado", fk_contacto, "direccionDespacho", "fechaCreacion", "fechaActualizacion", estado, "nombreCliente", "atencionA") VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
-        values: [req.body.volumenEstimado, req.body.tipoDeCarga, req.body.servicio, req.body.pesoEstimado, req.body.fk_contacto, req.body.direccionDespacho, fecha, fecha, 0, req.body.nombreCliente, req.body.atencionA],
+    /************************************************************/
+    /************************************************************/
+    exports.ListServiciosTipos = (req, res) => {
+        client.query(` SELECT id, nombre FROM public.servicios_tipos where estado is true order by nombre asc`, "", function (err, result) {
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); });
     };
-
-    client.query(query,"",function (err, result)
-    {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.status(200).send(result.rows[0]);
-    });
-}
-
-exports.update = (req, res) => {
-    var moment = require('moment');
-
-    // Validate request
-    if (!req.body.nombreCliente) {
-        res.status(400).send({
-            message: "EL NOMBRE DEL CLIENTE ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.atencionA) {
-        res.status(400).send({
-            message: "LA ATENCION A ES OBLIGATORIA",
-            success:false
-        });
-        return;
-    }else if (!req.body.servicio) {
-        res.status(400).send({
-            message: "EL SERVICIO ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.tipoDeCarga) {
-        res.status(400).send({
-            message: "EL TIPO DE CARGA ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.volumenEstimado) {
-        res.status(400).send({
-            message: "EL VOLUMEN ESTIMADO ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.pesoEstimado) {
-        res.status(400).send({
-            message: "EL PESO ESTIMADO ES OBLIGATORIO",
-            success:false
-        });
-        return;
-    }else if (!req.body.direccionDespacho) {
-        res.status(400).send({
-            message: "LA DIRECCION DE DESPACHO ES OBLIGATORIA",
-            success:false
-        });
-        return;
-    }
-
-    let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-
-    const query = {
-        text: 'UPDATE public.gc_propuestas_cabeceras SET "volumenEstimado"=$1, "tipoDeCarga"=$2, servicio=$3, "pesoEstimado"=$4, fk_contacto=$5, "direccionDespacho"=$6, "fechaActualizacion"=$7, "nombreCliente"=$8, "atencionA"=$9 where id=$10 RETURNING *',
-        values: [req.body.volumenEstimado, req.body.tipoDeCarga, req.body.servicio, req.body.pesoEstimado, req.body.fk_contacto, req.body.direccionDespacho, fecha, req.body.nombreCliente, req.body.atencionA, req.body.id],
+    /************************************************************/
+    /************************************************************/ 
+    exports.ListZonasTarifarias = (req, res) => {
+        client.query(` SELECT id, nombre FROM public.zonas_tarifarias where estado is true order by nombre asc`, "", function (err, result) {
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); });
     };
+    /************************************************************/
+    /************************************************************/   
+    exports.ListFormasPago = (req, res) => {
+        client.query(` SELECT id, nombre FROM public.formas_pago order by nombre asc`, "", function (err, result) {
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); });
+    };
+    /************************************************************/
+    /************************************************************/         
+    exports.create = async (req, res) => {
+        var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+        let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
 
-    client.query(query,"",function (err, result)
-    {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
+        if(req.body.gcpc_fk_tipoDeServicio==0) { req.body.gcpc_fk_tipoDeServicio = null; }
+        if(req.body.gcpc_fk_zonaDespacho==0) { req.body.gcpc_fk_zonaDespacho = null; }
+        if(req.body.gcpc_fk_formaDePago==0) { req.body.gcpc_fk_formaDePago = null; }
+        if(req.body.gcpc_fk_zonaOrigen==0) { req.body.gcpc_fk_zonaOrigen = null; }
+        if(req.body.gcpc_fk_zonaAlmacenaje==0) { req.body.gcpc_fk_zonaAlmacenaje = null; }
+        if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+        if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+
+        if(!req.body.gcpc_volumenEstimado || req.body.gcpc_volumenEstimado.length==0) { req.body.gcpc_volumenEstimado = 0; }
+        if(!req.body.gcpc_pesoEstimado || req.body.gcpc_pesoEstimado.length==0) { req.body.gcpc_pesoEstimado = 0; }
+        if(!req.body.gcpc_factor || req.body.gcpc_factor.length==0) { req.body.gcpc_factor = 0; }
+        if(!req.body.gcpc_cmbPeso || req.body.gcpc_cmbPeso.length==0) { req.body.gcpc_cmbPeso = 0; }
+        if(!req.body.gcpc_unidadesACobrar || req.body.gcpc_unidadesACobrar.length==0) { req.body.gcpc_unidadesACobrar = 0; }
+        if(!req.body.gcpc_valorUnitarioUsd || req.body.gcpc_valorUnitarioUsd.length==0) { req.body.gcpc_valorUnitarioUsd = 0; }
+        if(!req.body.gcpc_tarifaUsd || req.body.gcpc_tarifaUsd.length==0) { req.body.gcpc_tarifaUsd = 0; }
+
+        let qry_1 = '';     let qry_2 = '';
+        
+        qry_1 = ` estado, `;
+        qry_2 = ` 0, `;
+
+        qry_1 += ` fk_responsable, `;
+        qry_2 += ` `+req.usuario.id+`, `;
+        
+        qry_1 += ` "fechaCreacion", `;
+        qry_2 += ` '`+fecha+`', `;
+        
+        qry_1 += ` "fechaActualizacion", `;
+        qry_2 += ` '`+fecha+`', `;
+
+        qry_1 += ` fk_contacto, `;
+        qry_2 += ` `+req.body.gcpc_fk_contacto+`, `;
+
+        qry_1 += ` "nombreCliente", `;
+        qry_2 += ` '`+req.body.gcpc_nombreCliente+`', `;
+
+        qry_1 += ` "atencionA", `;
+        qry_2 += ` '`+req.body.gcpc_atencionA+`', `;
+
+        qry_1 += ` "fk_tipoDeServicio", `;
+        qry_2 += ` `+req.body.gcpc_fk_tipoDeServicio+`, `;
+        
+        qry_1 += ` "tipoDeCarga", `;
+        qry_2 += ` '`+req.body.gcpc_tipoDeCarga+`', `;
+        
+        qry_1 += ` "volumenEstimado", `;
+        qry_2 += ` `+req.body.gcpc_volumenEstimado+`, `;
+        
+        qry_1 += ` "pesoEstimado", `;
+        qry_2 += ` `+req.body.gcpc_pesoEstimado+`, `;
+        
+        qry_1 += ` "fk_zonaDespacho", `;
+        qry_2 += ` `+req.body.gcpc_fk_zonaDespacho+`, `;
+        
+        qry_1 += ` direccion, `;
+        qry_2 += ` '`+req.body.gcpc_direccion+`', `;
+        
+        qry_1 += ` "fk_formaDePago", `;
+        qry_2 += ` `+req.body.gcpc_fk_formaDePago+`, `;
+        
+        qry_1 += ` "fechaValidez", `;
+        qry_2 += ` '`+req.body.gcpc_fechaValidez+`', `;
+        
+        qry_1 += ` "fk_zonaOrigen", `;
+        qry_2 += ` `+req.body.gcpc_fk_zonaOrigen+`, `;
+        
+        qry_1 += ` "fk_zonaAlmacenaje", `;
+        qry_2 += ` `+req.body.gcpc_fk_zonaAlmacenaje+`, `;
+        
+        qry_1 += ` "fk_zonaDestino", `;
+        qry_2 += ` `+req.body.gcpc_fk_zonaDestino+`, `;
+        
+        qry_1 += ` factor, `;
+        qry_2 += ` `+req.body.gcpc_factor+`, `;
+        
+        qry_1 += ` "cmbPeso", `;
+        qry_2 += ` `+req.body.gcpc_cmbPeso+`, `;
+        
+        qry_1 += ` "unidadesACobrar", `;
+        qry_2 += ` `+req.body.gcpc_unidadesACobrar+`, `;
+        
+        qry_1 += ` "valorUnitarioUsd", `;
+        qry_2 += ` `+req.body.gcpc_valorUnitarioUsd+`, `;
+        
+        qry_1 += ` "tarifaUsd" `;
+        qry_2 += ` `+req.body.gcpc_tarifaUsd+` `;
+        
+        try {
+
+            console.log(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
+            await client.query(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
+            
+            let UltimoId = await client.query(`SELECT 
+            id
+            , coalesce("nombreCliente",'') as nombreCliente
+            , coalesce("atencionA",'') as atencionA
+            , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
+            , coalesce("tipoDeCarga",'') as tipoDeCarga
+            , coalesce("volumenEstimado",0) as volumenEstimado
+            , coalesce("pesoEstimado",0) as pesoEstimado
+            , coalesce("fk_zonaDespacho",0) as fk_zonaDespacho
+            , coalesce(direccion,'') as direccion
+            , coalesce("fk_formaDePago",0) as fk_formaDePago
+            , coalesce("fechaValidez",'') as fechaValidez
+            , coalesce("fk_zonaOrigen",0) as fk_zonaOrigen
+            , coalesce("fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
+            , coalesce("fk_zonaDestino",0) as fk_zonaDestino
+            , coalesce(factor,0) as factor
+            , coalesce("cmbPeso",0) as cmbPeso
+            , coalesce("unidadesACobrar",0) as unidadesACobrar
+            , coalesce("valorUnitarioUsd",0) as valorUnitarioUsd
+            , coalesce("tarifaUsd",0) as tarifaUsd
+            FROM public.gc_propuestas_cabeceras WHERE fk_responsable=`+req.usuario.id+` ORDER BY id DESC LIMIT 1`);
+
+            res.status(200).send(UltimoId.rows[0]);
+
+        } catch (error) {
+            
+            res.status(400).send({
+                message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+                success:false,
+            });
+
         }
-        res.status(200).send(result.rows[0]);
-    });
-}
+    }
+    /************************************************************/
+    /************************************************************/ 
+    exports.findByDesarrollo = async (req,res) =>{
+        
+        try {
+            
+            let Propuesta_Desarrollo = await client.query(`
+            SELECT 
+            id
+            , coalesce("nombreCliente",'') as nombreCliente
+            , coalesce("atencionA",'') as atencionA
+            , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
+            , coalesce("tipoDeCarga",'') as tipoDeCarga
+            , coalesce("volumenEstimado",0) as volumenEstimado
+            , coalesce("pesoEstimado",0) as pesoEstimado
+            , coalesce("fk_zonaDespacho",0) as fk_zonaDespacho
+            , coalesce(direccion,'') as direccion
+            , coalesce("fk_formaDePago",0) as fk_formaDePago
+            , coalesce("fechaValidez",'') as fechaValidez
+            , coalesce("fk_zonaOrigen",0) as fk_zonaOrigen
+            , coalesce("fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
+            , coalesce("fk_zonaDestino",0) as fk_zonaDestino
+            , coalesce(factor,0) as factor
+            , coalesce("cmbPeso",0) as cmbPeso
+            , coalesce("unidadesACobrar",0) as unidadesACobrar
+            , coalesce("valorUnitarioUsd",0) as valorUnitarioUsd
+            , coalesce("tarifaUsd",0) as tarifaUsd
+            FROM public.gc_propuestas_cabeceras WHERE estado=0 AND fk_contacto=`+parseInt(Object.values(req.params))+` LIMIT 1`);
+
+            res.status(200).send(Propuesta_Desarrollo.rows[0]);
+
+        } catch (error) {
+            
+            res.status(400).send({
+                message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+                success:false,
+            });
+
+        }
+
+    };
+    /************************************************************/
+    /************************************************************/    
+    exports.update = async (req, res) => {
+        var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+        let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+        if(req.body.gcpc_fk_tipoDeServicio==0) { req.body.gcpc_fk_tipoDeServicio = null; }
+        if(req.body.gcpc_fk_zonaDespacho==0) { req.body.gcpc_fk_zonaDespacho = null; }
+        if(req.body.gcpc_fk_formaDePago==0) { req.body.gcpc_fk_formaDePago = null; }
+        if(req.body.gcpc_fk_zonaOrigen==0) { req.body.gcpc_fk_zonaOrigen = null; }
+        if(req.body.gcpc_fk_zonaAlmacenaje==0) { req.body.gcpc_fk_zonaAlmacenaje = null; }
+        if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+        if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+        
+        if(!req.body.gcpc_volumenEstimado || req.body.gcpc_volumenEstimado.length==0) { req.body.gcpc_volumenEstimado = 0; }
+        if(!req.body.gcpc_pesoEstimado || req.body.gcpc_pesoEstimado.length==0) { req.body.gcpc_pesoEstimado = 0; }
+        if(!req.body.gcpc_factor || req.body.gcpc_factor.length==0) { req.body.gcpc_factor = 0; }
+        if(!req.body.gcpc_cmbPeso || req.body.gcpc_cmbPeso.length==0) { req.body.gcpc_cmbPeso = 0; }
+        if(!req.body.gcpc_unidadesACobrar || req.body.gcpc_unidadesACobrar.length==0) { req.body.gcpc_unidadesACobrar = 0; }
+        if(!req.body.gcpc_valorUnitarioUsd || req.body.gcpc_valorUnitarioUsd.length==0) { req.body.gcpc_valorUnitarioUsd = 0; }
+        if(!req.body.gcpc_tarifaUsd || req.body.gcpc_tarifaUsd.length==0) { req.body.gcpc_tarifaUsd = 0; }
+        
+        let qry_1 = '';
+        
+        qry_1 = ` estado=0, `;
+
+        qry_1 += ` fk_responsable=`+req.usuario.id+`, `;
+        
+        qry_1 += ` "fechaActualizacion"='`+fecha+`', `;
+
+        qry_1 += ` fk_contacto=`+req.body.gcpc_fk_contacto+`, `;
+
+        qry_1 += ` "nombreCliente"='`+req.body.gcpc_nombreCliente+`', `;
+
+        qry_1 += ` "atencionA"='`+req.body.gcpc_atencionA+`', `;
+
+        qry_1 += ` "fk_tipoDeServicio"=`+req.body.gcpc_fk_tipoDeServicio+`, `;
+        
+        qry_1 += ` "tipoDeCarga"='`+req.body.gcpc_tipoDeCarga+`', `;
+        
+        qry_1 += ` "volumenEstimado"=`+req.body.gcpc_volumenEstimado+`, `;
+        
+        qry_1 += ` "pesoEstimado"=`+req.body.gcpc_pesoEstimado+`, `;
+        
+        qry_1 += ` "fk_zonaDespacho"=`+req.body.gcpc_fk_zonaDespacho+`, `;
+        
+        qry_1 += ` direccion='`+req.body.gcpc_direccion+`', `;
+        
+        qry_1 += ` "fk_formaDePago"=`+req.body.gcpc_fk_formaDePago+`, `;
+        
+        qry_1 += ` "fechaValidez"='`+req.body.gcpc_fechaValidez+`', `;
+        
+        qry_1 += ` "fk_zonaOrigen"=`+req.body.gcpc_fk_zonaOrigen+`, `;
+        
+        qry_1 += ` "fk_zonaAlmacenaje"=`+req.body.gcpc_fk_zonaAlmacenaje+`, `;
+        
+        qry_1 += ` "fk_zonaDestino"=`+req.body.gcpc_fk_zonaDestino+`, `;
+        
+        qry_1 += ` factor=`+req.body.gcpc_factor+`, `;
+        
+        qry_1 += ` "cmbPeso"=`+req.body.gcpc_cmbPeso+`, `;
+        
+        qry_1 += ` "unidadesACobrar"=`+req.body.gcpc_unidadesACobrar+`, `;
+        
+        qry_1 += ` "valorUnitarioUsd"=`+req.body.gcpc_valorUnitarioUsd+`, `;
+        
+        qry_1 += ` "tarifaUsd"=`+req.body.gcpc_tarifaUsd+` `;
+        
+        try {
+
+            console.log(`UPDATE public.gc_propuestas_cabeceras SET `+qry_1+` WHERE id=`+req.body.gcpc_id+` `);
+            await client.query(`UPDATE public.gc_propuestas_cabeceras SET `+qry_1+` WHERE id=`+req.body.gcpc_id+` `);
+            
+            let UltimoId = await client.query(`SELECT 
+            id
+            , coalesce("nombreCliente",'') as nombreCliente
+            , coalesce("atencionA",'') as atencionA
+            , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
+            , coalesce("tipoDeCarga",'') as tipoDeCarga
+            , coalesce("volumenEstimado",0) as volumenEstimado
+            , coalesce("pesoEstimado",0) as pesoEstimado
+            , coalesce("fk_zonaDespacho",0) as fk_zonaDespacho
+            , coalesce(direccion,'') as direccion
+            , coalesce("fk_formaDePago",0) as fk_formaDePago
+            , coalesce("fechaValidez",'') as fechaValidez
+            , coalesce("fk_zonaOrigen",0) as fk_zonaOrigen
+            , coalesce("fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
+            , coalesce("fk_zonaDestino",0) as fk_zonaDestino
+            , coalesce(factor,0) as factor
+            , coalesce("cmbPeso",0) as cmbPeso
+            , coalesce("unidadesACobrar",0) as unidadesACobrar
+            , coalesce("valorUnitarioUsd",0) as valorUnitarioUsd
+            , coalesce("tarifaUsd",0) as tarifaUsd
+            FROM public.gc_propuestas_cabeceras WHERE id=`+req.body.gcpc_id+` `);
+
+            res.status(200).send(UltimoId.rows[0]);
+
+        } catch (error) {
+            
+            res.status(400).send({
+                message: "ERROR AL ACTUALIZAR INFORMACIÓN "+error,
+                success:false,
+            });
+
+        }
+    }
 
 exports.findByPdfSerAd = (req, res) => {
   client.query(`

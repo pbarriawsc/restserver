@@ -6,33 +6,37 @@ module.exports = (sequelize,Sequelize) => {
             allowNull: false,
             autoIncrement: true,
             primaryKey: true,
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
         },
-		estado: {
+        estado: {
             allowNull: false,
-            type: Sequelize.INTEGER
+            type: Sequelize.INTEGER,
+            unique: false,
         },
-        servicio: {
-            type: Sequelize.STRING
+        fk_responsable: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "usuario",
+                    schema: "public",
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: false,
+            unique: false,
         },
-        tipoCarga: {
-            type: Sequelize.STRING
+        fechaCreacion: {
+            allowNull: false,
+            type: Sequelize.DATE,
+            unique: false,
         },
-        volumenEstimado: {
-            type: Sequelize.FLOAT
-        },
-        pesoEstimado: {
-            type: Sequelize.FLOAT
-        },
-        nombreCliente: {
-            type: Sequelize.TEXT
-        },
-        atencionA: {
-            type: Sequelize.TEXT
-        },
-        direccionDespacho: {
-            type: Sequelize.STRING
-        },                
+        fechaActualizacion: {
+            allowNull: false,
+            type: Sequelize.DATE,
+            unique: false,
+        },   
         fk_contacto: {
             type: Sequelize.INTEGER,
             references: {
@@ -45,16 +49,149 @@ module.exports = (sequelize,Sequelize) => {
                 onUpdate: "RESTRICT",
             },
             allowNull: false
-        },
-        fechaCreacion: {
-            allowNull: false,
-            type: Sequelize.DATE,
+        },                     
+        nombreCliente: {
+            allowNull: true,
+            type: Sequelize.TEXT,
             unique: false,
         },
-        fechaActualizacion: {
-            allowNull: false,
-            type: Sequelize.DATE,
+        atencionA: {
+            allowNull: true,
+            type: Sequelize.TEXT,
             unique: false,
         },
+        fk_tipoDeServicio: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "servicios_tipos",
+                    schema: "public",
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: true,
+            unique: false,
+        },            
+        tipoDeCarga: {
+            allowNull: true,
+            type: Sequelize.TEXT,
+            unique: false,
+        },           
+        volumenEstimado: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },
+        pesoEstimado: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },            
+        fk_zonaDespacho: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "zonas_tarifarias",
+                    schema: "public"
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: true,
+            unique: false,
+        },
+        direccion: {
+            allowNull: true,
+            type: Sequelize.STRING,
+        },
+        fk_formaDePago: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "formas_pago",
+                    schema: "public"
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: true,
+            unique: false,
+        },
+        fechaValidez: {
+            allowNull: true,
+            type: Sequelize.TEXT,
+            unique: false,
+        },
+        fk_zonaOrigen: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "zonas_tarifarias",
+                    schema: "public"
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: true,
+            unique: false,
+        },
+        fk_zonaAlmacenaje: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "zonas_tarifarias",
+                    schema: "public"
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: true,
+            unique: false,
+        },
+        fk_zonaDestino: {
+            type: Sequelize.INTEGER,
+            references: {
+                model: {
+                    tableName: "zonas_tarifarias",
+                    schema: "public"
+                },
+                key: "id",
+                onDelete: "RESTRICT",
+                onUpdate: "RESTRICT",
+            },
+            allowNull: true,
+            unique: false,
+        },            
+        factor: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },              
+        cmbPeso: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },  
+        unidadesACobrar: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },  
+        valorUnitarioUsd: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },                          
+        tarifaUsd: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        }, 
 	});
 };
