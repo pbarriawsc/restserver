@@ -90,6 +90,14 @@ module.exports = {
         type: Sequelize.BLOB,
         allowNull: true,
       },
+      currier:{
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      fk_propuesta:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      }
     });
   },
 
