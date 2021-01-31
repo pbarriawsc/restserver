@@ -9,10 +9,10 @@ app.get(`${prefix}`,verifyToken,clientesController.list);
 app.get(`${prefix}/:id`,verifyToken, clientesController.findOneBy);
 app.get(`${prefix}/codigo/:codigo`,verifyToken, clientesController.findOneByCodigo);
 
-app.post(`${prefix}`,verifyToken, clientesController.create)
+app.post(`${prefix}`,verifyToken, clientesController.create);
 
-app.put(`${prefix}`,verifyToken, clientesController.update)
+app.put(`${prefix}`,verifyToken, clientesController.update);
 
-app.delete(`${prefix}/:id`,verifyToken, clientesController.delete)
+app.delete(`${prefix}/:id`,verifyToken, clientesController.delete);
 
 module.exports=app;
