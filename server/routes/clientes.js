@@ -6,7 +6,8 @@ const clientesController=require('../controllers/clientesCtrl');
 
 app.get(`${prefix}`,verifyToken,clientesController.list);
 
-app.get(`${prefix}/:id`,verifyToken, clientesController.findOneBy)
+app.get(`${prefix}/:id`,verifyToken, clientesController.findOneBy);
+app.get(`${prefix}/codigo/:codigo`,verifyToken, clientesController.findOneByCodigo);
 
 app.post(`${prefix}`,verifyToken, clientesController.create)
 

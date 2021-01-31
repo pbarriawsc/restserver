@@ -90,22 +90,38 @@ exports.update = (req, res) => {
     });
     };
 
-    exports.delete = (req,res) =>{
-        if (!req.params.id) {
-            res.status(400).send({
-                message: "EL ID ES OBLIGATORIO",
-                success:false
-              });
-              return;
-        }
-        client.query('DELETE FROM public.clientes where id = $1', [req.params.id], function (err, result) {
+exports.findOneByCodigo = (req,res) =>{
+    if (!req.params.codigo) {
+        res.status(400).send({
+            message: "EL ID ES OBLIGATORIO",
+            success:false
+          });
+          return;
+    }
+        client.query('SELECT * FROM public.clientes where codigo = $1 LIMIT 1', [parseInt(req.params.codigo)], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
             }
-            res.status(200).send({
-                message: "EL CLIENTE FUE ELIMINADO CORRECTAMENTE",
-                success:true
-              });
+            res.status(200).send(result.rows);
         });
-        };
+};
+exports.delete = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "EL ID ES OBLIGATORIO",
+            success:false
+          });
+          return;
+    }
+    client.query('DELETE FROM public.clientes where id = $1', [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send({
+            message: "EL CLIENTE FUE ELIMINADO CORRECTAMENTE",
+            success:true
+          });
+    });
+};
