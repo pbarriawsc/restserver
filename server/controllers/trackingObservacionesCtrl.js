@@ -9,7 +9,7 @@ exports.list = (req, res) => {
       });
       return;
     }
-    client.query('SELECT o.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.tracking_observaciones o inner join public.usuario u ON u.id = o.fk_usuario where o.fk_tracking=$1 ORDER BY h.id DESC', [req.params.id], function (err, result) {
+    client.query('SELECT o.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.tracking_observaciones o inner join public.usuario u ON u.id = o.fk_usuario where o.fk_tracking=$1 ORDER BY o.id DESC', [req.params.id], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -47,7 +47,7 @@ exports.create = (req, res) => {
     });
 
     const query={
-        text:'INSERT INTO public.tracking_observaciones(fecha, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4)',
+        text:'INSERT INTO public.tracking_observaciones(fecha, observacion, fk_usuario, fk_tracking) VALUES($1,$2,$3,$4) RETURNING *',
         values:[moment().format('YYYYMMDD HHmmss'),req.body.observacion,req.usuario.id,req.params.id]
     }
 
@@ -56,8 +56,9 @@ exports.create = (req, res) => {
           console.log(err);
           res.status(400).send(err);
         }   
-    });
-    res.status(200).send(result.rows[0]);
-    res.end();
-    res.connection.destroy();
+
+        res.status(200).send(result.rows[0]);
+        res.end();
+        res.connection.destroy();
+    }); 
 };
