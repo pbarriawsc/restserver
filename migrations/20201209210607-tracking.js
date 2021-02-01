@@ -97,7 +97,11 @@ module.exports = {
       fk_propuesta:{
         type: Sequelize.INTEGER,
         allowNull: true,
-      }
+      },
+      prioridad:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
     });
   },
 
