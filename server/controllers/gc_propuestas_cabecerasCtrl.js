@@ -274,43 +274,14 @@ const jwt=require('jsonwebtoken');
         var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
         let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
 
-        if (!req.body.gcpcserad_fk_cabecera || req.body.gcpcserad_fk_cabecera==0) {
-            res.status(400).send({
-                message: "EL TIPO DE CONTACTO ES OBLIGATORIO",
-                success:false
-            });
-            return;
-        }else if (!req.body.gcrc_fk_comercial || req.body.gcrc_fk_comercial==0) {
-            res.status(400).send({
-                message: "EL COMERCIAL ES OBLIGATORIO",
-                success:false
-            });
-            return;
-        }else if (!req.body.gcrc_nombres || req.body.gcrc_nombres=='') {
-            res.status(400).send({
-                message: "EL NOMBRE ES OBLIGATORIO",
-                success:false
-            });
-            return;
-        }else if (!req.body.gcrc_apellidos || req.body.gcrc_apellidos=='') {
-            res.status(400).send({
-                message: "EL APELLIDO ES OBLIGATORIO",
-                success:false
-            });
-            return;
-        }else if ( (!req.body.gcrc_email || req.body.gcrc_email=='') && (!req.body.gcrc_telefono1 || req.body.gcrc_telefono1=='') && (!req.body.gcrc_telefono2 || req.body.gcrc_telefono2=='') ) {
-            res.status(400).send({
-                message: "DEBE INGRESAR UN EMAIL, O TELEFONO PRINCIPAL, O TELEFONO SECUNDARIO",
-                success:false
-            });
-            return;
-        }else if ( !req.body.gcrc_texto || req.body.gcrc_texto=='' ) {
-            res.status(400).send({
-                message: "EL COMENTARIO ES OBLIGATORIO",
-                success:false
-            });
-            return;
-        }
+        if(req.body.gcpc_fk_tipoDeServicio==0) { req.body.gcpc_fk_tipoDeServicio = null; }
+        if(req.body.gcpc_fk_zonaDespacho==0) { req.body.gcpc_fk_zonaDespacho = null; }
+        if(req.body.gcpc_fk_formaDePago==0) { req.body.gcpc_fk_formaDePago = null; }
+        if(req.body.gcpc_fk_zonaOrigen==0) { req.body.gcpc_fk_zonaOrigen = null; }
+        if(req.body.gcpc_fk_zonaAlmacenaje==0) { req.body.gcpc_fk_zonaAlmacenaje = null; }
+        if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+        if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+        
         function formatear_numero(Numero)
         {
             Numero = Numero.toString().replace(/\./g,'');
