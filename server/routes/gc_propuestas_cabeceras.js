@@ -14,6 +14,11 @@ const prefixPdfCab='/api/gc_propuestaPdf_Cab';
 const prefixPdfTar='/api/gc_propuestaPdf_Tar';
 const prefixPdfSerAd='/api/gc_propuestaPdf_SerAd';
 const prefixAprobar='/api/set_propuestapdf_aprobar';
+const prefixPostSerAd='/api/gc_propuestacomercial_postserad';
+const prefixSerAdList='/api/gc_propuestacomercial_serad_list';
+const prefixDelete='/api/gc_propuestacomercial_delete';
+
+
 
 const gc_propuestas_cabecerasController=require('../controllers/gc_propuestas_cabecerasCtrl');
 
@@ -28,6 +33,12 @@ app.get(`${prefixPropuestaDesarrollo}/:id`,verifyToken, gc_propuestas_cabecerasC
 app.post(`${prefix}`,verifyToken, gc_propuestas_cabecerasController.create)
 
 app.put(`${prefix}`,verifyToken, gc_propuestas_cabecerasController.update)
+
+app.post(`${prefixPostSerAd}`,verifyToken, gc_propuestas_cabecerasController.createSerAd)
+
+app.get(`${prefixSerAdList}/:id`,verifyToken,gc_propuestas_cabecerasController.SerAdList);
+
+app.get(`${prefixDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.Delete);
 
 
 
@@ -50,6 +61,5 @@ app.get(`${prefixPdfSerAd}/:id`,verifyToken, gc_propuestas_cabecerasController.f
 
 app.put(`${prefixAprobar}/:id`,verifyToken, gc_propuestas_cabecerasController.Aprobar)
 
-app.delete(`${prefix}/:id`,verifyToken, gc_propuestas_cabecerasController.delete)
 
 module.exports=app;
