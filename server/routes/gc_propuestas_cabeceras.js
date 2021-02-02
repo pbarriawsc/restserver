@@ -17,6 +17,7 @@ const prefixAprobar='/api/set_propuestapdf_aprobar';
 const prefixPostSerAd='/api/gc_propuestacomercial_postserad';
 const prefixSerAdList='/api/gc_propuestacomercial_serad_list';
 const prefixDelete='/api/gc_propuestacomercial_delete';
+const prefixSerAdDelete='/api/gc_propuestacomercial_serad_delete';
 
 
 
@@ -38,12 +39,9 @@ app.post(`${prefixPostSerAd}`,verifyToken, gc_propuestas_cabecerasController.cre
 
 app.get(`${prefixSerAdList}/:id`,verifyToken,gc_propuestas_cabecerasController.SerAdList);
 
-app.get(`${prefixDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.Delete);
+app.get(`${prefixSerAdDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.SerAdDelete);
 
-
-
-
-
+app.get(`${prefixDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.ProComDelete);
 
 app.get(`${prefix}`,verifyToken,gc_propuestas_cabecerasController.list);
 

@@ -5,19 +5,19 @@ const jwt=require('jsonwebtoken');
     /************************************************************/
     exports.ListServiciosTipos = (req, res) => {
         client.query(` SELECT id, nombre FROM public.servicios_tipos where estado is true order by nombre asc`, "", function (err, result) {
-        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); });
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
     };
     /************************************************************/
     /************************************************************/
     exports.ListZonasTarifarias = (req, res) => {
         client.query(` SELECT id, nombre FROM public.zonas_tarifarias where estado is true order by nombre asc`, "", function (err, result) {
-        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); });
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
     };
     /************************************************************/
     /************************************************************/
     exports.ListFormasPago = (req, res) => {
         client.query(` SELECT id, nombre FROM public.formas_pago order by nombre asc`, "", function (err, result) {
-        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); });
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
     };
     /************************************************************/
     /************************************************************/
@@ -147,11 +147,13 @@ const jwt=require('jsonwebtoken');
 
         try {
 
+            console.log(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
             await client.query(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
 
             let UltimoId = await client.query(`
             SELECT
             id
+            , fk_contacto
             , coalesce("nombreCliente",'') as nombreCliente
             , coalesce("atencionA",'') as atencionA
             , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
@@ -195,6 +197,7 @@ const jwt=require('jsonwebtoken');
             FROM public.gc_propuestas_cabeceras WHERE fk_responsable=`+req.usuario.id+` ORDER BY id DESC LIMIT 1`);
 
             res.status(200).send(UltimoId.rows[0]);
+            res.end(); res.connection.destroy();
 
         } catch (error) {
 
@@ -202,6 +205,7 @@ const jwt=require('jsonwebtoken');
                 message: "ERROR AL GUARDAR INFORMACIÓN "+error,
                 success:false,
             });
+            res.end(); res.connection.destroy();
 
         }
     }
@@ -257,6 +261,7 @@ const jwt=require('jsonwebtoken');
             FROM public.gc_propuestas_cabeceras WHERE estado=0 AND fk_contacto=`+parseInt(Object.values(req.params))+` LIMIT 1`);
 
             res.status(200).send(Propuesta_Desarrollo.rows[0]);
+            res.end(); res.connection.destroy();
 
         } catch (error) {
 
@@ -264,6 +269,7 @@ const jwt=require('jsonwebtoken');
                 message: "ERROR AL GUARDAR INFORMACIÓN "+error,
                 success:false,
             });
+            res.end(); res.connection.destroy();
 
         }
 
@@ -281,7 +287,7 @@ const jwt=require('jsonwebtoken');
         if(req.body.gcpc_fk_zonaAlmacenaje==0) { req.body.gcpc_fk_zonaAlmacenaje = null; }
         if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
         if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
-        
+
         function formatear_numero(Numero)
         {
             Numero = Numero.toString().replace(/\./g,'');
@@ -419,6 +425,7 @@ const jwt=require('jsonwebtoken');
             FROM public.gc_propuestas_cabeceras WHERE id=`+req.body.gcpc_id+` `);
 
             res.status(200).send(UltimoId.rows[0]);
+            res.end(); res.connection.destroy();
 
         } catch (error) {
 
@@ -426,7 +433,7 @@ const jwt=require('jsonwebtoken');
                 message: "ERROR AL ACTUALIZAR INFORMACIÓN "+error,
                 success:false,
             });
-
+            res.end(); res.connection.destroy();
         }
     }
     /************************************************************/
@@ -511,45 +518,7 @@ const jwt=require('jsonwebtoken');
 
               await client.query(`INSERT INTO public.gc_propuestas_servicios_adicionales (`+qry_1+`) values (`+qry_2+`)`);
 
-              let UltimoId = await client.query(`
-              SELECT
-              id
-              , fk_responsable
-              , "fechaCreacion"
-              , "fechaActualizacion"
-              , "fechaActualizacion"
-              , fk_cabecera
-              , "fk_tipoDeServicio"
-              , "fk_zonaOrigen"
-              , "fk_zonaDestino"
-
-              , CASE WHEN tarifa::TEXT LIKE '%.%' THEN
-              CONCAT(REPLACE(Split_part(TO_CHAR(tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(tarifa,'FM999,999,999.99')::text,'.',2))
-              ELSE tarifa::TEXT END as tarifa
-
-              FROM public.gc_propuestas_servicios_adicionales WHERE fk_responsable=`+req.usuario.id+` ORDER BY id DESC LIMIT 1`);
-
-              res.status(200).send(UltimoId.rows[0]);
-              res.end(); res.connection.destroy();
-
-          } catch (error) {
-
-              res.status(400).send({
-                  message: "ERROR AL GUARDAR INFORMACIÓN "+error,
-                  success:false,
-              }); res.end(); res.connection.destroy();
-
-          }
-
-        }
-    } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}
-    /************************************************************/
-    /************************************************************/
-    exports.SerAdList = async (req,res) =>{
-
-        try {
-
-            let Servicios_Adicionales = await client.query(`
+              let Servicios_Adicionales = await client.query(`
               SELECT
               SERAD.id
               , SERAD.estado
@@ -572,9 +541,54 @@ const jwt=require('jsonwebtoken');
               INNER JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
               INNER JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
 
-              WHERE SERAD.estado!=999 AND SERAD.fk_cabecera=`+parseInt(Object.values(req.params))+` order by SERAD.id desc`);
+              WHERE SERAD.estado!=999 AND SERAD.fk_cabecera=`+req.body.gcpcserad_fk_cabecera+` order by SERAD.id desc`);
 
-            res.status(200).send(Servicios_Adicionales.rows[0]);
+              res.status(200).send(Servicios_Adicionales.rows);
+              res.end(); res.connection.destroy();
+
+          } catch (error) {
+
+              res.status(400).send({
+                  message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+                  success:false,
+              }); res.end(); res.connection.destroy();
+
+          }
+
+        }
+    } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}
+    /************************************************************/
+    /************************************************************/
+    exports.SerAdList = async (req,res) =>{
+
+        try {
+
+        let Servicios_Adicionales = await client.query(`
+        SELECT
+        SERAD.id
+        , SERAD.estado
+        , SERAD.fk_responsable
+        , TO_CHAR(SERAD."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+        , SERAD."fechaActualizacion"
+        , SERAD.fk_cabecera
+        , coalesce(SERAD."fk_tipoDeServicio",0) as fk_tipoDeServicio
+        , TS.nombre as tipoDeServicioNombre
+        , coalesce(SERAD."fk_zonaOrigen",0) as fk_zonaOrigen
+        , ZTO.nombre as origenNombre
+        , coalesce(SERAD."fk_zonaDestino",0) as fk_zonaDestino
+        , ZTD.nombre as destinoNombre
+
+        , CASE WHEN SERAD.tarifa::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999.99')::text,'.',2))
+        ELSE SERAD.tarifa::TEXT END as tarifa
+        FROM public.gc_propuestas_servicios_adicionales AS SERAD
+        INNER JOIN public.servicios_tipos as TS ON TS.id=SERAD."fk_tipoDeServicio"
+        INNER JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
+        INNER JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
+
+        WHERE SERAD.estado!=999 AND SERAD.fk_cabecera=`+parseInt(Object.values(req.params))+` order by SERAD.id desc`);
+
+        res.status(200).send(Servicios_Adicionales.rows);
 
         } catch (error) {
 
@@ -582,12 +596,12 @@ const jwt=require('jsonwebtoken');
                 message: "ERROR AL CARGAR LISTADO DE SERVICIOS ADICIONALES "+error,
                 success:false,
             });
-
+            res.end(); res.connection.destroy();
         }
     };
     /************************************************************/
     /************************************************************/
-    exports.Delete = async (req,res) =>{
+    exports.ProComDelete = async (req,res) =>{
         try {
 
             await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=999 WHERE id=`+parseInt(Object.values(req.params)));
@@ -597,7 +611,7 @@ const jwt=require('jsonwebtoken');
         } catch (error) {
 
             res.status(400).send({
-                message: "ERROR AL CARGAR LISTADO DE SERVICIOS ADICIONALES "+error,
+                message: "ERROR AL ELIMINAR PROPUESTA "+error,
                 success:false,
             });
 
@@ -605,9 +619,24 @@ const jwt=require('jsonwebtoken');
     };
     /************************************************************/
     /************************************************************/
+    exports.SerAdDelete = async (req,res) =>{
+        try {
 
+            await client.query(`UPDATE public.gc_propuestas_servicios_adicionales SET estado=999 WHERE id=`+parseInt(Object.values(req.params)));
 
+            res.status(200).send("OK");
 
+        } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR AL ELIMINAR SERVICIOS ADICIONALES "+error,
+                success:false,
+            });
+
+        }
+    };
+    /************************************************************/
+    /************************************************************/
     exports.findByPdfSerAd = (req, res) => {
       client.query(`
           Select
