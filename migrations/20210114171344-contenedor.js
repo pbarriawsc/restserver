@@ -39,6 +39,14 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      fk_nave: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      fk_nave_eta: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      }
     });
   },
 

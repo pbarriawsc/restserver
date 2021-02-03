@@ -4,6 +4,7 @@ const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/navesEta';
 const navesEtaController=require('../controllers/navesEtaCtrl');
 
-app.get(`${prefix}/:id`,verifyToken,navesEtaController.findOneBy);
-
+app.get(`${prefix}/:fk_nave`,verifyToken,navesEtaController.findOneBy);
+app.post(`${prefix}`,verifyToken,navesEtaController.create);
+app.put(`${prefix}/:id`,verifyToken,navesEtaController.update);
 module.exports=app;

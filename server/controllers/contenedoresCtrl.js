@@ -56,6 +56,29 @@ exports.update = (req,res) =>{
     });
 };
 
+exports.updateShipEta =(req,res)=>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+    const query = {
+        text: 'UPDATE public.contenedor SET fk_nave=$1,fk_nave_eta=$2 WHERE id=$3 RETURNING *',
+        values: [req.body.fk_nave, req.body.fk_nave_eta,req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows[0]);
+    });
+}
+
 exports.delete = (req,res) =>{
     if (!req.params.id) {
         res.status(400).send({
