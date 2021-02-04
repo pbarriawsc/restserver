@@ -15,6 +15,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      upload_id:{
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       fecha_recepcion: {
         type: Sequelize.DATE,
         allowNull: true

@@ -71,4 +71,115 @@ exports.update = (req,res) =>{
         res.end();
         res.connection.destroy();
     });
-}
+};
+
+exports.uploadFilesDetail = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }else if(!req.params.uploadId) {
+        res.status(400).send({
+            message: "El id upload es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+    let queryValues=[null,null,null,req.params.id,req.params.uploadId];
+    if(req.files.foto1){
+    	queryValues[0]=req.files.foto1.data;
+    }
+
+    if(req.files.foto2){
+    	queryValues[1]=req.files.foto2.data;
+    }
+
+    if(req.files.foto3){
+    	queryValues[2]=req.files.foto3.data;
+    }
+
+	const query = {
+        text: 'UPDATE public.tracking_detalle SET foto1=$1,foto2=$2,foto3=$3 WHERE tracking_id=$4 and upload_id=$5 RETURNING *',
+        values: queryValues,
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows[0]);
+    });
+};
+
+exports.getPhoto1 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto1 from public.tracking_detalle WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto1);
+    });
+};
+
+exports.getPhoto2 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto2 from public.tracking_detalle WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto2);
+    });
+};
+
+exports.getPhoto3 = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+	const query = {
+        text: 'SELECT foto3 from public.tracking_detalle WHERE id=$1',
+        values: [req.params.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.end(result.rows[0].foto3);
+    });
+};

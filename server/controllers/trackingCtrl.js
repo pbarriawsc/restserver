@@ -215,8 +215,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen) VALUES($1, $2,$3,$4,$5,$6,$7,$8) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -271,8 +271,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen) VALUES($1, $2,$3,$4,$5,$6,$7,$8) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -334,8 +334,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen) VALUES($1, $2,$3,$4,$5,$6,$7,$8) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -397,8 +397,8 @@ exports.update = (req,res) =>{
     		for(var i=0;i<req.body.tracking_detalle.length;i++){
     			if(req.body.tracking_detalle[i].id===0){
     				const query2={
-		        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen) VALUES($1, $2,$3,$4,$5,$6,$7,$8) RETURNING *',
-		        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,req.params.id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen],
+		        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9) RETURNING *',
+		        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,req.params.id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id],
     				};
     				client.query(query2,"",function (err, result) {
     					if (err) {
@@ -408,8 +408,8 @@ exports.update = (req,res) =>{
     				});
     			}else{
     				const query2={
-		        		text: 'UPDATE public.tracking_detalle SET fecha_recepcion=$1,tipo_producto=$2,producto=$3,peso=$4,observacion=$5,tracking_id=$6,estado=$7,volumen=$8 WHERE id=$9 RETURNING *',
-		        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,req.params.id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].id],
+		        		text: 'UPDATE public.tracking_detalle SET fecha_recepcion=$1,tipo_producto=$2,producto=$3,peso=$4,observacion=$5,tracking_id=$6,estado=$7,volumen=$8,upload_id=$9 WHERE id=$10 RETURNING *',
+		        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,req.params.id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].id],
     				};
     				client.query(query2,"",function (err, result) {
     					if (err) {
