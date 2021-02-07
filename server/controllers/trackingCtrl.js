@@ -30,7 +30,7 @@ exports.list = (req, res) => {
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal='SELECT * FROM public.tracking_detalle '+queryIn;
+		        let queryFinal="SELECT id,upload_id,fecha_recepcion,fecha_consolidado,codigo_interno,tipo_producto,producto,peso,volumen,observacion,tracking_id,estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3 FROM public.tracking_detalle "+queryIn;
 		        client.query(queryFinal, "", function (err, result) {
 			        if (err) {
 			            console.log(err);
