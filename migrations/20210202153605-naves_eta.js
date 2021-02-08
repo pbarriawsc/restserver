@@ -20,11 +20,11 @@ module.exports = {
         allowNull: false,
       },
       viaje_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
       },
       puerto_codigo:{
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       eta_fecha: {
