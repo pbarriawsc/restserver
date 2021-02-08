@@ -32,8 +32,8 @@ module.exports = {
         allowNull: true
       },
       tipo_producto:{
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.INTEGER,
+        allowNull: true
       },
       producto:{
         type: Sequelize.STRING,
