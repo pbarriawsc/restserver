@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      puerto_codigo:{
+      fk_puerto:{
         type: Sequelize.INTEGER,
         allowNull: true,
       },
