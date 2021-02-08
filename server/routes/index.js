@@ -48,4 +48,5 @@ app.use(require('./gc_proveedores'));
 app.use(require('./gc_packingList'));
 app.use(require('./trackingObservaciones'));
 app.use(require('./naves_eta'));
+app.use(require('./contenedorHistorial'));
 module.exports=app;
