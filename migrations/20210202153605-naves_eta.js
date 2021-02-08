@@ -25,7 +25,7 @@ module.exports = {
       },
       puerto_codigo:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       eta_fecha: {
         type: Sequelize.DATE,
