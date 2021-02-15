@@ -71,6 +71,18 @@ module.exports = {
         type: Sequelize.BLOB,
         allowNull: true,
       },
+      ancho:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      alto:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      altura:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
     });
   },
 
