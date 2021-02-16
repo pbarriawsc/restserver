@@ -83,6 +83,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      fk_consolidado_tracking_detalle:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
     });
   },
 

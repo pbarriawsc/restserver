@@ -98,6 +98,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      fk_consolidado_tracking:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       prioridad:{
         type: Sequelize.INTEGER,
         allowNull: true,
