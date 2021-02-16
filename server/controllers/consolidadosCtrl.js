@@ -95,7 +95,7 @@ exports.create = (req, res) => {
     });
 };
 
-exports.listByClient = (req, res) => {
+exports.listTrackingConsolidadoByClient = (req, res) => {
   const arrayFinal=[];
     client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.fk_cliente=$1 AND t.estado<2 ORDER BY T.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
@@ -147,3 +147,22 @@ exports.listByClient = (req, res) => {
         } 
     });   
   };
+
+  exports.listByClient = (req, res) => {
+    if (!req.params.id) {
+      res.status(400).send({
+        message: "El cliente es obligatorio",
+        success:false
+      });
+      return;
+    }
+
+    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente where c.fk_cliente=$1', [parseInt(req.params.id)], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+         res.status(200).send(result.rows);
+    });
+
+  }
