@@ -8,4 +8,6 @@ app.post(`${prefix}`,verifyToken, consolidadosController.create);
 app.get(`${prefix}/tracking/cliente/:id`,verifyToken, consolidadosController.listTrackingConsolidadoByClient);
 app.get(`${prefix}/cliente/:id`,verifyToken, consolidadosController.listByClient);
 
+app.get(`${prefix}/:id/trackings`,verifyToken, consolidadosController.listTrackingConsolidadoById);
+
 module.exports=app;
