@@ -30,6 +30,7 @@ exports.create = (req, res) => {
 
     client.query(query,"",function (err, result) {
         if (err) {
+
             console.log(err);
             res.status(400).send(err);
         }
@@ -224,4 +225,158 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
           res.status(200).send(arrayFinal);
         } 
     });   
+  };
+
+  exports.update = (req, res) => {
+    // Validate request
+    if (!req.params.id) {
+      res.status(400).send({
+        message: "El id del consolidado es obligatorio",
+        success:false
+      });
+      return;
+    }
+    //BORRANDO REGISTROS DE TRACKING (CABECERA) DE LA TABLA CONSOLIDADO
+    if(req.body.delete_tracking_ids && req.body.delete_tracking_ids.length>0){
+        for(var i=0;i<req.body.delete_tracking_ids.length;i++){
+          //QUERY DE ACTUALIZACIÓN DEL REGISTRO PARA DESLIGAR EL ID DE CONSOLIDADO
+           const query = {
+                text: 'UPDATE public.tracking SET fk_consolidado_tracking=null WHERE id=$1 RETURNING *',
+                values: [req.body.delete_tracking_ids[i]],
+            };
+
+          client.query('DELETE FROM public.consolidado_tracking where fk_tracking = $1 and fk_consolidado=$2', [req.body.delete_tracking_ids[i],req.params.id], function (err, result) {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+
+            client.query(query,"",function (err, result) {
+              if (err) {
+                  console.log(err);
+                  res.status(400).send(err);
+              }
+            });
+          });
+        }
+    }
+
+    //BORRANDO REGISTROS DE TRACKING_DETALLE (LINEAS) DE LA TABLA CONSOLIDADO
+    if(req.body.delete_tracking_detalle_ids && req.body.delete_tracking_detalle_ids.length>0){
+      for(var i=0;i<req.body.delete_tracking_detalle_ids.length;i++){
+          //QUERY DE ACTUALIZACIÓN DEL REGISTRO PARA DESLIGAR EL ID DE CONSOLIDADO
+           const query1 = {
+                text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=null WHERE id=$1 RETURNING *',
+                values: [req.body.delete_tracking_detalle_ids[i]],
+            };
+
+          client.query('DELETE FROM public.consolidado_tracking_detalle where fk_tracking_detalle = $1 and fk_consolidado=$2', [req.body.delete_tracking_detalle_ids[i],req.params.id], function (err, result) {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+
+            client.query(query1,"",function (err, result) {
+              if (err) {
+                  console.log(err);
+                  res.status(400).send(err);
+              }
+            });
+          });
+        }
+    }
+
+//INSERCIÓN DE NUEVOS DATOS TIPO TRACKING EN LA TABLA DE CONSOLIDADOS
+    if(req.body.trackings && req.body.trackings.length>0){
+      for(var i=0;i<req.body.trackings.length;i++){
+          const query2 = {
+                  text: 'SELECT *from public.consolidado_tracking where fk_tracking = $1 and fk_consolidado=$2',
+                  values: [req.body.trackings[i],req.params.id],
+          };
+
+          const query3={
+            text: 'INSERT INTO public.consolidado_tracking(fk_consolidado,fk_tracking,estado) VALUES($1, $2,$3) RETURNING *',
+            values: [req.params.id,req.body.trackings[i],0]
+          };
+
+          let values4=[0,req.body.trackings[i]];
+
+          client.query(query2,"",function (err2, result2) {//pregunto si existe el registro de tracking en el consolidado
+                if (err2) {
+                    console.log(err2);
+                    res.status(400).send(err2);
+                }
+
+                if(result2.rows.length===0){// si el tracking no está en el consolidado, se inserta (query3)
+                  client.query(query3,"",function (err3, result3) {
+                    if (err3) {
+                        console.log(err3);
+                        res.status(400).send(err3);
+                    }
+                    if(result3.rows.length>0){//se actualiza el registro de tracking enlazandolo con el nuevo id de consolidado_tracking
+                      values4[0]=result3.rows[0].id;
+                      const query4 = {
+                            text: 'UPDATE public.tracking SET fk_consolidado_tracking=$1 WHERE id=$2 RETURNING *',
+                            values: values4,
+                      };
+                      client.query(query4,"",function (err4, result4) {
+                        if (err4) {
+                            console.log(err4);
+                            res.status(400).send(err4);
+                        }
+                      });
+                    }
+                  });
+                }
+          });
+      }
+    }
+
+    //INSERCIÓN DE NUEVOS DATOS TIPO TRACKING DETALLE EN LA TABLA DE CONSOLIDADOS
+    if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){console.log("TRACKING DETALLE");
+      for(var i=0;i<req.body.tracking_detalle.length;i++){
+          const query5 = {
+                  text: 'SELECT *from public.consolidado_tracking_detalle where fk_tracking_detalle = $1 and fk_consolidado=$2',
+                  values: [req.body.tracking_detalle[i].id,req.params.id],
+          };
+
+          const query6={
+            text: 'INSERT INTO public.consolidado_tracking_detalle(fk_consolidado,fk_tracking,fk_tracking_detalle,estado) VALUES($1, $2,$3,$4) RETURNING *',
+            values: [req.params.id,req.body.tracking_detalle[i].tracking_id,req.body.tracking_detalle[i].id,0]
+          };
+
+          let values7=[0,req.body.tracking_detalle[i].id];
+
+          client.query(query5,"",function (err5, result5) {//pregunto si existe el registro de tracking detalle en el consolidado
+                if (err5) {
+                    console.log(err5);
+                    res.status(400).send(err5);
+                }
+
+                if(result5.rows.length===0){// si el tracking detalle no está en el consolidado, se inserta (query6)
+                  client.query(query6,"",function (err6, result6) {
+                    if (err6) {
+                        console.log(err6);
+                        res.status(400).send(err6);
+                    }
+                    if(result6.rows.length>0){//se actualiza el registro de tracking enlazandolo con el nuevo id de consolidado_tracking
+                      values7[0]=result6.rows[0].id;
+                      const query7 = {
+                            text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=$1 WHERE id=$2 RETURNING *',
+                            values: values7,
+                      };
+                      client.query(query7,"",function (err7, result7) {
+                        if (err7) {
+                            console.log(err7);
+                            res.status(400).send(err7);
+                        }
+                      });
+                    }
+                  });
+                }
+          });
+      }
+    }
+
+    res.status(200).send([]);
   };
