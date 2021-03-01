@@ -1307,6 +1307,9 @@ const jwt=require('jsonwebtoken');
     
                 qry_1 += ` fecha_recepcion, `;
                 qry_2 += ` null, `;
+
+                qry_1 += ` fk_propuesta, `;
+                qry_2 += ` `+Propuesta.rows[0]['id']+`, `;                
     
                 qry_1 += ` cantidad_bultos, `;
                 qry_2 += ` 0, `;
