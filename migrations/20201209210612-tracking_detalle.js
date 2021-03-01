@@ -15,6 +15,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      upload_id:{
+        type: Sequelize.INTEGER,
+        allowNull: true
+      },
       fecha_recepcion: {
         type: Sequelize.DATE,
         allowNull: true
@@ -28,8 +32,8 @@ module.exports = {
         allowNull: true
       },
       tipo_producto:{
-        type: Sequelize.STRING,
-        allowNull: false
+        type: Sequelize.INTEGER,
+        allowNull: true
       },
       producto:{
         type: Sequelize.STRING,
@@ -65,6 +69,22 @@ module.exports = {
       },
       foto3:{
         type: Sequelize.BLOB,
+        allowNull: true,
+      },
+      ancho:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      alto:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      altura:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      fk_consolidado_tracking_detalle:{
+        type: Sequelize.INTEGER,
         allowNull: true,
       },
     });

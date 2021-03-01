@@ -8,45 +8,41 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-     await queryInterface.createTable('contenedor', {
+     await queryInterface.createTable('consolidado', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      codigo: {
+      nombre: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull:true
       },
-      reserva: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      fk_nave: {
+      fk_cliente:{
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull:false
       },
-      viaje: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      volumen:{
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
-      estado: {
+      estado:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull:false
       },
-      fk_nave: {
+      prioridad:{
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull:true
       },
-      fk_nave_eta: {
+      fk_usuario:{
         type: Sequelize.INTEGER,
-        allowNull: true,
-      }
+        allowNull:false
+      },
+      fecha:{
+        type: Sequelize.DATE,
+        allowNull:false
+      },
+      fk_contenedor:{
+        type: Sequelize.INTEGER,
+        allowNull:true
+      },
     });
   },
 
@@ -57,6 +53,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('contenedor');
+     await queryInterface.dropTable('consolidado');
   }
 };

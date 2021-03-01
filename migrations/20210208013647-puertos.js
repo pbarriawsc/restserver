@@ -8,44 +8,20 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-     await queryInterface.createTable('contenedor', {
+     await queryInterface.createTable('puertos', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      codigo: {
+      nombre: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      reserva: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      fk_nave: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      viaje: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      volumen:{
-        type: Sequelize.FLOAT,
-        allowNull: false,
-      },
-      estado: {
+      estado:{
         type: Sequelize.INTEGER,
         allowNull: false,
-      },
-      fk_nave: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
-      fk_nave_eta: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
       }
     });
   },
@@ -57,6 +33,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('contenedor');
+     await queryInterface.dropTable('puertos');
   }
 };

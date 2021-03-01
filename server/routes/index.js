@@ -8,6 +8,7 @@ app.use(require('./tipoDireccion'))
 app.use(require('./direccionesTipos'))
 app.use(require('./pais'))
 app.use(require('./naves'))
+app.use(require('./naves2'))
 app.use(require('./equiposTipos'))
 app.use(require('./equiposMarcas'))
 app.use(require('./equiposModelos'))
@@ -46,5 +47,8 @@ app.use(require('./contenedorDetalle'));
 app.use(require('./gc_proveedores'));
 app.use(require('./gc_packingList'));
 app.use(require('./trackingObservaciones'));
-
+app.use(require('./naves_eta'));
+app.use(require('./contenedorHistorial'));
+app.use(require('./puertos'));
+app.use(require('./consolidados'));
 module.exports=app;
