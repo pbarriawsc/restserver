@@ -15,6 +15,11 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 unique: false,
             },
+            cantProveedores: {
+                allowNull: false,
+                type: Sequelize.INTEGER,
+                unique: false,
+            },            
             fk_responsable: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -39,19 +44,32 @@ module.exports = {
                 type: Sequelize.DATE,
                 unique: false,
             },   
-            fk_contacto: {
+            fk_cliente: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: {
-                        tableName: "gc_registrocontactos",
+                        tableName: "clientes",
                         schema: "public"
                     },
                     key: "id",
                     onDelete: "RESTRICT",
                     onUpdate: "RESTRICT",
                 },
-                allowNull: false
-            },                     
+                allowNull: true
+            },     
+            fk_direccion: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: {
+                        tableName: "clientes_direcciones",
+                        schema: "public"
+                    },
+                    key: "id",
+                    onDelete: "RESTRICT",
+                    onUpdate: "RESTRICT",
+                },
+                allowNull: true
+            },                                 
             nombreCliente: {
                 allowNull: true,
                 type: Sequelize.TEXT,

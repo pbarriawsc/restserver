@@ -21,6 +21,59 @@ const jwt=require('jsonwebtoken');
     };
     /************************************************************/
     /************************************************************/
+    exports.ListClientes = (req, res) => {
+        client.query(` SELECT * FROM public.clientes order by nombre asc`, "", function (err, result) {
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
+    };    
+    /************************************************************/
+    /************************************************************/
+    exports.ListProveedores = (req, res) => {
+        client.query(` SELECT * FROM public.proveedores order by nombre asc`, "", function (err, result) {
+        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
+    };    
+    /************************************************************/
+    /************************************************************/    
+    exports.listDirecciones = (req, res) => {
+
+        client.query(`
+            SELECT
+            dir.nombre
+            , dir.fk_cliente
+            , dir.fk_tipo
+            , dir_tipo.nombre as tipo_nombre
+            , dir.fk_pais
+            , pais.nombre as pais_nombre
+            , dir.fk_region
+            , region.nombre as region_nombre
+            , dir.fk_comuna
+            , comunas.nombre as comuna_nombre
+            , dir.direccion
+            , dir.numero
+            , dir.radio
+            , dir."codigoPostal"
+            , dir.referencia
+            , dir.lat
+            , dir.lon
+            , dir.comentario
+            , dir."fechaCreacion"
+            , dir."fechaActualizacion"
+            , dir.estado
+            , dir.id
+            FROM public.clientes_direcciones as dir
+            inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo
+            inner join pais on pais.id=dir.fk_pais
+            inner join region on region.id=dir.fk_region
+            inner join comunas on comunas.id=dir.fk_comuna
+            where dir.fk_cliente=$1`, [req.params.id], function (err, result) {
+                if (err) {
+                    console.log(err);
+                    res.status(400).send(err);
+                }
+                res.status(200).send(result.rows);
+        });
+    };    
+    /************************************************************/
+    /************************************************************/    
     exports.create = async (req, res) => {
         var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
         let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
@@ -32,13 +85,17 @@ const jwt=require('jsonwebtoken');
         if(req.body.gcpc_fk_zonaAlmacenaje==0) { req.body.gcpc_fk_zonaAlmacenaje = null; }
         if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
         if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
-
+        if(req.body.gcpc_fk_cliente==0) { req.body.gcpc_fk_cliente = null; }
+        if(req.body.gcpc_fk_direccion==0) { req.body.gcpc_fk_direccion = null; }
+        if(!req.body.gcpc_cantProveedores || req.body.gcpc_cantProveedores.length==0) { req.body.gcpc_cantProveedores = 0; }
+        
         function formatear_numero(Numero)
         {
             Numero = Numero.toString().replace(/\./g,'');
             Numero = Numero.toString().replace(/\,/g,'.');
             return Numero;
         }
+        
         if(!req.body.gcpc_volumenEstimado || req.body.gcpc_volumenEstimado.length==0)
         { req.body.gcpc_volumenEstimado = 0; } else {
             req.body.gcpc_volumenEstimado = formatear_numero(req.body.gcpc_volumenEstimado);
@@ -88,9 +145,6 @@ const jwt=require('jsonwebtoken');
         qry_1 += ` "fechaActualizacion", `;
         qry_2 += ` '`+fecha+`', `;
 
-        qry_1 += ` fk_contacto, `;
-        qry_2 += ` `+req.body.gcpc_fk_contacto+`, `;
-
         qry_1 += ` "nombreCliente", `;
         qry_2 += ` '`+req.body.gcpc_nombreCliente+`', `;
 
@@ -99,6 +153,15 @@ const jwt=require('jsonwebtoken');
 
         qry_1 += ` "fk_tipoDeServicio", `;
         qry_2 += ` `+req.body.gcpc_fk_tipoDeServicio+`, `;
+
+        qry_1 += ` "cantProveedores", `;
+        qry_2 += ` `+req.body.gcpc_cantProveedores+`, `
+
+        qry_1 += ` fk_cliente, `;
+        qry_2 += ` `+req.body.gcpc_fk_cliente+`, `;
+        
+        qry_1 += ` fk_direccion, `;
+        qry_2 += ` `+req.body.gcpc_fk_direccion+`, `;        
 
         qry_1 += ` "tipoDeCarga", `;
         qry_2 += ` '`+req.body.gcpc_tipoDeCarga+`', `;
@@ -147,17 +210,18 @@ const jwt=require('jsonwebtoken');
 
         try {
 
-            console.log(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
             await client.query(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
 
             let UltimoId = await client.query(`
             SELECT
             id
-            , fk_contacto
             , coalesce("nombreCliente",'') as nombreCliente
             , coalesce("atencionA",'') as atencionA
             , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
             , coalesce("tipoDeCarga",'') as tipoDeCarga
+            , fk_cliente
+            , fk_direccion
+            , "cantProveedores"
 
             , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
@@ -222,6 +286,88 @@ const jwt=require('jsonwebtoken');
             , coalesce("atencionA",'') as atencionA
             , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
             , coalesce("tipoDeCarga",'') as tipoDeCarga
+            , fk_cliente
+            , fk_direccion
+            , "cantProveedores"
+            , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
+            ELSE "volumenEstimado"::TEXT END as volumenEstimado
+
+            , CASE WHEN "pesoEstimado"::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR("pesoEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("pesoEstimado",'FM999,999,999.99')::text,'.',2))
+            ELSE "pesoEstimado"::TEXT END as pesoEstimado
+
+            , coalesce("fk_zonaDespacho",0) as fk_zonaDespacho
+            , coalesce(direccion,'') as direccion
+            , coalesce("fk_formaDePago",0) as fk_formaDePago
+            , coalesce("fechaValidez",'') as fechaValidez
+            , coalesce("fk_zonaOrigen",0) as fk_zonaOrigen
+            , coalesce("fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
+            , coalesce("fk_zonaDestino",0) as fk_zonaDestino
+
+            , CASE WHEN factor::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR(factor,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(factor,'FM999,999,999.99')::text,'.',2))
+            ELSE factor::TEXT END as factor
+
+            , CASE WHEN "cmbPeso"::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR("cmbPeso",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("cmbPeso",'FM999,999,999.99')::text,'.',2))
+            ELSE "cmbPeso"::TEXT END as cmbPeso
+
+            , CASE WHEN "unidadesACobrar"::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR("unidadesACobrar",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("unidadesACobrar",'FM999,999,999.99')::text,'.',2))
+            ELSE "unidadesACobrar"::TEXT END as unidadesACobrar
+
+            , CASE WHEN "valorUnitarioUsd"::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR("valorUnitarioUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("valorUnitarioUsd",'FM999,999,999.99')::text,'.',2))
+            ELSE "valorUnitarioUsd"::TEXT END as valorUnitarioUsd
+
+            , CASE WHEN "tarifaUsd"::TEXT LIKE '%.%' THEN
+            CONCAT(REPLACE(Split_part(TO_CHAR("tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("tarifaUsd",'FM999,999,999.99')::text,'.',2))
+            ELSE "tarifaUsd"::TEXT END as tarifaUsd
+            FROM public.gc_propuestas_cabeceras WHERE estado=0 AND id=`+parseInt(Object.values(req.params))+` LIMIT 1`);
+
+            res.status(200).send(Propuesta_Desarrollo.rows[0]);
+            res.end(); res.connection.destroy();
+
+        } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
+
+    };
+    /************************************************************/
+    /************************************************************/
+    exports.GetList = async (req,res) =>{
+
+        let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+        
+        try {
+
+            var condicion = ` `;
+
+            if(parseInt(Object.values(req.params))!=1)
+            {
+                var condicion = ` and id=-1 `;
+            }
+
+            if(req.usuario.fk_rol==2)
+            {
+                var innerJoin = ` `;
+            }
+            
+            let Propuesta_Desarrollo = await client.query(`
+            SELECT
+            id
+            , TO_CHAR("fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+            , coalesce("nombreCliente",'') as nombreCliente
+            , coalesce("atencionA",'') as atencionA
+            , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
+            , coalesce("tipoDeCarga",'') as tipoDeCarga
 
             , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
@@ -258,9 +404,13 @@ const jwt=require('jsonwebtoken');
             , CASE WHEN "tarifaUsd"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("tarifaUsd",'FM999,999,999.99')::text,'.',2))
             ELSE "tarifaUsd"::TEXT END as tarifaUsd
-            FROM public.gc_propuestas_cabeceras WHERE estado=0 AND fk_contacto=`+parseInt(Object.values(req.params))+` LIMIT 1`);
+            FROM public.gc_propuestas_cabeceras as cabe
+            WHERE 
+            estado=0 
+            `+condicion+`
+            `);
 
-            res.status(200).send(Propuesta_Desarrollo.rows[0]);
+            res.status(200).send(Propuesta_Desarrollo.rows);
             res.end(); res.connection.destroy();
 
         } catch (error) {
@@ -275,7 +425,7 @@ const jwt=require('jsonwebtoken');
 
     };
     /************************************************************/
-    /************************************************************/
+    /************************************************************/    
     exports.update = async (req, res) => {
         var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
         let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
@@ -287,6 +437,9 @@ const jwt=require('jsonwebtoken');
         if(req.body.gcpc_fk_zonaAlmacenaje==0) { req.body.gcpc_fk_zonaAlmacenaje = null; }
         if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
         if(req.body.gcpc_fk_zonaDestino==0) { req.body.gcpc_fk_zonaDestino = null; }
+        if(req.body.gcpc_fk_cliente==0) { req.body.gcpc_fk_cliente = null; }
+        if(req.body.gcpc_fk_direccion==0) { req.body.gcpc_fk_direccion = null; }
+        if(!req.body.gcpc_cantProveedores || req.body.gcpc_cantProveedores.length==0) { req.body.gcpc_cantProveedores = 0; }
 
         function formatear_numero(Numero)
         {
@@ -337,14 +490,18 @@ const jwt=require('jsonwebtoken');
 
         qry_1 += ` "fechaActualizacion"='`+fecha+`', `;
 
-        qry_1 += ` fk_contacto=`+req.body.gcpc_fk_contacto+`, `;
-
         qry_1 += ` "nombreCliente"='`+req.body.gcpc_nombreCliente+`', `;
 
         qry_1 += ` "atencionA"='`+req.body.gcpc_atencionA+`', `;
 
         qry_1 += ` "fk_tipoDeServicio"=`+req.body.gcpc_fk_tipoDeServicio+`, `;
-
+        
+        qry_1 += ` fk_cliente=`+req.body.gcpc_fk_cliente+`, `;
+        
+        qry_1 += ` fk_direccion=`+req.body.gcpc_fk_direccion+`, `;
+        
+        qry_1 += ` "cantProveedores"=`+req.body.gcpc_cantProveedores+`, `;
+        
         qry_1 += ` "tipoDeCarga"='`+req.body.gcpc_tipoDeCarga+`', `;
 
         qry_1 += ` "volumenEstimado"=`+req.body.gcpc_volumenEstimado+`, `;
@@ -356,7 +513,7 @@ const jwt=require('jsonwebtoken');
         qry_1 += ` direccion='`+req.body.gcpc_direccion+`', `;
 
         qry_1 += ` "fk_formaDePago"=`+req.body.gcpc_fk_formaDePago+`, `;
-
+        
         qry_1 += ` "fechaValidez"='`+req.body.gcpc_fechaValidez+`', `;
 
         qry_1 += ` "fk_zonaOrigen"=`+req.body.gcpc_fk_zonaOrigen+`, `;
@@ -386,6 +543,7 @@ const jwt=require('jsonwebtoken');
             , coalesce("atencionA",'') as atencionA
             , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
             , coalesce("tipoDeCarga",'') as tipoDeCarga
+            , fk_cliente
 
             , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
@@ -559,6 +717,108 @@ const jwt=require('jsonwebtoken');
     } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}
     /************************************************************/
     /************************************************************/
+    exports.createProv = async (req, res) => { try {
+        var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+        let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+        if (!req.body.gcpcprov_fk_cabecera || req.body.gcpcprov_fk_cabecera==0) {
+            res.status(400).send({
+                message: "NO SE DETECTO UNA PROPUESTA CREADA PARA ASIGNAR SERVICIOS ADICIONALES",
+                success:false
+            }); res.end(); res.connection.destroy();
+            return;
+        } else if (!req.body.gcpcprov_fk_proveedor || req.body.gcpcprov_fk_proveedor==0) {
+            res.status(400).send({
+                message: "EL PROVEEDOR ES OBLIGATORIO",
+                success:false
+            }); res.end(); res.connection.destroy();
+            return;
+        } else if (!req.body.gcpcprov_peso ) {
+            res.status(400).send({
+                message: "EL PESO ES OBLIGATORIO",
+                success:false
+            }); res.end(); res.connection.destroy();
+            return;
+        } else if (!req.body.gcpcprov_bultos ) {
+            res.status(400).send({
+                message: "LOS BULTOS SON OBLIGATORIOS",
+                success:false
+            }); res.end(); res.connection.destroy();
+            return;
+        } else if (!req.body.gcpcprov_volumen ) {
+            res.status(400).send({
+                message: "EL VOLUMEN ES OBLIGATORIO",
+                success:false
+            }); res.end(); res.connection.destroy();
+            return;
+        } else {
+
+        let qry_1 = '';     let qry_2 = '';
+
+        qry_1 = ` estado, `;
+        qry_2 = ` 0, `;
+
+        qry_1 += ` fk_responsable, `;
+        qry_2 += ` `+req.usuario.id+`, `;
+
+        qry_1 += ` "fechaCreacion", `;
+        qry_2 += ` '`+fecha+`', `;
+
+        qry_1 += ` "fechaActualizacion", `;
+        qry_2 += ` '`+fecha+`', `;
+
+        qry_1 += ` fk_cabecera, `;
+        qry_2 += ` `+req.body.gcpcprov_fk_cabecera+`, `;
+
+        qry_1 += ` fk_proveedor, `;
+        qry_2 += ` `+req.body.gcpcprov_fk_proveedor+`, `;
+
+        qry_1 += ` volumen, `;
+        qry_2 += ` `+req.body.gcpcprov_volumen+`, `;
+
+        qry_1 += ` peso, `;
+        qry_2 += ` `+req.body.gcpcprov_peso+`, `;
+
+        qry_1 += ` bultos `;
+        qry_2 += ` `+req.body.gcpcprov_bultos+` `;
+
+          try {
+
+              await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
+
+              let Proveedores = await client.query(`
+                SELECT 
+                prov.id
+                , prov.estado
+                , prov.fk_responsable
+                , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+                , prov.fk_cabecera
+                , prov.fk_proveedor
+                , prove.nombre
+                , prov.volumen
+                , prov.bultos
+                , peso
+                FROM public.gc_propuestas_proveedores as prov
+                INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+                WHERE
+                prov.fk_cabecera=`+req.body.gcpcprov_fk_cabecera+` order by prov.id desc`);
+
+              res.status(200).send(Proveedores.rows);
+              res.end(); res.connection.destroy();
+
+          } catch (error) {
+
+              res.status(400).send({
+                  message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+                  success:false,
+              }); res.end(); res.connection.destroy();
+
+          }
+
+        }
+    } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}    
+    /************************************************************/
+    /************************************************************/
     exports.SerAdList = async (req,res) =>{
 
         try {
@@ -579,8 +839,9 @@ const jwt=require('jsonwebtoken');
         , ZTD.nombre as destinoNombre
 
         , CASE WHEN SERAD.tarifa::TEXT LIKE '%.%' THEN
-        CONCAT(REPLACE(Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999.99')::text,'.',2))
-        ELSE SERAD.tarifa::TEXT END as tarifa
+		CONCAT(REPLACE(Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999.99')::text,'.',2))
+		ELSE SERAD.tarifa::TEXT END as tarifa
+
         FROM public.gc_propuestas_servicios_adicionales AS SERAD
         INNER JOIN public.servicios_tipos as TS ON TS.id=SERAD."fk_tipoDeServicio"
         INNER JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
@@ -599,6 +860,41 @@ const jwt=require('jsonwebtoken');
             res.end(); res.connection.destroy();
         }
     };
+    /************************************************************/
+    /************************************************************/
+    exports.ListProv = async (req,res) =>{
+
+        try {
+
+        let Proveedores = await client.query(`
+        SELECT 
+        prov.id
+        , prov.estado
+        , prov.fk_responsable
+        , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+        , prov.fk_cabecera
+        , prov.fk_proveedor
+        , prove.nombre
+        , prov.volumen
+        , prov.bultos
+        , peso
+        FROM public.gc_propuestas_proveedores as prov
+        INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+        WHERE
+        prov.estado=0 and prov.fk_cabecera=`+parseInt(Object.values(req.params))+` order by prov.id desc`);
+
+        res.status(200).send(Proveedores.rows);
+
+        } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR AL CARGAR LISTADO DE PROVEEDORES "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+        }
+    };    
+    
     /************************************************************/
     /************************************************************/
     exports.ProComDelete = async (req,res) =>{
@@ -697,7 +993,6 @@ const jwt=require('jsonwebtoken');
           , cabe.servicio
           , cabe."pesoEstimado"
           , cabe.id
-          , cabe.fk_contacto
           , cabe.estado
           , cabe."nombreCliente"
           , cabe."atencionA"
@@ -727,7 +1022,6 @@ const jwt=require('jsonwebtoken');
         , cabe.servicio
         , cabe."pesoEstimado"
         , cabe.id
-        , cabe.fk_contacto
         , cabe.estado
         , cabe."nombreCliente"
         , cabe."atencionA"
@@ -755,11 +1049,11 @@ const jwt=require('jsonwebtoken');
       cabe."volumenEstimado"
       , TO_CHAR(cabe."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
       , TO_CHAR(cabe."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
+      , cabe.fk_cliente
       , cabe."tipoDeCarga"
       , cabe.servicio
       , cabe."pesoEstimado"
       , cabe.id
-      , cabe.fk_contacto
       , cabe.estado
       , cabe."nombreCliente"
       , cabe."atencionA"
@@ -890,9 +1184,6 @@ const jwt=require('jsonwebtoken');
         qry_1 += ` "fechaActualizacion", `;
         qry_2 += ` '`+fecha+`', `;
 
-        qry_1 += ` fk_contacto, `;
-        qry_2 += ` `+req.body.gcpc_fk_contacto+`, `;
-
         qry_1 += ` "nombreCliente", `;
         qry_2 += ` '`+req.body.gcpc_nombreCliente+`', `;
 
@@ -983,6 +1274,89 @@ const jwt=require('jsonwebtoken');
             });
 
         }
+    }
+    /************************************************************/
+    /************************************************************/
+    exports.ProAprobar = async (req,res) =>{
+        var moment = require('moment');
+
+        let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+    
+        var Propuesta = await client.query(`
+        SELECT 
+        *
+        FROM public.gc_propuestas_cabeceras
+        WHERE 
+        id=`+parseInt(Object.values(req.params))+`
+        `);
+    
+        var Proveedores = await client.query(`
+        SELECT 
+        *
+        FROM public.gc_propuestas_proveedores
+        WHERE estado=0 and fk_cabecera=`+parseInt(Object.values(req.params))+`
+        `);
+    
+        if(Proveedores.rows.length>0)
+        {
+
+            for(var i=0; i<Proveedores.rows.length; i++)
+            {
+                var qry_1 = ` fecha_creacion, `;
+                var qry_2 = ` '`+fecha+`', `;
+    
+                qry_1 += ` fecha_recepcion, `;
+                qry_2 += ` null, `;
+    
+                qry_1 += ` cantidad_bultos, `;
+                qry_2 += ` 0, `;
+    
+                qry_1 += ` peso, `;
+                qry_2 += ` 0, `;
+    
+                qry_1 += ` volumen, `;
+                qry_2 += ` 0, `;
+    
+                qry_1 += ` tipo_carga, `;
+                qry_2 += ` 1, `;            
+    
+                qry_1 += ` fk_proveedor, `;
+                qry_2 += ` `+Proveedores.rows[i]['fk_proveedor']+`, `;
+
+                qry_1 += ` fk_cliente, `;
+                qry_2 += ` `+Propuesta.rows[0]['fk_cliente']+`, `;  
+                
+                qry_1 += ` tipo, `;
+                qry_2 += ` 2, `;
+
+                qry_1 += ` estado, `;
+                qry_2 += ` 0, `;
+
+                qry_1 += ` foto1, `;
+                qry_2 += ` null, `;
+
+                qry_1 += ` foto2, `;
+                qry_2 += ` null, `;
+
+                qry_1 += ` foto3 `;
+                qry_2 += ` null `;                
+    
+                await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
+            }
+
+            await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE id=`+parseInt(Object.values(req.params))+` `);
+            await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE fk_cabecera=`+parseInt(Object.values(req.params))+` and estado=0 `);
+        }
+        else
+        {
+            res.status(400).send({
+                message: "DEBE TENER PROVEEDORES",
+                success:false
+            });
+            return;
+        }
+    
+        res.status(200).send(Propuesta.rows[0]);
     }
     /************************************************************/
     /************************************************************/
