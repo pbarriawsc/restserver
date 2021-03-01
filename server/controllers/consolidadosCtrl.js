@@ -97,7 +97,7 @@ exports.create = (req, res) => {
 
 exports.listTrackingConsolidadoByClient = (req, res) => {
   const arrayFinal=[];
-    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.fk_cliente=$1 AND t.estado<2 AND t.fk_consolidado_tracking is null ORDER BY T.id DESC', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.fk_cliente=$1 AND t.estado<2 AND t.fk_consolidado_tracking is null AND t.estado>=0 ORDER BY T.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -375,6 +375,42 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
                   });
                 }
           });
+      }
+    }
+
+    if(req.body.delete_tracking_merge && req.body.delete_tracking_merge.length>0){
+      for(let i=0;i<req.body.delete_tracking_merge.length;i++){
+        const query8 = {
+            text: 'UPDATE public.tracking SET estado=-1 WHERE id=$1 RETURNING *',
+            values: [req.body.delete_tracking_merge[i]],
+        };
+        client.query(query8,"",function (err8, result8) {
+          if (err8) {
+              console.log(err8);
+              res.status(400).send(err8);
+          }
+        });
+      }
+      
+    }
+
+    if(req.body.update_tracking_merge && req.body.update_tracking_merge.length>0){
+      for(let i=0;i<req.body.update_tracking_merge.length;i++){
+        if(req.body.update_tracking_merge[i].tracking_detalle && req.body.update_tracking_merge[i].tracking_detalle.length>0){
+
+          for(let y=0;y<req.body.update_tracking_merge[i].tracking_detalle.length;y++){
+            const query9 = {
+              text: 'UPDATE public.tracking_detalle SET tracking_id=$1 WHERE id=$2 RETURNING *',
+              values: [req.body.update_tracking_merge[i].tracking_detalle[y].tracking_id,req.body.update_tracking_merge[i].tracking_detalle[y].id],
+            };
+            client.query(query9,"",function (err9, result9) {
+              if (err9) {
+                  console.log(err8);
+                  res.status(400).send(err8);
+              }
+            });
+          }
+        }
       }
     }
 
