@@ -97,7 +97,7 @@ exports.create = (req, res) => {
 
 exports.listTrackingConsolidadoByClient = (req, res) => {
   const arrayFinal=[];
-    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.fk_cliente=$1 AND t.estado<2 AND t.fk_consolidado_tracking is null AND t.estado>=0 ORDER BY T.id DESC', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.fk_cliente=$1 AND t.estado<2 AND t.fk_consolidado_tracking is null AND t.estado>=0 AND t.fk_propuesta is null ORDER BY T.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -415,4 +415,102 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
     }
 
     res.status(200).send([]);
+  };
+
+  exports.listGcConsolidadoByClient = (req, res) => {
+    if (!req.params.id) {
+      res.status(400).send({
+        message: "El id del cliente es obligatorio",
+        success:false
+      });
+      return;
+    }
+     const arrayFinal=[];
+     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE EXISTS (SELECT 1 FROM public.tracking where fk_propuesta=pc.id) and pc.fk_cliente=$1', [req.params.id], function (err, result) {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }   
+            const cloneResult=result.rows;
+            let ids=[];
+            if(cloneResult && cloneResult.length>0){
+              for(var i=0;i<cloneResult.length;i++){
+                ids.push(cloneResult[i].id);
+              }
+
+              let queryIn='';
+              if(ids.length>0){
+                queryIn+='WHERE t.fk_propuesta IN (';
+                for(var x=0;x<ids.length;x++){
+                  if(x!==ids.length-1){
+                    queryIn+=ids[x]+','
+                  }else{
+                    queryIn+=ids[x]
+                  }
+                }
+                queryIn+=')';
+              }
+
+              let queryFinal='SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor '+queryIn+' ORDER BY T.id DESC';
+               client.query(queryFinal, "", function (err2, result2) {
+                  if (err2) {
+                      console.log(err2);
+                      res.status(400).send(err2);
+                  }  
+                  
+
+                  let queryIn2='';let ids2=[];
+                  if(result2.rows && result2.rows.length>0){
+                    for(var i=0;i<result2.rows.length;i++){
+                      ids2.push(result2.rows[i].id);
+                    }
+                  }
+                  if(ids2.length>0){
+                    queryIn2+='WHERE tracking_id IN (';
+                    for(var x=0;x<ids2.length;x++){
+                      if(x!==ids2.length-1){
+                        queryIn2+=ids2[x]+','
+                      }else{
+                        queryIn2+=ids2[x]
+                      }
+                    }
+                    queryIn2+=')';
+                  }
+
+                  let queryFinal2="SELECT id,upload_id,fecha_recepcion,fecha_consolidado,codigo_interno,tipo_producto,producto,peso,volumen,observacion,tracking_id,estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,ancho,alto,altura FROM public.tracking_detalle "+queryIn2;
+
+                  client.query(queryFinal2, "", function (err3, result3) {
+                  if (err3) {
+                      console.log(err3);
+                      res.status(400).send(err3);
+                  }  
+
+
+                  for(var i=0;i<cloneResult.length;i++){
+                    let obj=lodash.cloneDeep(cloneResult[i]);
+                    const arrayFind=result2.rows.filter(y=>y.fk_propuesta===cloneResult[i].id);
+                    if(arrayFind){
+                      for(var x=0;x<arrayFind.length;x++){
+                        const arrayFind2=result3.rows.filter(y=>y.tracking_id===arrayFind[x].id);
+                        if(arrayFind2){
+                          arrayFind[x].tracking_detalle=arrayFind2;
+                        }else{
+                          arrayFind[x].tracking_detalle=[];
+                        }
+                      }
+                      obj.tracking=arrayFind;
+                    }else{
+                      obj.tracking=[];
+                    }
+                     arrayFinal.push(obj);
+                  }
+                  res.status(200).send(arrayFinal);
+
+                  });
+                });
+            }else{
+                 console.log('vacio');
+                 res.status(200).send([]);
+            }    
+      });
   };

@@ -9,5 +9,7 @@ app.get(`${prefix}/tracking/cliente/:id`,verifyToken, consolidadosController.lis
 app.get(`${prefix}/cliente/:id`,verifyToken, consolidadosController.listByClient);
 app.get(`${prefix}/:id/trackings`,verifyToken, consolidadosController.listTrackingConsolidadoById);
 app.put(`${prefix}/:id`,verifyToken, consolidadosController.update);
+app.get(`${prefix}/propuestasComerciales/cliente/:id`,verifyToken, consolidadosController.listGcConsolidadoByClient);
+
 
 module.exports=app;
