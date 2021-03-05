@@ -3,6 +3,7 @@ const jwt=require('jsonwebtoken');
 const lodash= require('lodash');
 const moment=require('moment');
 exports.list = (req, res) => {
+	try{
 	const arrayFinal=[];
     client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor ORDER BY T.id DESC', "", function (err, result) {
         if (err) {
@@ -58,9 +59,19 @@ exports.list = (req, res) => {
         	res.status(200).send(arrayFinal);
         }
     });   
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
   };
 
   exports.listByEstado = (req, res) => {
+  	try{
 	const arrayFinal=[];
     client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.estado=$1 AND t.fk_propuesta is null ORDER BY T.prioridad ASC', [req.params.estado], function (err, result) {
         if (err) {
@@ -119,9 +130,19 @@ exports.list = (req, res) => {
         	res.status(200).send(arrayFinal);
         }
     });   
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
   };
 
 exports.listByClient = (req, res) => {
+	try{
 	const arrayFinal=[];
     client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.fk_cliente=$1 AND t.estado<2 ORDER BY T.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
@@ -172,9 +193,19 @@ exports.listByClient = (req, res) => {
         	res.status(200).send(arrayFinal);
         } 
     });   
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
   };
 
 exports.create = (req, res) => {
+	try{
     if (!req.body.fecha_creacion){
         res.status(400).send({
             message: "La fecha de generacion es obligatorio",
@@ -372,9 +403,19 @@ exports.create = (req, res) => {
 			    });
     }
     
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.update = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -462,10 +503,20 @@ exports.update = (req,res) =>{
 		});
         res.status(200).send(result.rows[0]);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 
 exports.uploadFiles = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -507,10 +558,20 @@ exports.uploadFiles = (req,res) =>{
         }
         res.status(200).send(result.rows[0]);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 
 exports.getPhoto1 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -531,9 +592,19 @@ exports.getPhoto1 = (req,res) =>{
         }
         res.end(result.rows[0].foto1);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getPhoto2 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -554,9 +625,19 @@ exports.getPhoto2 = (req,res) =>{
         }
         res.end(result.rows[0].foto2);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getPhoto3 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -577,9 +658,19 @@ exports.getPhoto3 = (req,res) =>{
         }
         res.end(result.rows[0].foto3);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getPhoto4 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -600,9 +691,19 @@ exports.getPhoto4 = (req,res) =>{
         }
         res.end(result.rows[0].foto4);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getPhoto5 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -623,9 +724,19 @@ exports.getPhoto5 = (req,res) =>{
         }
         res.end(result.rows[0].foto5);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.uploadFilesPackingInvoice = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -665,9 +776,20 @@ exports.uploadFilesPackingInvoice = (req,res) =>{
         }
         res.status(200).send(result.rows[0]);
     });
+
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR: "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getPackingList1 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -688,9 +810,20 @@ exports.getPackingList1 = (req,res) =>{
         }
         res.end(result.rows[0].packing_list1);
     });
+
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR: "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getPackingList2 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -711,9 +844,19 @@ exports.getPackingList2 = (req,res) =>{
         }
         res.end(result.rows[0].packing_list2);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+    }
 };
 
 exports.getInvoice1 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -734,9 +877,19 @@ exports.getInvoice1 = (req,res) =>{
         }
         res.end(result.rows[0].invoice1);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR: "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };
 
 exports.getInvoice2 = (req,res) =>{
+	try{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -757,4 +910,13 @@ exports.getInvoice2 = (req,res) =>{
         }
         res.end(result.rows[0].invoice2);
     });
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
 };

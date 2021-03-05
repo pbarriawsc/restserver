@@ -1312,13 +1312,13 @@ const jwt=require('jsonwebtoken');
                 qry_2 += ` `+Propuesta.rows[0]['id']+`, `;                
     
                 qry_1 += ` cantidad_bultos, `;
-                qry_2 += ` 0, `;
+                qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
     
                 qry_1 += ` peso, `;
-                qry_2 += ` 0, `;
+                qry_2 += ` `+Proveedores.rows[i]['peso']+`, `;
     
                 qry_1 += ` volumen, `;
-                qry_2 += ` 0, `;
+                qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
     
                 qry_1 += ` tipo_carga, `;
                 qry_2 += ` 1, `;            
