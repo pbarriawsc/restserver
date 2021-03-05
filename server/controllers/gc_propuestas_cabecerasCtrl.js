@@ -24,15 +24,15 @@ const jwt=require('jsonwebtoken');
     exports.ListClientes = (req, res) => {
         client.query(` SELECT * FROM public.clientes order by nombre asc`, "", function (err, result) {
         if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
-    };    
+    };
     /************************************************************/
     /************************************************************/
     exports.ListProveedores = (req, res) => {
         client.query(` SELECT * FROM public.proveedores order by nombre asc`, "", function (err, result) {
         if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
-    };    
+    };
     /************************************************************/
-    /************************************************************/    
+    /************************************************************/
     exports.listDirecciones = (req, res) => {
 
         client.query(`
@@ -71,9 +71,9 @@ const jwt=require('jsonwebtoken');
                 }
                 res.status(200).send(result.rows);
         });
-    };    
+    };
     /************************************************************/
-    /************************************************************/    
+    /************************************************************/
     exports.create = async (req, res) => {
         var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
         let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
@@ -88,14 +88,14 @@ const jwt=require('jsonwebtoken');
         if(req.body.gcpc_fk_cliente==0) { req.body.gcpc_fk_cliente = null; }
         if(req.body.gcpc_fk_direccion==0) { req.body.gcpc_fk_direccion = null; }
         if(!req.body.gcpc_cantProveedores || req.body.gcpc_cantProveedores.length==0) { req.body.gcpc_cantProveedores = 0; }
-        
+
         function formatear_numero(Numero)
         {
             Numero = Numero.toString().replace(/\./g,'');
             Numero = Numero.toString().replace(/\,/g,'.');
             return Numero;
         }
-        
+
         if(!req.body.gcpc_volumenEstimado || req.body.gcpc_volumenEstimado.length==0)
         { req.body.gcpc_volumenEstimado = 0; } else {
             req.body.gcpc_volumenEstimado = formatear_numero(req.body.gcpc_volumenEstimado);
@@ -159,9 +159,9 @@ const jwt=require('jsonwebtoken');
 
         qry_1 += ` fk_cliente, `;
         qry_2 += ` `+req.body.gcpc_fk_cliente+`, `;
-        
+
         qry_1 += ` fk_direccion, `;
-        qry_2 += ` `+req.body.gcpc_fk_direccion+`, `;        
+        qry_2 += ` `+req.body.gcpc_fk_direccion+`, `;
 
         qry_1 += ` "tipoDeCarga", `;
         qry_2 += ` '`+req.body.gcpc_tipoDeCarga+`', `;
@@ -221,7 +221,7 @@ const jwt=require('jsonwebtoken');
             , coalesce("tipoDeCarga",'') as tipoDeCarga
             , fk_cliente
             , fk_direccion
-            , "cantProveedores"
+            , "cantProveedores" as cantproveedores
 
             , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
@@ -288,7 +288,7 @@ const jwt=require('jsonwebtoken');
             , coalesce("tipoDeCarga",'') as tipoDeCarga
             , fk_cliente
             , fk_direccion
-            , "cantProveedores"
+            , "cantProveedores" as cantproveedores
             , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
             ELSE "volumenEstimado"::TEXT END as volumenEstimado
@@ -345,7 +345,7 @@ const jwt=require('jsonwebtoken');
     exports.GetList = async (req,res) =>{
 
         let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
-        
+
         try {
 
             var condicion = ` `;
@@ -359,7 +359,7 @@ const jwt=require('jsonwebtoken');
             {
                 var innerJoin = ` `;
             }
-            
+
             let Propuesta_Desarrollo = await client.query(`
             SELECT
             id
@@ -405,8 +405,8 @@ const jwt=require('jsonwebtoken');
             CONCAT(REPLACE(Split_part(TO_CHAR("tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("tarifaUsd",'FM999,999,999.99')::text,'.',2))
             ELSE "tarifaUsd"::TEXT END as tarifaUsd
             FROM public.gc_propuestas_cabeceras as cabe
-            WHERE 
-            estado=0 
+            WHERE
+            estado=0
             `+condicion+`
             `);
 
@@ -425,7 +425,7 @@ const jwt=require('jsonwebtoken');
 
     };
     /************************************************************/
-    /************************************************************/    
+    /************************************************************/
     exports.update = async (req, res) => {
         var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
         let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
@@ -495,13 +495,13 @@ const jwt=require('jsonwebtoken');
         qry_1 += ` "atencionA"='`+req.body.gcpc_atencionA+`', `;
 
         qry_1 += ` "fk_tipoDeServicio"=`+req.body.gcpc_fk_tipoDeServicio+`, `;
-        
+
         qry_1 += ` fk_cliente=`+req.body.gcpc_fk_cliente+`, `;
-        
+
         qry_1 += ` fk_direccion=`+req.body.gcpc_fk_direccion+`, `;
-        
+
         qry_1 += ` "cantProveedores"=`+req.body.gcpc_cantProveedores+`, `;
-        
+
         qry_1 += ` "tipoDeCarga"='`+req.body.gcpc_tipoDeCarga+`', `;
 
         qry_1 += ` "volumenEstimado"=`+req.body.gcpc_volumenEstimado+`, `;
@@ -513,7 +513,7 @@ const jwt=require('jsonwebtoken');
         qry_1 += ` direccion='`+req.body.gcpc_direccion+`', `;
 
         qry_1 += ` "fk_formaDePago"=`+req.body.gcpc_fk_formaDePago+`, `;
-        
+
         qry_1 += ` "fechaValidez"='`+req.body.gcpc_fechaValidez+`', `;
 
         qry_1 += ` "fk_zonaOrigen"=`+req.body.gcpc_fk_zonaOrigen+`, `;
@@ -544,6 +544,8 @@ const jwt=require('jsonwebtoken');
             , coalesce("fk_tipoDeServicio",0) as fk_tipoDeServicio
             , coalesce("tipoDeCarga",'') as tipoDeCarga
             , fk_cliente
+            , fk_direccion
+            , "cantProveedores" as cantproveedores
 
             , CASE WHEN "volumenEstimado"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("volumenEstimado",'FM999,999,999.99')::text,'.',2))
@@ -784,27 +786,56 @@ const jwt=require('jsonwebtoken');
 
           try {
 
-              await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
+              let existe = await client.query(`
+              SELECT
+              prov.id
+              , prov.estado
+              , prov.fk_responsable
+              , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+              , prov.fk_cabecera
+              , prov.fk_proveedor
+              , prove.nombre
+              , prov.volumen
+              , prov.bultos
+              , peso
+              FROM public.gc_propuestas_proveedores as prov
+              INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+              WHERE
+              prov.estado!=999
+              and prov.fk_proveedor=`+req.body.gcpcprov_fk_proveedor+`
+              and prov.fk_cabecera=`+req.body.gcpcprov_fk_cabecera+` order by prov.id desc`);
 
-              let Proveedores = await client.query(`
-                SELECT 
-                prov.id
-                , prov.estado
-                , prov.fk_responsable
-                , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-                , prov.fk_cabecera
-                , prov.fk_proveedor
-                , prove.nombre
-                , prov.volumen
-                , prov.bultos
-                , peso
-                FROM public.gc_propuestas_proveedores as prov
-                INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
-                WHERE
-                prov.fk_cabecera=`+req.body.gcpcprov_fk_cabecera+` order by prov.id desc`);
+              if(existe.rows.length>0)
+              {
+                res.status(400).send({
+                    message: "EL PROVEEDOR YA ESTA INGRESADO",
+                    success:false
+                }); res.end(); res.connection.destroy();
+              }
+              else {
+                await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
 
-              res.status(200).send(Proveedores.rows);
-              res.end(); res.connection.destroy();
+                let Proveedores = await client.query(`
+                  SELECT
+                  prov.id
+                  , prov.estado
+                  , prov.fk_responsable
+                  , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+                  , prov.fk_cabecera
+                  , prov.fk_proveedor
+                  , prove.nombre
+                  , prov.volumen
+                  , prov.bultos
+                  , peso
+                  FROM public.gc_propuestas_proveedores as prov
+                  INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+                  WHERE
+                  prov.estado=0
+                  and prov.fk_cabecera=`+req.body.gcpcprov_fk_cabecera+` order by prov.id desc`);
+
+                res.status(200).send(Proveedores.rows);
+                res.end(); res.connection.destroy();
+              }
 
           } catch (error) {
 
@@ -816,7 +847,7 @@ const jwt=require('jsonwebtoken');
           }
 
         }
-    } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}    
+    } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}
     /************************************************************/
     /************************************************************/
     exports.SerAdList = async (req,res) =>{
@@ -867,7 +898,7 @@ const jwt=require('jsonwebtoken');
         try {
 
         let Proveedores = await client.query(`
-        SELECT 
+        SELECT
         prov.id
         , prov.estado
         , prov.fk_responsable
@@ -893,8 +924,8 @@ const jwt=require('jsonwebtoken');
             });
             res.end(); res.connection.destroy();
         }
-    };    
-    
+    };
+
     /************************************************************/
     /************************************************************/
     exports.ProComDelete = async (req,res) =>{
@@ -915,6 +946,25 @@ const jwt=require('jsonwebtoken');
     };
     /************************************************************/
     /************************************************************/
+    exports.ProvDelete = async (req,res) =>{
+        try {
+
+            await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=999 WHERE id=`+parseInt(Object.values(req.params)));
+
+            res.status(200).send("OK");
+
+        } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR AL ELIMINAR PROVEEDOR "+error,
+                success:false,
+            });
+
+        }
+    };
+
+    /************************************************************/
+    /************************************************************/
     exports.SerAdDelete = async (req,res) =>{
         try {
 
@@ -933,28 +983,6 @@ const jwt=require('jsonwebtoken');
     };
     /************************************************************/
     /************************************************************/
-    exports.findByPdfSerAd = (req, res) => {
-      client.query(`
-          Select
-          TO_CHAR(tar."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-          , TO_CHAR(tar."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
-          , tar.id
-          , tar.origen
-          , tar.tarifa
-          , tar.destino
-          , tar.estado
-          , tar.fk_cabecera
-          FROM public.gc_propuestas_serviciosadicionales as tar
-          where tar.estado=0 and tar.fk_cabecera = $1
-          `, [req.params.id], function (err, result) {
-          if (err) {
-              console.log(err);
-              res.status(400).send(err);
-          }
-          res.status(200).send(result.rows);
-      });
-    };
-
     exports.findByPdfTarifa = (req, res) => {
       client.query(`
           Select
@@ -982,35 +1010,109 @@ const jwt=require('jsonwebtoken');
           res.status(200).send(result.rows);
       });
     };
+    /************************************************************/
+    /************************************************************/
+    exports.findByPdfCabecera = async (req,res) =>{
 
-    exports.findByPdfCabecera = (req, res) => {
-      client.query(`
-          Select
-          cabe."volumenEstimado"
-          , TO_CHAR(cabe."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-          , TO_CHAR(cabe."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
-          , cabe."tipoDeCarga"
-          , cabe.servicio
-          , cabe."pesoEstimado"
-          , cabe.id
-          , cabe.estado
-          , cabe."nombreCliente"
-          , cabe."atencionA"
-          , CASE WHEN cabe.estado = 0 THEN 'DESARROLLO'
-          WHEN cabe.estado = 1 THEN 'APROBADA'
-          WHEN cabe.estado = 2 THEN 'ELIMINADA'
-          else 'INDEFINIDO' end as estado_nombre
-          , cabe."direccionDespacho"
-          FROM public.gc_propuestas_cabeceras as cabe
-          where cabe.id = $1`, [req.params.id], function (err, result) {
-          if (err) {
-              console.log(err);
-              res.status(400).send(err);
-          }
-          res.status(200).send(result.rows);
-      });
+        try {
+
+        let Informacion = await client.query(`
+        SELECT
+        cabe.id
+        , coalesce(cabe."nombreCliente",'') as nombreCliente
+        , coalesce(cabe."atencionA",'') as atencionA
+        , coalesce(cabe."fk_tipoDeServicio",0) as fk_tipoDeServicio
+        , coalesce(cabe."tipoDeCarga",'') as tipoDeCarga
+        , cabe.fk_cliente
+        , cabe.fk_direccion
+        , cabe."cantProveedores" as cantproveedores
+        , coalesce(cabe.direccion, '') as direccion
+
+        , CASE WHEN cabe."volumenEstimado"::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe."volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."volumenEstimado",'FM999,999,999.99')::text,'.',2))
+        ELSE cabe."volumenEstimado"::TEXT END as volumenEstimado
+
+        , CASE WHEN cabe."pesoEstimado"::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe."pesoEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."pesoEstimado",'FM999,999,999.99')::text,'.',2))
+        ELSE cabe."pesoEstimado"::TEXT END as pesoEstimado
+
+        , coalesce(cabe."fk_zonaDespacho",0) as fk_zonaDespacho
+        , coalesce(cabe.direccion,'') as direccion
+        , coalesce(cabe."fk_formaDePago",0) as fk_formaDePago
+        , coalesce(cabe."fechaValidez",'') as fechaValidez
+        , coalesce(cabe."fk_zonaOrigen",0) as fk_zonaOrigen
+        , coalesce(cabe."fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
+        , coalesce(cabe."fk_zonaDestino",0) as fk_zonaDestino
+
+        , CASE WHEN cabe.factor::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe.factor,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe.factor,'FM999,999,999.99')::text,'.',2))
+        ELSE cabe.factor::TEXT END as factor
+
+        , CASE WHEN cabe."cmbPeso"::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe."cmbPeso",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."cmbPeso",'FM999,999,999.99')::text,'.',2))
+        ELSE cabe."cmbPeso"::TEXT END as cmbPeso
+
+        , CASE WHEN cabe."unidadesACobrar"::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe."unidadesACobrar",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."unidadesACobrar",'FM999,999,999.99')::text,'.',2))
+        ELSE cabe."unidadesACobrar"::TEXT END as unidadesACobrar
+
+        , CASE WHEN cabe."valorUnitarioUsd"::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe."valorUnitarioUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."valorUnitarioUsd",'FM999,999,999.99')::text,'.',2))
+        ELSE cabe."valorUnitarioUsd"::TEXT END as valorUnitarioUsd
+
+        , CASE WHEN cabe."tarifaUsd"::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(cabe."tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."tarifaUsd",'FM999,999,999.99')::text,'.',2))
+        ELSE cabe."tarifaUsd"::TEXT END as tarifaUsd
+
+        , coalesce(ser.nombre,'') as servicio_nombre
+        FROM
+        public.gc_propuestas_cabeceras as cabe
+        left join public.servicios_tipos as ser on cabe."fk_tipoDeServicio"=ser.id
+        WHERE cabe.id=`+parseInt(Object.values(req.params))+` limit 1`);
+
+        res.status(200).send(Informacion.rows);
+
+        } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR AL CARGAR CABECERA "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+        }
     };
+    /************************************************************/
+    /************************************************************/
+    exports.findByPdfSerAd = async (req,res) =>{
 
+        try {
+
+        let Informacion = await client.query(`
+        Select
+        TO_CHAR(tar."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+        , TO_CHAR(tar."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
+        , tar.id
+        , tar.origen
+        , tar.tarifa
+        , tar.destino
+        , tar.estado
+        , tar.fk_cabecera
+        FROM public.gc_propuestas_serviciosadicionales as tar
+        where tar.estado=0 and tar.fk_cabecera=`+parseInt(Object.values(req.params))+` order by SERAD.id desc`);
+
+        res.status(200).send(Informacion.rows);
+
+        } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR AL CARGAR CABECERA "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+        }
+    };
+    /************************************************************/
+    /************************************************************/
     exports.findByContacto = (req, res) => {
 
       client.query(`
@@ -1281,37 +1383,85 @@ const jwt=require('jsonwebtoken');
         var moment = require('moment');
 
         let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-    
+
         var Propuesta = await client.query(`
-        SELECT 
+        SELECT
         *
         FROM public.gc_propuestas_cabeceras
-        WHERE 
+        WHERE
         id=`+parseInt(Object.values(req.params))+`
         `);
-    
+
+        var FaltaInfo = await client.query(`
+        SELECT
+        *
+  	    FROM public.gc_propuestas_cabeceras
+        WHERE
+        id=`+parseInt(Object.values(req.params))+`
+        and (
+          "cantProveedores" is null
+          or fk_responsable is null
+          or fk_cliente is null or fk_cliente=0
+          or fk_direccion is null or fk_direccion=0
+          or LENGTH(TRIM("nombreCliente"))=0
+          or LENGTH(TRIM("atencionA"))=0
+          or "fk_tipoDeServicio" is null or "fk_tipoDeServicio"=0
+          or "tipoDeCarga" is null or LENGTH(TRIM("tipoDeCarga"))=0
+          or "volumenEstimado"<=0
+          or "pesoEstimado"<=0
+          or "fk_zonaDespacho" is null or "fk_zonaDespacho"=0
+          or LENGTH(TRIM(direccion))=0
+          or "fk_formaDePago" is null or "fk_formaDePago"=0
+          or LENGTH(TRIM("fechaValidez"))=0
+          or "fk_zonaOrigen" is null or "fk_zonaOrigen"=0
+          or "fk_zonaAlmacenaje" is null or "fk_zonaAlmacenaje"=0
+          or "fk_zonaDestino" is null or "fk_zonaDestino"=0
+          or factor is null or factor=0
+          or "cmbPeso" is null or "cmbPeso"=0
+          or "unidadesACobrar" is null or "unidadesACobrar"=0
+          or "valorUnitarioUsd" is null or "valorUnitarioUsd"=0
+          or "tarifaUsd" is null or "tarifaUsd"=0
+        )
+        `);
+
         var Proveedores = await client.query(`
-        SELECT 
+        SELECT
         *
         FROM public.gc_propuestas_proveedores
         WHERE estado=0 and fk_cabecera=`+parseInt(Object.values(req.params))+`
         `);
-    
-        if(Proveedores.rows.length>0)
+
+
+        if(Proveedores.rows.length<=0)
+        {
+            res.status(400).send({
+                message: "FALTA AGREGAR PROVEEDORES",
+                success:false
+            }); res.end(); res.connection.destroy();
+        }
+        else if(FaltaInfo.rows.length>0)
+        {
+            res.status(400).send({
+                message: "FALTA INFORMACIÓN EN LA PROPUESTA",
+                success:false
+            }); res.end(); res.connection.destroy();
+        }
+        else if(Proveedores.rows.length>0)
         {
 
             for(var i=0; i<Proveedores.rows.length; i++)
             {
                 var qry_1 = ` fecha_creacion, `;
                 var qry_2 = ` '`+fecha+`', `;
-    
+
                 qry_1 += ` fecha_recepcion, `;
                 qry_2 += ` null, `;
 
                 qry_1 += ` fk_propuesta, `;
-                qry_2 += ` `+Propuesta.rows[0]['id']+`, `;                
-    
+                qry_2 += ` `+Propuesta.rows[0]['id']+`, `;
+
                 qry_1 += ` cantidad_bultos, `;
+<<<<<<< HEAD
                 qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
     
                 qry_1 += ` peso, `;
@@ -1320,15 +1470,25 @@ const jwt=require('jsonwebtoken');
                 qry_1 += ` volumen, `;
                 qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
     
+=======
+                qry_2 += ` 0, `;
+
+                qry_1 += ` peso, `;
+                qry_2 += ` 0, `;
+
+                qry_1 += ` volumen, `;
+                qry_2 += ` 0, `;
+
+>>>>>>> 2be492ede72b1cb410c075262a398c1b70fd88af
                 qry_1 += ` tipo_carga, `;
-                qry_2 += ` 1, `;            
-    
+                qry_2 += ` 1, `;
+
                 qry_1 += ` fk_proveedor, `;
                 qry_2 += ` `+Proveedores.rows[i]['fk_proveedor']+`, `;
 
                 qry_1 += ` fk_cliente, `;
-                qry_2 += ` `+Propuesta.rows[0]['fk_cliente']+`, `;  
-                
+                qry_2 += ` `+Propuesta.rows[0]['fk_cliente']+`, `;
+
                 qry_1 += ` tipo, `;
                 qry_2 += ` 2, `;
 
@@ -1342,13 +1502,15 @@ const jwt=require('jsonwebtoken');
                 qry_2 += ` null, `;
 
                 qry_1 += ` foto3 `;
-                qry_2 += ` null `;                
-    
+                qry_2 += ` null `;
+
                 await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
             }
 
             await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE id=`+parseInt(Object.values(req.params))+` `);
             await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE fk_cabecera=`+parseInt(Object.values(req.params))+` and estado=0 `);
+
+            res.status(200).send(Propuesta.rows[0]);
         }
         else
         {
@@ -1358,8 +1520,6 @@ const jwt=require('jsonwebtoken');
             });
             return;
         }
-    
-        res.status(200).send(Propuesta.rows[0]);
     }
     /************************************************************/
     /************************************************************/

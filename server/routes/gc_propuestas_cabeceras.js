@@ -10,9 +10,8 @@ const prefixPropuestaDesarrollo='/api/gc_propuestacomercial_desarrollo';
 
 const prefix='/api/gc_propuestacomercial';
 const prefixList='/api/gc_propuestaCab_List';
-const prefixPdfCab='/api/gc_propuestaPdf_Cab';
-const prefixPdfTar='/api/gc_propuestaPdf_Tar';
-const prefixPdfSerAd='/api/gc_propuestaPdf_SerAd';
+const prefixPdfCab='/api/gc_propuestacomercial_pdf_cab';
+const prefixPdfSerAd='/api/gc_propuestacomercial_pdf_serad';
 const prefixAprobar='/api/set_propuestapdf_aprobar';
 const prefixGetList='/api/gc_propuestacomercial_get_list';
 const prefixPostSerAd='/api/gc_propuestacomercial_postserad';
@@ -25,6 +24,7 @@ const prefixGetProveedoresList='/api/gc_propuestacomercial_get_proveedores';
 const prefixPostProv='/api/gc_propuestacomercial_postprov';
 const prefixPostProvList='/api/gc_propuestacomercial_proveedores_list';
 const prefixProAprobar='/api/gc_propuestacomercial_aprobar';
+const prefixProvDelete='/api/gc_propuestacomercial_prov_delete';
 
 
 const gc_propuestas_cabecerasController=require('../controllers/gc_propuestas_cabecerasCtrl');
@@ -63,6 +63,8 @@ app.get(`${prefixSerAdDelete}/:id`,verifyToken,gc_propuestas_cabecerasController
 
 app.get(`${prefixDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.ProComDelete);
 
+app.get(`${prefixProvDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.ProvDelete);
+
 app.get(`${prefix}`,verifyToken,gc_propuestas_cabecerasController.list);
 
 app.get(`${prefix}/:id`,verifyToken, gc_propuestas_cabecerasController.findOneBy)
@@ -70,8 +72,6 @@ app.get(`${prefix}/:id`,verifyToken, gc_propuestas_cabecerasController.findOneBy
 app.get(`${prefixList}/:id`,verifyToken, gc_propuestas_cabecerasController.findByContacto)
 
 app.get(`${prefixPdfCab}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfCabecera)
-
-app.get(`${prefixPdfTar}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfTarifa)
 
 app.get(`${prefixPdfSerAd}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfSerAd)
 
