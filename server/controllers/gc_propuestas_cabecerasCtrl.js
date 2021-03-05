@@ -1461,7 +1461,6 @@ const jwt=require('jsonwebtoken');
                 qry_2 += ` `+Propuesta.rows[0]['id']+`, `;
 
                 qry_1 += ` cantidad_bultos, `;
-<<<<<<< HEAD
                 qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
     
                 qry_1 += ` peso, `;
@@ -1470,16 +1469,6 @@ const jwt=require('jsonwebtoken');
                 qry_1 += ` volumen, `;
                 qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
     
-=======
-                qry_2 += ` 0, `;
-
-                qry_1 += ` peso, `;
-                qry_2 += ` 0, `;
-
-                qry_1 += ` volumen, `;
-                qry_2 += ` 0, `;
-
->>>>>>> 2be492ede72b1cb410c075262a398c1b70fd88af
                 qry_1 += ` tipo_carga, `;
                 qry_2 += ` 1, `;
 
