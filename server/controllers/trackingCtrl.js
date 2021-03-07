@@ -70,6 +70,46 @@ exports.list = (req, res) => {
         }
   };
 
+  exports.listById = (req, res) => {
+	try{
+	if (!req.params.id){
+        	res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+          });
+          return;
+    }
+    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.id=$1 ORDER BY T.id DESC', [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        const resultHeader=lodash.cloneDeep(result) ;
+		let queryFinal="SELECT id,upload_id,fecha_recepcion,fecha_consolidado,codigo_interno,tipo_producto,producto,peso,volumen,observacion,tracking_id,estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,ancho,alto,altura FROM public.tracking_detalle where tracking_id=$1";
+		        client.query(queryFinal, [req.params.id], function (err2, result2) {
+			        if (err2) {
+			            console.log(err2);
+			            res.status(400).send(err2);
+			        }
+			        
+			        if(result2.rows && result2.rows.length>0){
+			        	resultHeader.rows[0].tracking_detalle=result2.rows;
+			        }
+
+			        res.status(200).send(resultHeader.rows[0]);
+		        });
+    });   
+    } catch (error) {
+
+            res.status(400).send({
+                message: "ERROR :"+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+
+        }
+  };
+
   exports.listByEstado = (req, res) => {
   	try{
 	const arrayFinal=[];
