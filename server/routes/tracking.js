@@ -4,11 +4,12 @@ const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/tracking';
 const trackingController=require('../controllers/trackingCtrl');
 
-app.post(`${prefix}`,verifyToken, trackingController.create)
-app.get(`${prefix}`,verifyToken, trackingController.list)
-app.get(`${prefix}/cliente/:id`,verifyToken, trackingController.listByClient)
-app.get(`${prefix}/estado/:estado`,verifyToken, trackingController.listByEstado)
-app.put(`${prefix}/:id`,verifyToken, trackingController.update)
+app.post(`${prefix}`,verifyToken, trackingController.create);
+app.get(`${prefix}`,verifyToken, trackingController.list);
+app.get(`${prefix}/:id`,verifyToken, trackingController.listById);
+app.get(`${prefix}/cliente/:id`,verifyToken, trackingController.listByClient);
+app.get(`${prefix}/estado/:estado`,verifyToken, trackingController.listByEstado);
+app.put(`${prefix}/:id`,verifyToken, trackingController.update);
 app.post(`${prefix}/uploadFiles/:id`,verifyToken, trackingController.uploadFiles);
 app.post(`${prefix}/uploadFiles/packingList/invoice/:id`,verifyToken, trackingController.uploadFilesPackingInvoice);
 app.get(`${prefix}/photo1/:id`,[], trackingController.getPhoto1);
