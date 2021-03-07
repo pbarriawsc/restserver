@@ -1535,31 +1535,17 @@ const jwt=require('jsonwebtoken');
             qry_1 += ` cantidad_bultos, `;
             qry_2 += ` 0, `;
 
-<<<<<<< HEAD
+            qry_1 += ` cantidad_bultos, `;
+            qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
+
             qry_1 += ` peso, `;
-            qry_2 += ` 0, `;
+            qry_2 += ` `+Proveedores.rows[i]['peso']+`, `;
 
             qry_1 += ` volumen, `;
-            qry_2 += ` 0, `;
+            qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
 
             qry_1 += ` tipo_carga, `;
             qry_2 += ` 1, `;
-
-            qry_1 += ` fk_proveedor, `;
-            qry_2 += ` null, `;
-=======
-                qry_1 += ` cantidad_bultos, `;
-                qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
-    
-                qry_1 += ` peso, `;
-                qry_2 += ` `+Proveedores.rows[i]['peso']+`, `;
-    
-                qry_1 += ` volumen, `;
-                qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
-    
-                qry_1 += ` tipo_carga, `;
-                qry_2 += ` 1, `;
->>>>>>> 72d47d22d7d8da3b112ee9306a638fd940f96e6d
 
             qry_1 += ` fk_cliente, `;
             qry_2 += ` `+Propuesta.rows[0]['fk_cliente']+`, `;
