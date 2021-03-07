@@ -2,33 +2,37 @@ const client = require('../config/db.client');
 
 exports.create = (req, res) => {
     // Validate request
-    if (!req.body.codigo) {
+      if (!req.body.codigo) {
         res.status(400).send({
           message: "EL CODIGO ES OBLIGATORIO",
           success:false
+        }); res.end(); res.connection.destroy();
+      }else if (!req.body.nombreEsp) {
+        res.status(400).send({
+          message: "EL NOMBRE ESPAÑOL ES OBLIGATORIO",
+          success:false
+        }); res.end(); res.connection.destroy();
+      }else if (!req.body.fk_cliente) {
+        res.status(400).send({
+          message: "EL CLIENTE ES OBLIGATORIO",
+          success:false
+        }); res.end(); res.connection.destroy();
+      }
+      else {
+        const query = {
+            text: 'INSERT INTO public.proveedores(codigo, nombre) VALUES($1, $2) RETURNING *',
+            values: [req.body.codigo, req.body.nombre],
+        };
+
+        client.query(query,"",function (err, result)
+        {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows[0]);
         });
-        return;
-      }else if (!req.body.nombre) {
-      res.status(400).send({
-        message: "EL NOMBRE ES OBLIGATORIO",
-        success:false
-      });
-      return;
-    }  
-
-    const query = {
-        text: 'INSERT INTO public.proveedores(codigo, nombre) VALUES($1, $2) RETURNING *',
-        values: [req.body.codigo, req.body.nombre],
-    };
-
-    client.query(query,"",function (err, result) 
-    {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.status(200).send(result.rows[0]);
-    });
+      }
 }
 
 exports.update = (req, res) => {
@@ -45,14 +49,14 @@ exports.update = (req, res) => {
             success:false
           });
           return;
-    }   
+    }
 
     const query = {
         text: 'UPDATE public.proveedores SET codigo=$1, nombre=$2 where id=$3 RETURNING *',
         values: [req.body.codigo, req.body.nombre, req.body.id],
     };
 
-    client.query(query,"",function (err, result) 
+    client.query(query,"",function (err, result)
     {
         if (err) {
             console.log(err);
@@ -69,7 +73,7 @@ exports.update = (req, res) => {
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
-    });   
+    });
   };
 
   exports.findOneBy = (req,res) =>{
