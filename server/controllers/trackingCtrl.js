@@ -463,9 +463,11 @@ exports.update = (req,res) =>{
             });
             return;
     }
+
+    const fechaRecepcion=(req.body.fecha_recepcion && req.body.fecha_recepcion!==null) ? req.body.fecha_recepcion:moment().format('YYYYMMDD HHmmss');
     const query = {
         text: 'UPDATE public.tracking SET tipo=$1,estado=$2,fk_cliente=$3,fk_proveedor=$4,fecha_recepcion=$5,cantidad_bultos=$6,peso=$7,volumen=$8,tipo_carga=$9,currier=$10,prioridad=$11 WHERE id=$12 RETURNING *',
-        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier,req.body.prioridad,req.body.id],
+        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,fechaRecepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier,req.body.prioridad,req.body.id],
     };
 
     client.query(query,"",function (err, result) {
@@ -504,7 +506,6 @@ exports.update = (req,res) =>{
     	}
 
     	if(req.body.delete_tracking_detalle && req.body.delete_tracking_detalle.length>0){
-    		console.log('borrando');
     		for(var i=0;i<req.body.delete_tracking_detalle.length;i++){
     			console.log('id:',req.body.delete_tracking_detalle[i]);
     			const query3={
@@ -551,7 +552,7 @@ exports.update = (req,res) =>{
             });
             res.end(); res.connection.destroy();
 
-        }
+     }
 };
 
 

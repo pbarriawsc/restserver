@@ -24,8 +24,8 @@ exports.create = (req, res) => {
       });
 
     const query = {
-        text: 'INSERT INTO public.consolidado(nombre, fk_cliente,estado,prioridad,fk_usuario,fecha,fk_contenedor) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING *',
-        values: [req.body.nombre,req.body.fk_cliente,req.body.estado,req.body.prioridad,req.usuario.id,moment().format('YYYYMMDD HHmmss'),null],
+        text: 'INSERT INTO public.consolidado(nombre, fk_cliente,estado,prioridad,fk_usuario,fecha,fk_contenedor,fk_propuesta) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *',
+        values: [req.body.nombre,req.body.fk_cliente,req.body.estado,req.body.prioridad,req.usuario.id,moment().format('YYYYMMDD HHmmss'),null,req.body.fk_propuesta],
     };
 
     client.query(query,"",function (err, result) {
@@ -176,7 +176,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
   const arrayFinal=[];
-    client.query('SELECT ct.fk_tracking,t.id,t.fecha_creacion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.estado,t.prioridad,p.nombre as fk_proveedor_nombre,p.codigo as fk_proveedor_codigo FROM public.consolidado c inner join public.consolidado_tracking ct on ct.fk_consolidado=c.id inner join public.tracking t on t.id=ct.fk_tracking inner join public.proveedores p on p.id=t.fk_proveedor where c.id=$1', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT ct.fk_tracking,t.id,t.fecha_creacion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.estado,t.prioridad,p.nombre as fk_proveedor_nombre,p.codigo as fk_proveedor_codigo,t.fk_consolidado_tracking,t.fk_propuesta FROM public.consolidado c inner join public.consolidado_tracking ct on ct.fk_consolidado=c.id inner join public.tracking t on t.id=ct.fk_tracking inner join public.proveedores p on p.id=t.fk_proveedor where c.id=$1', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -502,7 +502,9 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
                     }else{
                       obj.tracking=[];
                     }
-                     arrayFinal.push(obj);
+                     if(obj.tracking.length>0){
+                        arrayFinal.push(obj);
+                     }
                   }
                   res.status(200).send(arrayFinal);
 

@@ -23,6 +23,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull:false
       },
+      fk_propuesta:{
+        type: Sequelize.INTEGER,
+        allowNull:false
+      },
       estado:{
         type: Sequelize.INTEGER,
         allowNull:false
