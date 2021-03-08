@@ -17,10 +17,24 @@ module.exports = {
       },
       codigo: {
         type: Sequelize.STRING
+        , allowNull: true
       },
+      codigoTributario: {
+        type: Sequelize.STRING
+        , allowNull: true
+      },      
       nombre: {
         type: Sequelize.STRING
+        , allowNull: true
       },
+      nombreChi: {
+        type: Sequelize.STRING
+        , allowNull: true
+      },
+      nombreEng: {
+        type: Sequelize.STRING
+        , allowNull: true
+      },            
     });
   },
 

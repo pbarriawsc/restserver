@@ -27,9 +27,22 @@ const jwt=require('jsonwebtoken');
     };
     /************************************************************/
     /************************************************************/
-    exports.ListProveedores = (req, res) => {
-        client.query(` SELECT * FROM public.proveedores order by nombre asc`, "", function (err, result) {
-        if (err) { console.log(err); res.status(400).send(err); } res.status(200).send(result.rows); res.end(); res.connection.destroy(); });
+    exports.ListProveedores = async (req, res) => {
+        try {
+
+            var Lista = client.query(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params))+` order by nombre asc`);
+            res.status(200).send(Lista.rows); 
+            res.end(); res.connection.destroy();
+
+        } catch (error) {
+            
+            res.status(400).send({
+                message: "ERROR AL CARGAR PROVEEDORES "+error,
+                success:false,
+            });
+            res.end(); res.connection.destroy();
+        }
+        
     };
     /************************************************************/
     /************************************************************/
@@ -827,14 +840,12 @@ const jwt=require('jsonwebtoken');
               and prov.fk_proveedor=`+req.body.gcpcprov_fk_proveedor+`
               and prov.fk_cabecera=`+req.body.gcpcprov_fk_cabecera+` order by prov.id desc`);
 
-              if(existe.rows.length>0)
-              {
+              if(existe.rows.length>0) {
                 res.status(400).send({
                     message: "EL PROVEEDOR YA ESTA INGRESADO",
                     success:false
                 }); res.end(); res.connection.destroy();
-              }
-              else {
+              } else {
                 await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
 
                 var Propuesta = await client.query(`
@@ -1342,6 +1353,7 @@ const jwt=require('jsonwebtoken');
             Numero = Numero.toString().replace(/\,/g,'.');
             return Numero;
         }
+        
         if(!req.body.gcpcserad_tarifa || req.body.gcpcserad_tarifa.length==0)
         { req.body.gcpcserad_tarifa = 0; } else {
             req.body.gcpcserad_tarifa = formatear_numero(req.body.gcpcserad_tarifa);

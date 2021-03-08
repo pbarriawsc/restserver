@@ -37,7 +37,7 @@ app.get(`${prefixFormasPago}`,verifyToken,gc_propuestas_cabecerasController.List
 
 app.get(`${prefixGetClientesList}`,verifyToken,gc_propuestas_cabecerasController.ListClientes);
 
-app.get(`${prefixGetProveedoresList}`,verifyToken,gc_propuestas_cabecerasController.ListProveedores);
+app.get(`${prefixGetProveedoresList}/:id`,verifyToken,gc_propuestas_cabecerasController.ListProveedores);
 
 app.get(`${prefixPostProvList}/:id`,verifyToken,gc_propuestas_cabecerasController.ListProv);
 
