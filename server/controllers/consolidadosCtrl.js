@@ -69,7 +69,7 @@ exports.create = (req, res) => {
               text: 'INSERT INTO public.consolidado_tracking_detalle(fk_consolidado,fk_tracking,fk_tracking_detalle,estado) VALUES($1, $2,$3,$4) RETURNING *',
               values: [result.rows[0].id,req.body.tracking_detalle[i].tracking_id,req.body.tracking_detalle[i].id,0],
             };
-            const values=[0,req.body.tracking_detalle[i].id];
+            const values=[0,moment().format('YYYYMMDD HHmmss'),req.body.tracking_detalle[i].id];
             client.query(query3,"",function (err3, result3) {
               if (err) {
                       console.log(err3);
@@ -77,7 +77,7 @@ exports.create = (req, res) => {
                     } 
                     values[0]=result3.rows[0].id;
                 const query31={
-                  text:'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=$1 where id=$2',
+                  text:'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=$1,fecha_consolidado=$2 where id=$3',
                   values: values
                  };
 
@@ -157,7 +157,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
 
-    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente where c.fk_cliente=$1', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -266,7 +266,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       for(var i=0;i<req.body.delete_tracking_detalle_ids.length;i++){
           //QUERY DE ACTUALIZACIÓN DEL REGISTRO PARA DESLIGAR EL ID DE CONSOLIDADO
            const query1 = {
-                text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=null WHERE id=$1 RETURNING *',
+                text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=null,fecha_consolidado=null WHERE id=$1 RETURNING *',
                 values: [req.body.delete_tracking_detalle_ids[i]],
             };
 
@@ -345,7 +345,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
             values: [req.params.id,req.body.tracking_detalle[i].tracking_id,req.body.tracking_detalle[i].id,0]
           };
 
-          let values7=[0,req.body.tracking_detalle[i].id];
+          let values7=[0,moment().format('YYYYMMDD HHmmss'),req.body.tracking_detalle[i].id];
 
           client.query(query5,"",function (err5, result5) {//pregunto si existe el registro de tracking detalle en el consolidado
                 if (err5) {
@@ -362,7 +362,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
                     if(result6.rows.length>0){//se actualiza el registro de tracking enlazandolo con el nuevo id de consolidado_tracking
                       values7[0]=result6.rows[0].id;
                       const query7 = {
-                            text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=$1 WHERE id=$2 RETURNING *',
+                            text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=$1,fecha_consolidado=$2 WHERE id=$3 RETURNING *',
                             values: values7,
                       };
                       client.query(query7,"",function (err7, result7) {
