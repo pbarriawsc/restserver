@@ -9,6 +9,7 @@ app.get(`${prefix}`,verifyToken, trackingController.list);
 app.get(`${prefix}/:id`,verifyToken, trackingController.listById);
 app.get(`${prefix}/cliente/:id`,verifyToken, trackingController.listByClient);
 app.get(`${prefix}/estado/:estado`,verifyToken, trackingController.listByEstado);
+app.get(`${prefix}/cargaContenedor/:estado`,verifyToken, trackingController.listByReadyToCharge);
 app.put(`${prefix}/:id`,verifyToken, trackingController.update);
 app.post(`${prefix}/uploadFiles/:id`,verifyToken, trackingController.uploadFiles);
 app.post(`${prefix}/uploadFiles/packingList/invoice/:id`,verifyToken, trackingController.uploadFilesPackingInvoice);
