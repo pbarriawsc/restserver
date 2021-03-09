@@ -41,7 +41,7 @@ exports.create = (req, res) => {
               text: 'INSERT INTO public.consolidado_tracking(fk_consolidado,fk_tracking,estado) VALUES($1, $2,$3) RETURNING *',
               values: [result.rows[0].id,req.body.trackings[i],0],
             };
-            const vls=[0,req.body.trackings[i]];
+            const vls=[0,req.body.fk_propuesta,req.body.trackings[i]];
             client.query(query2,"",function (err2, result2) {
               if (err2) {
                       console.log(err2);
@@ -49,7 +49,7 @@ exports.create = (req, res) => {
                     } 
                   vls[0]=result2.rows[0].id;
                  const query21={
-                  text:'UPDATE public.tracking SET fk_consolidado_tracking=$1 where id=$2',
+                  text:'UPDATE public.tracking SET fk_consolidado_tracking=$1,fk_propuesta=$2 where id=$3',
                   values: vls
                  };
 
@@ -299,7 +299,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
             values: [req.params.id,req.body.trackings[i],0]
           };
 
-          let values4=[0,req.body.trackings[i]];
+          let values4=[0,req.body.fk_propuesta,req.body.trackings[i]];
 
           client.query(query2,"",function (err2, result2) {//pregunto si existe el registro de tracking en el consolidado
                 if (err2) {
@@ -316,7 +316,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
                     if(result3.rows.length>0){//se actualiza el registro de tracking enlazandolo con el nuevo id de consolidado_tracking
                       values4[0]=result3.rows[0].id;
                       const query4 = {
-                            text: 'UPDATE public.tracking SET fk_consolidado_tracking=$1 WHERE id=$2 RETURNING *',
+                            text: 'UPDATE public.tracking SET fk_consolidado_tracking=$1,fk_propuesta=$2 WHERE id=$3 RETURNING *',
                             values: values4,
                       };
                       client.query(query4,"",function (err4, result4) {
