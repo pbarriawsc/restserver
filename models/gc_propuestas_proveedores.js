@@ -73,11 +73,11 @@ module.exports = (sequelize,Sequelize) => {
             allowNull: true,
             type: Sequelize.FLOAT,
             unique: false,
-        },  
+        },
         peso: {
             allowNull: true,
             type: Sequelize.FLOAT,
             unique: false,
-        },  
+        },
 	});
 };

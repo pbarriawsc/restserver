@@ -29,20 +29,19 @@ const jwt=require('jsonwebtoken');
     /************************************************************/
     exports.ListProveedores = async (req, res) => {
         try {
-
-            var Lista = client.query(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params))+` order by nombre asc`);
-            res.status(200).send(Lista.rows); 
+            let Lista = await client.query(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params.id))+` order by nombre asc`);
+            res.status(200).send(Lista.rows);
             res.end(); res.connection.destroy();
 
         } catch (error) {
-            
+
             res.status(400).send({
                 message: "ERROR AL CARGAR PROVEEDORES "+error,
                 success:false,
             });
             res.end(); res.connection.destroy();
         }
-        
+
     };
     /************************************************************/
     /************************************************************/
@@ -898,7 +897,6 @@ const jwt=require('jsonwebtoken');
                 qry_1 += ` foto3 `;
                 qry_2 += ` null `;
 
-                console.log(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
                 await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
 
                 let Proveedores = await client.query(`
@@ -1090,7 +1088,6 @@ const jwt=require('jsonwebtoken');
           where tar.estado=0 and tar.fk_cabecera = $1
           `, [req.params.id], function (err, result) {
           if (err) {
-              console.log(err);
               res.status(400).send(err);
           }
           res.status(200).send(result.rows);
@@ -1224,7 +1221,6 @@ const jwt=require('jsonwebtoken');
         order by cabe.id desc
         `, [parseInt(Object.values(req.params))], function (err, result) {
           if (err) {
-              console.log(err);
               res.status(400).send(err);
           }
           res.status(200).send(result.rows);
@@ -1255,7 +1251,6 @@ const jwt=require('jsonwebtoken');
       order by cabe.id desc
     `, "", function (err, result) {
         if (err) {
-            console.log(err);
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
@@ -1272,7 +1267,6 @@ const jwt=require('jsonwebtoken');
     }
     client.query('SELECT * FROM public.gc_propuestas_cabeceras where id = $1', [req.params.id], function (err, result) {
         if (err) {
-            console.log(err);
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
@@ -1302,7 +1296,6 @@ const jwt=require('jsonwebtoken');
         client.query(query,"",function (err, result)
         {
             if (err) {
-                console.log(err);
                 res.status(400).send(err);
             }
             res.status(200).send(result.rows[0]);
@@ -1353,7 +1346,7 @@ const jwt=require('jsonwebtoken');
             Numero = Numero.toString().replace(/\,/g,'.');
             return Numero;
         }
-        
+
         if(!req.body.gcpcserad_tarifa || req.body.gcpcserad_tarifa.length==0)
         { req.body.gcpcserad_tarifa = 0; } else {
             req.body.gcpcserad_tarifa = formatear_numero(req.body.gcpcserad_tarifa);
@@ -1519,72 +1512,66 @@ const jwt=require('jsonwebtoken');
         `);
 
 
-        if(Proveedores.rows.length<=0)
-        {
-            res.status(400).send({
-                message: "FALTA AGREGAR PROVEEDORES",
-                success:false
-            }); res.end(); res.connection.destroy();
-        }
-        else if(FaltaInfo.rows.length>0)
+        if(FaltaInfo.rows.length>0)
         {
             res.status(400).send({
                 message: "FALTA INFORMACIÓN EN LA PROPUESTA",
                 success:false
             }); res.end(); res.connection.destroy();
         }
-        else if(Proveedores.rows.length<=0)
+        else
         {
-            var qry_1 = ` fecha_creacion, `;
-            var qry_2 = ` '`+fecha+`', `;
+            if(Proveedores.rows.length<=0)
+            {
+                var qry_1 = ` fecha_creacion, `;
+                var qry_2 = ` '`+fecha+`', `;
 
-            qry_1 += ` fecha_recepcion, `;
-            qry_2 += ` null, `;
+                qry_1 += ` fecha_recepcion, `;
+                qry_2 += ` null, `;
 
-            qry_1 += ` fk_propuesta, `;
-            qry_2 += ` `+Propuesta.rows[0]['id']+`, `;
+                qry_1 += ` fk_propuesta, `;
+                qry_2 += ` `+Propuesta.rows[0]['id']+`, `;
 
-            qry_1 += ` cantidad_bultos, `;
-            qry_2 += ` 0, `;
+                qry_1 += ` cantidad_bultos, `;
+                qry_2 += ` 0, `;
 
-            qry_1 += ` cantidad_bultos, `;
-            qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
+                qry_1 += ` cantidad_bultos, `;
+                qry_2 += ` `+Proveedores.rows[i]['bultos']+`, `;
 
-            qry_1 += ` peso, `;
-            qry_2 += ` `+Proveedores.rows[i]['peso']+`, `;
+                qry_1 += ` peso, `;
+                qry_2 += ` `+Proveedores.rows[i]['peso']+`, `;
 
-            qry_1 += ` volumen, `;
-            qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
+                qry_1 += ` volumen, `;
+                qry_2 += ` `+Proveedores.rows[i]['volumen']+`, `;
 
-            qry_1 += ` tipo_carga, `;
-            qry_2 += ` 1, `;
+                qry_1 += ` tipo_carga, `;
+                qry_2 += ` 1, `;
 
-            qry_1 += ` fk_cliente, `;
-            qry_2 += ` `+Propuesta.rows[0]['fk_cliente']+`, `;
+                qry_1 += ` fk_cliente, `;
+                qry_2 += ` `+Propuesta.rows[0]['fk_cliente']+`, `;
 
-            qry_1 += ` tipo, `;
-            qry_2 += ` 2, `;
+                qry_1 += ` tipo, `;
+                qry_2 += ` 2, `;
 
-            qry_1 += ` estado, `;
-            qry_2 += ` 0, `;
+                qry_1 += ` estado, `;
+                qry_2 += ` 0, `;
 
-            qry_1 += ` foto1, `;
-            qry_2 += ` null, `;
+                qry_1 += ` foto1, `;
+                qry_2 += ` null, `;
 
-            qry_1 += ` foto2, `;
-            qry_2 += ` null, `;
+                qry_1 += ` foto2, `;
+                qry_2 += ` null, `;
 
-            qry_1 += ` foto3 `;
-            qry_2 += ` null `;
+                qry_1 += ` foto3 `;
+                qry_2 += ` null `;
 
-            await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
+                await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
+            }
 
+            await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE id=`+parseInt(Object.values(req.params))+` `);
+            await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE fk_cabecera=`+parseInt(Object.values(req.params))+` and estado=0 `);
+            res.status(200).send(Propuesta.rows[0]);
         }
-
-        await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE id=`+parseInt(Object.values(req.params))+` `);
-        await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=2, "fechaActualizacion"='`+fecha+`' WHERE fk_cabecera=`+parseInt(Object.values(req.params))+` and estado=0 `);
-
-        res.status(200).send(Propuesta.rows[0]);
     }
     /************************************************************/
     /************************************************************/

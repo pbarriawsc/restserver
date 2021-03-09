@@ -1,7 +1,7 @@
 const client = require('../config/db.client');
 
 exports.create = async (req, res) => { try {
-  
+
     if (!req.body.fk_cliente || req.body.fk_cliente=='0') {
       res.status(400).send({
         message: "EL CLIENTE ES OBLIGATORIO",
@@ -17,8 +17,8 @@ exports.create = async (req, res) => { try {
         message: "EL NOMBRE ESPAÑOL ES OBLIGATORIO",
         success:false
       }); res.end(); res.connection.destroy();
-    } 
-    else 
+    }
+    else
     {
 
       var codigo = req.body.codigo.trim();
@@ -35,9 +35,9 @@ exports.create = async (req, res) => { try {
       { var nombreEng = ''; } else { var nombreEng = req.body.nombreEng.trim(); }
 
       let ExisteCodigo = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and codigo='`+req.body.codigo+`' `);
-      
+
       let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
-      
+
       let ExisteNombreEsp = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombreEsp+`' `);
 
       let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
@@ -69,7 +69,7 @@ exports.create = async (req, res) => { try {
             message: "EL NOMBRE INGLES YA ESTÁ INGRESADO",
             success:false
         }); res.end(); res.connection.destroy();
-      }           
+      }
       else
       {
 
@@ -84,10 +84,10 @@ exports.create = async (req, res) => { try {
 
         qry_1 += ` nombre, `;
         qry_2 += ` '`+nombreEsp+`', `;
-        
+
         qry_1 += ` "nombreEng", `;
         qry_2 += ` '`+nombreEng+`', `;
-        
+
         qry_1 += ` "nombreChi", `;
         qry_2 += ` '`+nombreChi+`', `;
 
@@ -109,7 +109,7 @@ exports.create = async (req, res) => { try {
       }
 
     }
-    
+
 } catch (error) { res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
 
 exports.update = (req, res) => {
@@ -142,6 +142,24 @@ exports.update = (req, res) => {
         res.status(200).send(result.rows[0]);
     });
 }
+
+  exports.findList = async (req, res) => { try {
+
+    console.log(`
+    SELECT
+    *
+    FROM public.proveedores WHERE fk_cliente=`+req.params.id+`
+    ORDER BY id DESC`);
+    let Listado = await client.query(`
+    SELECT
+    *
+    FROM public.proveedores WHERE fk_cliente=`+req.params.id+`
+    ORDER BY id DESC
+    `);
+
+    res.status(200).send(Listado.rows);
+
+  } catch (error) { res.status(400).send({ message: "ERROR AL CARGAR LISTADO DE PROVEEDORES "+error, success:false, }); res.end(); res.connection.destroy(); } }
 
   exports.list = (req, res) => {
     client.query('SELECT * FROM public.proveedores', "", function (err, result) {

@@ -15,7 +15,7 @@ module.exports = (sequelize,Sequelize) => {
 		  codigoTributario: {
 			type: Sequelize.STRING
 			, allowNull: true
-		  },      
+		  },
 		  nombre: {
 			type: Sequelize.STRING
 			, allowNull: true
@@ -28,5 +28,19 @@ module.exports = (sequelize,Sequelize) => {
 			type: Sequelize.STRING
 			, allowNull: true
 		  },
+			fk_cliente: {
+					type: Sequelize.INTEGER,
+					references: {
+							model: {
+									tableName: "clientes",
+									schema: "public",
+							},
+							key: "id",
+							onDelete: "RESTRICT",
+							onUpdate: "RESTRICT",
+					},
+					allowNull: true,
+					unique: false,
+			},
 	});
 };
