@@ -569,7 +569,7 @@ exports.update = (req,res) =>{
 
 	                    if(values21[0]>0 && result.rows && result.rows.length>0){
 	                    	values21[2]=result.rows[0].id;
-	                    	values22[0]=result.rows[0].id;
+	                    	values22[1]=result.rows[0].id;
 	    					const query21={
 					            text: 'INSERT INTO public.consolidado_tracking_detalle(fk_consolidado,fk_tracking,fk_tracking_detalle,estado) VALUES($1, $2,$3,$4) RETURNING *',
 					            values: values21
@@ -580,7 +580,7 @@ exports.update = (req,res) =>{
 			                      res.status(400).send(err21);
 			                    }	
 
-			                     values22[1]=result21.rows[0].id;
+			                     values22[0]=result21.rows[0].id;
 			                     const query22 = {
 			                            text: 'UPDATE public.tracking_detalle SET fk_consolidado_tracking_detalle=$1 WHERE id=$2 RETURNING *',
 			                            values: values22,
