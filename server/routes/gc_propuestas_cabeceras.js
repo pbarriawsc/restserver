@@ -11,6 +11,7 @@ const prefixPropuestaDesarrollo='/api/gc_propuestacomercial_desarrollo';
 const prefix='/api/gc_propuestacomercial';
 const prefixList='/api/gc_propuestaCab_List';
 const prefixPdfCab='/api/gc_propuestacomercial_pdf_cab';
+const prefixEtiQr='/api/gc_propuestacomercial_etiquetaqr';
 const prefixPdfSerAd='/api/gc_propuestacomercial_pdf_serad';
 const prefixAprobar='/api/set_propuestapdf_aprobar';
 const prefixGetList='/api/gc_propuestacomercial_get_list';
@@ -72,6 +73,8 @@ app.get(`${prefix}/:id`,verifyToken, gc_propuestas_cabecerasController.findOneBy
 app.get(`${prefixList}/:id`,verifyToken, gc_propuestas_cabecerasController.findByContacto)
 
 app.get(`${prefixPdfCab}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfCabecera)
+
+app.get(`${prefixEtiQr}/:id`,verifyToken, gc_propuestas_cabecerasController.findByEtiQr)
 
 app.get(`${prefixPdfSerAd}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfSerAd)
 

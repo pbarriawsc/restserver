@@ -1094,6 +1094,30 @@ const jwt=require('jsonwebtoken');
     };
     /************************************************************/
     /************************************************************/
+    exports.findByEtiQr = (req, res) => {
+
+        client.query(`
+          SELECT
+          CLI.id
+          , CLI.nombre
+          , CLI."razonSocial"
+          , CLI.rut
+          , coalesce(prop.direccion,'') as direccion
+          , CLI.telefono1
+          , CLI.codigo
+          FROM public.gc_propuestas_cabeceras as prop
+          inner join public.clientes as CLI on prop.fk_cliente=CLI.id
+          where
+          prop.id=$1`, [req.params.id], function (err, result) {
+            if (err) {
+                console.log(err);
+                res.status(400).send(err);
+            }
+            res.status(200).send(result.rows);
+        });
+    };
+    /************************************************************/
+    /************************************************************/
     exports.findByPdfCabecera = async (req,res) =>{
 
         try {
