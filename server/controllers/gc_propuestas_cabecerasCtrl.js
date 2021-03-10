@@ -222,6 +222,7 @@ const jwt=require('jsonwebtoken');
 
         try {
 
+            console.log(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
             await client.query(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
 
             let UltimoId = await client.query(`
@@ -312,14 +313,15 @@ const jwt=require('jsonwebtoken');
             , coalesce("fk_zonaDespacho",0) as fk_zonaDespacho
             , coalesce(direccion,'') as direccion
             , coalesce("fk_formaDePago",0) as fk_formaDePago
-            , coalesce("fechaValidez",'') as fechaValidez
             , coalesce("fk_zonaOrigen",0) as fk_zonaOrigen
             , coalesce("fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
             , coalesce("fk_zonaDestino",0) as fk_zonaDestino
 
-            , CASE WHEN factor::TEXT LIKE '%.%' THEN
-            CONCAT(REPLACE(Split_part(TO_CHAR(factor,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(factor,'FM999,999,999.99')::text,'.',2))
-            ELSE factor::TEXT END as factor
+            , case when "fechaValidez"='0' OR LENGTH("fechaValidez")=0 THEN (SELECT coalesce("fechaValidez",'0') FROM public.gc_propuestas_cabeceras WHERE id=1 ) else coalesce("fechaValidez") end as fechaValidez
+
+            , case when factor=0 THEN (SELECT factor FROM public.gc_propuestas_cabeceras WHERE id=1 ) else factor end as factor
+
+            , case when "valorUnitarioUsd"=0 THEN (SELECT "valorUnitarioUsd" FROM public.gc_propuestas_cabeceras WHERE id=1 ) else "valorUnitarioUsd" end as valorUnitarioUsd
 
             , CASE WHEN "cmbPeso"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("cmbPeso",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("cmbPeso",'FM999,999,999.99')::text,'.',2))
@@ -328,10 +330,6 @@ const jwt=require('jsonwebtoken');
             , CASE WHEN "unidadesACobrar"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("unidadesACobrar",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("unidadesACobrar",'FM999,999,999.99')::text,'.',2))
             ELSE "unidadesACobrar"::TEXT END as unidadesACobrar
-
-            , CASE WHEN "valorUnitarioUsd"::TEXT LIKE '%.%' THEN
-            CONCAT(REPLACE(Split_part(TO_CHAR("valorUnitarioUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("valorUnitarioUsd",'FM999,999,999.99')::text,'.',2))
-            ELSE "valorUnitarioUsd"::TEXT END as valorUnitarioUsd
 
             , CASE WHEN "tarifaUsd"::TEXT LIKE '%.%' THEN
             CONCAT(REPLACE(Split_part(TO_CHAR("tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR("tarifaUsd",'FM999,999,999.99')::text,'.',2))
@@ -420,6 +418,7 @@ const jwt=require('jsonwebtoken');
             WHERE
             estado=0
             `+condicion+`
+            order by id desc
             `);
 
             res.status(200).send(Propuesta_Desarrollo.rows);
