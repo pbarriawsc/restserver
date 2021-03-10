@@ -10,6 +10,6 @@ app.get(`${prefix}/cliente/:id`,verifyToken, consolidadosController.listByClient
 app.get(`${prefix}/:id/trackings`,verifyToken, consolidadosController.listTrackingConsolidadoById);
 app.put(`${prefix}/:id`,verifyToken, consolidadosController.update);
 app.get(`${prefix}/propuestasComerciales/cliente/:id`,verifyToken, consolidadosController.listGcConsolidadoByClient);
-
+app.put(`${prefix}/cargaContenedor/:id`,verifyToken, consolidadosController.updateStateToCharge);
 
 module.exports=app;
