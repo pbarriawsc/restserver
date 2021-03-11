@@ -87,6 +87,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      ubicacion:{
+        type: Sequelize.STRING,
+        allowNull: true
+      },
     });
   },
 
