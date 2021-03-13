@@ -6,16 +6,15 @@ exports.GetClientes = async (req, res) => {
     try {
 
         let Lista = await client.query(` SELECT * FROM public.clientes order by nombre asc`);
-        console.log('CONSULTA');
-        console.log(` SELECT * FROM public.clientes order by nombre asc`);
-        console.log(JSON.stringify(Lista));
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
 
     } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        console.log("ERROR");
+      console.log('ERROR GetClientes');
+      console.log('ERROR GetClientes');
+      console.log(error);
+      console.log('ERROR GetClientes');
+      console.log('ERROR GetClientes');
         res.status(400).send({
             message: "ERROR AL CARGAR CLIENTES "+error,
             success:false,
@@ -28,17 +27,16 @@ exports.GetClientes = async (req, res) => {
 /************************************************************/
 exports.GetProveedoresClientes = async (req, res) => {
   try {
-      let Lista = await client.query(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params.id))+` order by nombre asc`);
-      console.log('CONSULTA');
-      console.log(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params.id))+` order by nombre asc`);
-      console.log(JSON.stringify(Lista));
+      let Lista = await client.query(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(req.params.id)+` order by id desc`);
       res.status(200).send(Lista.rows);
       res.end(); res.connection.destroy();
 
   } catch (error) {
-    console.log("ERROR");
+    console.log('ERROR GetProveedoresClientes');
+    console.log('ERROR GetProveedoresClientes');
     console.log(error);
-    console.log("ERROR");
+    console.log('ERROR GetProveedoresClientes');
+    console.log('ERROR GetProveedoresClientes');
       res.status(400).send({
           message: "ERROR AL CARGAR PROVEEDORES "+error,
           success:false,
@@ -50,8 +48,6 @@ exports.GetProveedoresClientes = async (req, res) => {
 /************************************************************/
 /************************************************************/
 exports.Create = async (req, res) => { try {
-
-    console.log(' 0-0-0- '+req.body.nombre);
     if (!req.body.fk_cliente || req.body.fk_cliente=='0') {
       res.status(400).send({
         message: "EL CLIENTE ES OBLIGATORIO",
@@ -81,9 +77,6 @@ exports.Create = async (req, res) => { try {
       if(!req.body.nombreChi || req.body.nombreChi.trim().length==0)
       { var nombreChi = ''; } else { var nombreChi = req.body.nombreChi.trim(); }
 
-      if(!req.body.nombreEng || req.body.nombreEng.trim().length==0)
-      { var nombreEng = ''; } else { var nombreEng = req.body.nombreEng.trim(); }
-
       let ExisteCodigo = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and codigo='`+req.body.codigo+`' `);
 
       let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
@@ -91,8 +84,6 @@ exports.Create = async (req, res) => { try {
       let Existenombre = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombre+`' `);
 
       let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
-
-      let ExisteNombreEng = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "nombreEng"='`+req.body.nombreEng+`' and length("nombreEng")>0 `);
 
       if( ExisteCodigo.rows.length>0 ) {
         res.status(400).send({
@@ -114,11 +105,6 @@ exports.Create = async (req, res) => { try {
             message: "EL NOMBRE CHINO YA ESTÁ INGRESADO",
             success:false
         }); res.end(); res.connection.destroy();
-      } else if( ExisteNombreEng.rows.length>0 ) {
-        res.status(400).send({
-            message: "EL NOMBRE INGLES YA ESTÁ INGRESADO",
-            success:false
-        }); res.end(); res.connection.destroy();
       }
       else
       {
@@ -135,16 +121,12 @@ exports.Create = async (req, res) => { try {
         qry_1 += ` nombre, `;
         qry_2 += ` '`+nombre+`', `;
 
-        qry_1 += ` "nombreEng", `;
-        qry_2 += ` '`+nombreEng+`', `;
-
         qry_1 += ` "nombreChi", `;
         qry_2 += ` '`+nombreChi+`', `;
 
         qry_1 += ` fk_cliente `;
         qry_2 += ` `+fk_cliente+` `;
 
-        console.log(`INSERT INTO public.proveedores (`+qry_1+`) values (`+qry_2+`)`);
         await client.query(`INSERT INTO public.proveedores (`+qry_1+`) values (`+qry_2+`)`);
 
         let Listado = await client.query(`
@@ -160,23 +142,28 @@ exports.Create = async (req, res) => { try {
 
     }
 
-} catch (error) { res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
+} catch (error) {
+console.log('ERROR Create');
+console.log('ERROR Create');
+console.log(error);
+console.log('ERROR Create');
+console.log('ERROR Create');
+    res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
 /************************************************************/
 /************************************************************/
 exports.GetProveedor = async (req, res) => {
     try {
 
-        let Lista = await client.query(` SELECT * FROM public.proveedores where id=`+parseInt(Object.values(req.params.id))+` limit 1`);
-        console.log('CONSULTA');
-        console.log(` SELECT * FROM public.proveedores where id=`+parseInt(Object.values(req.params.id))+` limit 1`);
-        console.log(JSON.stringify(Lista));
+        let Lista = await client.query(` SELECT * FROM public.proveedores where id=`+parseInt(req.params.id)+` limit 1`);
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
 
     } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        console.log("ERROR");
+      console.log('ERROR GetProveedor');
+      console.log('ERROR GetProveedor');
+      console.log(error);
+      console.log('ERROR GetProveedor');
+      console.log('ERROR GetProveedor');
         res.status(400).send({
             message: "ERROR AL CARGAR PROVEEDOR "+error,
             success:false,
@@ -224,9 +211,6 @@ exports.Update = async (req, res) => { try {
       if(!req.body.nombreChi || req.body.nombreChi.trim().length==0)
       { var nombreChi = ''; } else { var nombreChi = req.body.nombreChi.trim(); }
 
-      if(!req.body.nombreEng || req.body.nombreEng.trim().length==0)
-      { var nombreEng = ''; } else { var nombreEng = req.body.nombreEng.trim(); }
-
       let ExisteCodigo = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and codigo='`+req.body.codigo+`' `);
 
       let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
@@ -234,8 +218,6 @@ exports.Update = async (req, res) => { try {
       let Existenombre = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombre+`' `);
 
       let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
-
-      let ExisteNombreEng = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "nombreEng"='`+req.body.nombreEng+`' and length("nombreEng")>0 `);
 
       if( ExisteCodigo.rows.length>0 ) {
         res.status(400).send({
@@ -257,11 +239,6 @@ exports.Update = async (req, res) => { try {
             message: "EL NOMBRE CHINO YA ESTÁ INGRESADO",
             success:false
         }); res.end(); res.connection.destroy();
-      } else if( ExisteNombreEng.rows.length>0 ) {
-        res.status(400).send({
-            message: "EL NOMBRE INGLES YA ESTÁ INGRESADO",
-            success:false
-        }); res.end(); res.connection.destroy();
       }
       else
       {
@@ -274,13 +251,10 @@ exports.Update = async (req, res) => { try {
 
         qry_1 += ` nombre='`+nombre+`', `;
 
-        qry_1 += ` "nombreEng"='`+nombreEng+`', `;
-
         qry_1 += ` "nombreChi"='`+nombreChi+`', `;
 
         qry_1 += ` fk_cliente=`+fk_cliente+` `;
 
-        console.log(`UPDATE public.proveedores SET `+qry_1+` WHERE id=`+req.body.id);
         await client.query(`UPDATE public.proveedores SET `+qry_1+` WHERE id=`+req.body.id);
 
         let Listado = await client.query(`
@@ -296,7 +270,13 @@ exports.Update = async (req, res) => { try {
 
     }
 
-} catch (error) { res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
+} catch (error) {
+  console.log('ERROR Update');
+  console.log('ERROR Update');
+  console.log(error);
+  console.log('ERROR Update');
+  console.log('ERROR Update');
+  res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
 /************************************************************/
 /************************************************************/
 exports.PostProvCliente = async (req, res) => { try {
@@ -488,7 +468,11 @@ exports.PostProvCliente = async (req, res) => { try {
           }
 
       } catch (error) {
-
+        console.log('ERROR PostProvCliente');
+        console.log('ERROR PostProvCliente');
+        console.log(error);
+        console.log('ERROR PostProvCliente');
+        console.log('ERROR PostProvCliente');
           res.status(400).send({
               message: "ERROR AL GUARDAR INFORMACIÓN "+error,
               success:false,
@@ -516,17 +500,16 @@ exports.GetListProvCliente = async (req, res) => {
         , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
         FROM public.gc_propuestas_proveedores as tabla_1
         inner join public.proveedores as prov on tabla_1.fk_proveedor=prov.id
-        where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(Object.values(req.params.id))+` order by tabla_1.id desc`);
-        console.log('CONSULTA');
-        console.log(` SELECT * FROM public.gc_propuestas_proveedores order by id desc`);
-        console.log(JSON.stringify(Lista));
+        where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(req.params.id)+` order by tabla_1.id desc`);
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
 
     } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        console.log("ERROR");
+      console.log('ERROR GetListProvCliente');
+      console.log('ERROR GetListProvCliente');
+      console.log(error);
+      console.log('ERROR GetListProvCliente');
+      console.log('ERROR GetListProvCliente');
         res.status(400).send({
             message: "ERROR AL CARGAR PROVEEDOR CLIENTES "+error,
             success:false,
@@ -541,15 +524,15 @@ exports.DeleteProveedor = async (req, res) => {
     try {
 
         await client.query(`DELETE from proveedores where id=`+parseInt(req.params.id));
-        console.log('CONSULTA');
-        console.log(`DELETE from proveedores where id=`+parseInt(req.params.id));
         res.status(200).send([]);
         res.end(); res.connection.destroy();
 
     } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        console.log("ERROR");
+      console.log('ERROR DeleteProveedor');
+      console.log('ERROR DeleteProveedor');
+      console.log(error);
+      console.log('ERROR DeleteProveedor');
+      console.log('ERROR DeleteProveedor');
         res.status(400).send({
             message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN RELACIONADA",
             success:false,
@@ -583,17 +566,17 @@ exports.DeleteProveedorPropuesta = async (req, res) => {
           await client.query(`UPDATE public.tracking SET estado=-2 where fk_proveedor_cliente=`+req.body.id+` `);
 
           await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=999 where id=`+parseInt(req.body.id));
-          console.log('CONSULTA');
-          console.log(`UPDATE FROM public.gc_propuestas_proveedores SET estado=999 where id=`+parseInt(req.body.id));
           res.status(200).send([]);
           res.end(); res.connection.destroy();
 
         }
 
     } catch (error) {
-        console.log("ERROR");
-        console.log(error);
-        console.log("ERROR");
+      console.log('ERROR DeleteProveedorPropuesta');
+      console.log('ERROR DeleteProveedorPropuesta');
+      console.log(error);
+      console.log('ERROR DeleteProveedorPropuesta');
+      console.log('ERROR DeleteProveedorPropuesta');
         res.status(400).send({
             message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN RELACIONADA ",
             success:false,
@@ -604,14 +587,213 @@ exports.DeleteProveedorPropuesta = async (req, res) => {
 };
 /************************************************************/
 /************************************************************/
+exports.GetProveedorPropuesta = async (req, res) => {
+    try {
 
+        let Lista = await client.query(`
+        SELECT
+        tabla_1.id
+        , TO_CHAR(tabla_1."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+        , tabla_1.fk_cliente
+        , tabla_1.fk_proveedor
+
+        , CASE WHEN tabla_1.volumen::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(tabla_1.volumen,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(tabla_1.volumen,'FM999,999,999.99')::text,'.',2))
+        ELSE tabla_1.volumen::TEXT END as volumen
+
+        , CASE WHEN tabla_1.bultos::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(tabla_1.bultos,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(tabla_1.bultos,'FM999,999,999.99')::text,'.',2))
+        ELSE tabla_1.bultos::TEXT END as bultos
+
+        , CASE WHEN tabla_1.peso::TEXT LIKE '%.%' THEN
+        CONCAT(REPLACE(Split_part(TO_CHAR(tabla_1.peso,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(tabla_1.peso,'FM999,999,999.99')::text,'.',2))
+        ELSE tabla_1.peso::TEXT END as peso
+
+        , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
+        FROM public.gc_propuestas_proveedores as tabla_1
+        where tabla_1.id=`+parseInt(req.params.id));
+
+        res.status(200).send(Lista.rows);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+      console.log('ERROR GetProveedorPropuesta');
+      console.log('ERROR GetProveedorPropuesta');
+      console.log(error);
+      console.log('ERROR GetProveedorPropuesta');
+      console.log('ERROR GetProveedorPropuesta');
+        res.status(400).send({
+            message: "ERROR AL CARGAR PROVEEDOR CLIENTES "+error,
+            success:false,
+        });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/
+exports.PutProvCliente = async (req, res) => { try {
+
+    var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+    if (!req.body.id || req.body.id==0) {
+        res.status(400).send({
+            message: "NO SE DETECTO UN ID A ACTUALIZAR",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.fk_cliente || req.body.fk_cliente==0) {
+        res.status(400).send({
+            message: "EL CLIENTE ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
+        res.status(400).send({
+            message: "EL PROVEEDOR ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.peso ) {
+        res.status(400).send({
+            message: "EL PESO ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.bultos ) {
+        res.status(400).send({
+            message: "LOS BULTOS SON OBLIGATORIOS",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.volumen ) {
+        res.status(400).send({
+            message: "EL VOLUMEN ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    }
+    else
+    {
+        let ExisteCabecera = await client.query(`
+        SELECT
+        cabe.estado
+        , count(deta.id) as cantidad
+        FROM public.tracking as cabe
+        left join public.tracking_detalle as deta on deta.tracking_id=cabe.id
+        WHERE
+        cabe.fk_proveedor_cliente=`+req.body.id+`
+        group by cabe.estado
+        `);
+
+        function formatear_numero(Numero)
+        {
+            Numero = Numero.toString().replace(/\./g,'');
+            Numero = Numero.toString().replace(/\,/g,'.');
+            return Numero;
+        }
+
+        if(!req.body.volumen || req.body.volumen.length==0)
+        { req.body.volumen = 0; } else {
+            req.body.volumen = formatear_numero(req.body.volumen);
+        }
+
+        if(!req.body.peso || req.body.peso.length==0)
+        { req.body.peso = 0; } else {
+            req.body.peso = formatear_numero(req.body.peso);
+        }
+
+        if(!req.body.bultos || req.body.bultos.length==0)
+        { req.body.bultos = 0; } else {
+            req.body.bultos = formatear_numero(req.body.bultos);
+        }
+
+        let qry_1 = '';
+
+        qry_1 = ` estado=0, `;
+
+        qry_1 += ` fk_responsable=`+req.usuario.id+`, `;
+
+        qry_1 += ` "fechaActualizacion"='`+fecha+`', `;
+
+        qry_1 += ` volumen=`+req.body.volumen+`, `;
+
+        qry_1 += ` peso=`+req.body.peso+`, `;
+
+        qry_1 += ` bultos=`+req.body.bultos+` `;
+
+          try {
+
+              await client.query(`UPDATE public.gc_propuestas_proveedores SET `+qry_1+` WHERE id=`+req.body.id );
+
+              if(req.body.bultos>ExisteCabecera.rows[0]['cantidad'] )
+              {
+                qry_1 = ` estado=0, `;
+              }
+              else {
+                qry_1 = ` estado=1, `;
+              }
+
+              qry_1 += ` cantidad_bultos=`+req.body.bultos+`, `;
+
+              qry_1 += ` peso=`+req.body.peso+`, `;
+
+              qry_1 += ` volumen=`+req.body.volumen+` `;
+
+              await client.query(` UPDATE tracking SET `+qry_1+` WHERE fk_proveedor_cliente=`+req.body.id );
+
+              res.status(200).send([]);
+              res.end(); res.connection.destroy();
+
+          } catch (error) {
+            console.log('ERROR PutProvCliente');
+            console.log('ERROR PutProvCliente');
+            console.log(error);
+            console.log('ERROR PutProvCliente');
+            console.log('ERROR PutProvCliente');
+              res.status(400).send({
+                  message: "ERROR AL ACTUALIZAR INFORMACIÓN "+error,
+                  success:false,
+              }); res.end(); res.connection.destroy();
+
+          }
+
+    }
+} catch (error) {   console.log('ERROR PutProvCliente');
+  console.log('ERROR PutProvCliente');
+  console.log(error);
+  console.log('ERROR PutProvCliente');
+  console.log('ERROR PutProvCliente'); res.status(400).send({ message: "ERROR GENERAL AL ACTUALIZAR INFORMACION", success:false, }); res.end(); res.connection.destroy(); }}
+/************************************************************/
+/************************************************************/
+exports.GetInfoQr = (req, res) => {
+    client.query(`
+      SELECT
+      CLI.id
+      , CLI.nombre
+      , CLI."razonSocial"
+      , CLI.rut
+      , '' as direccion
+      , CLI.telefono1
+      , CLI.codigo
+      FROM public.gc_propuestas_proveedores as prove
+      inner join public.clientes as cli on prove.fk_cliente=cli.id
+      where
+      prove.id=$1`, [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });
+};
+/************************************************************/
+/************************************************************/
+/************************************************************/
+/************************************************************/
   exports.findList = async (req, res) => { try {
 
-    console.log(`
-    SELECT
-    *
-    FROM public.proveedores WHERE fk_cliente=`+req.params.id+`
-    ORDER BY id DESC`);
     let Listado = await client.query(`
     SELECT
     *
@@ -626,7 +808,6 @@ exports.DeleteProveedorPropuesta = async (req, res) => {
   exports.list = (req, res) => {
     client.query('SELECT * FROM public.proveedores', "", function (err, result) {
         if (err) {
-            console.log(err);
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
@@ -643,7 +824,6 @@ exports.DeleteProveedorPropuesta = async (req, res) => {
     }
     client.query('SELECT * FROM public.proveedores where id = $1', [req.params.id], function (err, result) {
         if (err) {
-            console.log(err);
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
@@ -660,7 +840,6 @@ exports.DeleteProveedorPropuesta = async (req, res) => {
         }
         client.query('DELETE FROM public.proveedores where id = $1', [req.params.id], function (err, result) {
             if (err) {
-                console.log(err);
                 res.status(400).send(err);
             }
             res.status(200).send({

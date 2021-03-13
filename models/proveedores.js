@@ -24,10 +24,6 @@ module.exports = (sequelize,Sequelize) => {
 			type: Sequelize.STRING
 			, allowNull: true
 		  },
-		  nombreEng: {
-			type: Sequelize.STRING
-			, allowNull: true
-		  },
 			fk_cliente: {
 					type: Sequelize.INTEGER,
 					references: {

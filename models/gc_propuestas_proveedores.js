@@ -79,5 +79,11 @@ module.exports = (sequelize,Sequelize) => {
             type: Sequelize.FLOAT,
             unique: false,
         },
+				devImpuesto: {
+						allowNull: false,
+						type: Sequelize.TEXT,
+						unique: false,
+				},  
+
 	});
 };
