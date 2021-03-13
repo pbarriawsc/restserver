@@ -106,6 +106,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      fk_proveedor_cliente:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      }
     });
   },
 

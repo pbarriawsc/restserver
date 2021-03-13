@@ -241,7 +241,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
         for(var i=0;i<req.body.delete_tracking_ids.length;i++){
           //QUERY DE ACTUALIZACIÓN DEL REGISTRO PARA DESLIGAR EL ID DE CONSOLIDADO
            const query = {
-                text: 'UPDATE public.tracking SET fk_consolidado_tracking=null WHERE id=$1 RETURNING *',
+                text: 'UPDATE public.tracking SET fk_consolidado_tracking=null,fk_propuesta=null WHERE id=$1 RETURNING *',
                 values: [req.body.delete_tracking_ids[i]],
             };
 
@@ -427,7 +427,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
     }
      const arrayFinal=[];
      const queryRespaldo='SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE EXISTS (SELECT 1 FROM public.tracking where fk_propuesta=pc.id) and pc.fk_cliente=$1';// la anterior para evitar que se pierda
-     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1', [req.params.id], function (err, result) {
+     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1 AND pc.id>1', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
