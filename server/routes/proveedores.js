@@ -10,8 +10,13 @@ const PF_GetProveedor='/api/proveedores_get_proveedor';
 const PF_Put='/api/proveedores_put';
 const PF_PostProvCliente='/api/proveedores_post_proveedorcliente';
 const PF_GetListProvCliente='/api/proveedores_get_list_proveedorcliente';
-const PF_DeleteProveedor='/api/proveedores_gdelete_proveedor';
+const PF_DeleteProveedor='/api/proveedores_delete_proveedor';
 const PF_DeleteProveedorPropuesta='/api/proveedores_delete_proveedorpropuesta';
+const PF_GetProveedorPropuesta='/api/proveedores_get_proveedorpropuesta';
+const PF_PutProvCliente='/api/proveedores_put_proveedorcliente';
+const PF_GetInfoQr='/api/proveedores_get_infoqr';
+
+
 
 const proveedoresController=require('../controllers/proveedoresCtrl');
 
@@ -32,6 +37,12 @@ app.get(`${PF_GetListProvCliente}/:id`,verifyToken,proveedoresController.GetList
 app.get(`${PF_DeleteProveedor}/:id`,verifyToken,proveedoresController.DeleteProveedor);
 
 app.post(`${PF_DeleteProveedorPropuesta}`,verifyToken,proveedoresController.DeleteProveedorPropuesta);
+
+app.get(`${PF_GetProveedorPropuesta}/:id`,verifyToken,proveedoresController.GetProveedorPropuesta);
+
+app.post(`${PF_PutProvCliente}`,verifyToken, proveedoresController.PutProvCliente);
+
+app.get(`${PF_GetInfoQr}/:id`,verifyToken,proveedoresController.GetInfoQr);
 
 app.get(`${prefix}`,verifyToken,proveedoresController.list);
 

@@ -45,10 +45,6 @@ module.exports = {
         type: Sequelize.STRING
         , allowNull: true
       },
-      nombreEng: {
-        type: Sequelize.STRING
-        , allowNull: true
-      },
     });
   },
 
