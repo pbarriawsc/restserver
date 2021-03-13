@@ -426,12 +426,13 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
      const arrayFinal=[];
-     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE EXISTS (SELECT 1 FROM public.tracking where fk_propuesta=pc.id) and pc.fk_cliente=$1', [req.params.id], function (err, result) {
+     const queryRespaldo='SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE EXISTS (SELECT 1 FROM public.tracking where fk_propuesta=pc.id) and pc.fk_cliente=$1';// la anterior para evitar que se pierda
+     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
             }   
-            const cloneResult=result.rows;
+           /* const cloneResult=result.rows;
             let ids=[];
             if(cloneResult && cloneResult.length>0){
               for(var i=0;i<cloneResult.length;i++){
@@ -513,7 +514,8 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
             }else{
                  console.log('vacio');
                  res.status(200).send([]);
-            }    
+            } */ 
+            res.status(200).send(result.rows);  
       });
   };
 
