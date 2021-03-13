@@ -1,7 +1,57 @@
 const client = require('../config/db.client');
+const jwt=require('jsonwebtoken');
+/************************************************************/
+/************************************************************/
+exports.GetClientes = async (req, res) => {
+    try {
 
-exports.create = async (req, res) => { try {
+        let Lista = await client.query(` SELECT * FROM public.clientes order by nombre asc`);
+        console.log('CONSULTA');
+        console.log(` SELECT * FROM public.clientes order by nombre asc`);
+        console.log(JSON.stringify(Lista));
+        res.status(200).send(Lista.rows);
+        res.end(); res.connection.destroy();
 
+    } catch (error) {
+        console.log("ERROR");
+        console.log(error);
+        console.log("ERROR");
+        res.status(400).send({
+            message: "ERROR AL CARGAR CLIENTES "+error,
+            success:false,
+        });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/
+exports.GetProveedoresClientes = async (req, res) => {
+  try {
+      let Lista = await client.query(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params.id))+` order by nombre asc`);
+      console.log('CONSULTA');
+      console.log(` SELECT * FROM public.proveedores where fk_cliente=`+parseInt(Object.values(req.params.id))+` order by nombre asc`);
+      console.log(JSON.stringify(Lista));
+      res.status(200).send(Lista.rows);
+      res.end(); res.connection.destroy();
+
+  } catch (error) {
+    console.log("ERROR");
+    console.log(error);
+    console.log("ERROR");
+      res.status(400).send({
+          message: "ERROR AL CARGAR PROVEEDORES "+error,
+          success:false,
+      });
+      res.end(); res.connection.destroy();
+  }
+
+};
+/************************************************************/
+/************************************************************/
+exports.Create = async (req, res) => { try {
+
+    console.log(' 0-0-0- '+req.body.nombre);
     if (!req.body.fk_cliente || req.body.fk_cliente=='0') {
       res.status(400).send({
         message: "EL CLIENTE ES OBLIGATORIO",
@@ -12,7 +62,7 @@ exports.create = async (req, res) => { try {
         message: "EL CODIGO ES OBLIGATORIO",
         success:false
       }); res.end(); res.connection.destroy();
-    }else if (!req.body.nombreEsp || req.body.nombreEsp.trim().length==0) {
+    }else if (!req.body.nombre || req.body.nombre.trim().length==0) {
       res.status(400).send({
         message: "EL NOMBRE ESPAÑOL ES OBLIGATORIO",
         success:false
@@ -22,7 +72,7 @@ exports.create = async (req, res) => { try {
     {
 
       var codigo = req.body.codigo.trim();
-      var nombreEsp = req.body.nombreEsp.trim();
+      var nombre = req.body.nombre.trim();
       var fk_cliente = req.body.fk_cliente;
 
       if(!req.body.codigoTributario || req.body.codigoTributario.trim().length==0)
@@ -38,7 +88,7 @@ exports.create = async (req, res) => { try {
 
       let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
 
-      let ExisteNombreEsp = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombreEsp+`' `);
+      let Existenombre = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombre+`' `);
 
       let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
 
@@ -54,7 +104,7 @@ exports.create = async (req, res) => { try {
               message: "EL CÓDIGO TRIBUTARIO YA ESTÁ INGRESADO",
               success:false
           }); res.end(); res.connection.destroy();
-      } else if( ExisteNombreEsp.rows.length>0 ) {
+      } else if( Existenombre.rows.length>0 ) {
         res.status(400).send({
             message: "EL NOMBRE ESPAÑOL YA ESTÁ INGRESADO",
             success:false
@@ -83,7 +133,7 @@ exports.create = async (req, res) => { try {
         qry_2 += ` '`+codigoTributario+`', `;
 
         qry_1 += ` nombre, `;
-        qry_2 += ` '`+nombreEsp+`', `;
+        qry_2 += ` '`+nombre+`', `;
 
         qry_1 += ` "nombreEng", `;
         qry_2 += ` '`+nombreEng+`', `;
@@ -111,37 +161,449 @@ exports.create = async (req, res) => { try {
     }
 
 } catch (error) { res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
+/************************************************************/
+/************************************************************/
+exports.GetProveedor = async (req, res) => {
+    try {
 
-exports.update = (req, res) => {
-    // Validate request
-    if (!req.body.codigo){
+        let Lista = await client.query(` SELECT * FROM public.proveedores where id=`+parseInt(Object.values(req.params.id))+` limit 1`);
+        console.log('CONSULTA');
+        console.log(` SELECT * FROM public.proveedores where id=`+parseInt(Object.values(req.params.id))+` limit 1`);
+        console.log(JSON.stringify(Lista));
+        res.status(200).send(Lista.rows);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+        console.log("ERROR");
+        console.log(error);
+        console.log("ERROR");
         res.status(400).send({
-            message: "EL CODIGO ES OBLIGATORIO",
-            success:false
-          });
-          return;
-    }else if (!req.body.nombre){
-        res.status(400).send({
-            message: "EL NOMBRE ES OBLIGATORIO",
-            success:false
-          });
-          return;
+            message: "ERROR AL CARGAR PROVEEDOR "+error,
+            success:false,
+        });
+        res.end(); res.connection.destroy();
     }
 
-    const query = {
-        text: 'UPDATE public.proveedores SET codigo=$1, nombre=$2 where id=$3 RETURNING *',
-        values: [req.body.codigo, req.body.nombre, req.body.id],
-    };
+};
+/************************************************************/
+/************************************************************/
+exports.Update = async (req, res) => { try {
 
-    client.query(query,"",function (err, result)
+    if (!req.body.id || req.body.id=='0') {
+      res.status(400).send({
+        message: "NO SE DETECTO UN PROVEEDOR A EDITAR",
+        success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.fk_cliente || req.body.fk_cliente=='0') {
+      res.status(400).send({
+        message: "EL CLIENTE ES OBLIGATORIO",
+        success:false
+      }); res.end(); res.connection.destroy();
+    }else if (!req.body.codigo || req.body.codigo.trim().length==0) {
+      res.status(400).send({
+        message: "EL CODIGO ES OBLIGATORIO",
+        success:false
+      }); res.end(); res.connection.destroy();
+    }else if (!req.body.nombre || req.body.nombre.trim().length==0) {
+      res.status(400).send({
+        message: "EL NOMBRE ESPAÑOL ES OBLIGATORIO",
+        success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else
     {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
+
+      var codigo = req.body.codigo.trim();
+      var nombre = req.body.nombre.trim();
+      var fk_cliente = req.body.fk_cliente;
+
+      if(!req.body.codigoTributario || req.body.codigoTributario.trim().length==0)
+      { var codigoTributario = ''; } else { var codigoTributario = req.body.codigoTributario.trim(); }
+
+      if(!req.body.nombreChi || req.body.nombreChi.trim().length==0)
+      { var nombreChi = ''; } else { var nombreChi = req.body.nombreChi.trim(); }
+
+      if(!req.body.nombreEng || req.body.nombreEng.trim().length==0)
+      { var nombreEng = ''; } else { var nombreEng = req.body.nombreEng.trim(); }
+
+      let ExisteCodigo = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and codigo='`+req.body.codigo+`' `);
+
+      let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
+
+      let Existenombre = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombre+`' `);
+
+      let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
+
+      let ExisteNombreEng = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "nombreEng"='`+req.body.nombreEng+`' and length("nombreEng")>0 `);
+
+      if( ExisteCodigo.rows.length>0 ) {
+        res.status(400).send({
+            message: "EL CÓDIGO YA ESTÁ INGRESADO",
+            success:false
+        }); res.end(); res.connection.destroy();
+      } else if( ExisteCodigoTributario.rows.length>0 ) {
+          res.status(400).send({
+              message: "EL CÓDIGO TRIBUTARIO YA ESTÁ INGRESADO",
+              success:false
+          }); res.end(); res.connection.destroy();
+      } else if( Existenombre.rows.length>0 ) {
+        res.status(400).send({
+            message: "EL NOMBRE ESPAÑOL YA ESTÁ INGRESADO",
+            success:false
+        }); res.end(); res.connection.destroy();
+      } else if( ExisteNombreChi.rows.length>0 ) {
+        res.status(400).send({
+            message: "EL NOMBRE CHINO YA ESTÁ INGRESADO",
+            success:false
+        }); res.end(); res.connection.destroy();
+      } else if( ExisteNombreEng.rows.length>0 ) {
+        res.status(400).send({
+            message: "EL NOMBRE INGLES YA ESTÁ INGRESADO",
+            success:false
+        }); res.end(); res.connection.destroy();
+      }
+      else
+      {
+
+        let qry_1 = '';
+
+        qry_1 = ` codigo='`+codigo+`', `;
+
+        qry_1 += ` "codigoTributario"='`+codigoTributario+`', `;
+
+        qry_1 += ` nombre='`+nombre+`', `;
+
+        qry_1 += ` "nombreEng"='`+nombreEng+`', `;
+
+        qry_1 += ` "nombreChi"='`+nombreChi+`', `;
+
+        qry_1 += ` fk_cliente=`+fk_cliente+` `;
+
+        console.log(`UPDATE public.proveedores SET `+qry_1+` WHERE id=`+req.body.id);
+        await client.query(`UPDATE public.proveedores SET `+qry_1+` WHERE id=`+req.body.id);
+
+        let Listado = await client.query(`
+        SELECT
+        *
+        FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+`
+        ORDER BY id DESC
+        `);
+
+        res.status(200).send(Listado.rows);
+
+      }
+
+    }
+
+} catch (error) { res.status(400).send({ message: "ERROR AL GUARDAR INFORMACIÓN "+error, success:false, }); res.end(); res.connection.destroy(); } }
+/************************************************************/
+/************************************************************/
+exports.PostProvCliente = async (req, res) => { try {
+    var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+    if (!req.body.fk_cliente || req.body.fk_cliente==0) {
+        res.status(400).send({
+            message: "EL CLIENTE ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
+        res.status(400).send({
+            message: "EL PROVEEDOR ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.peso ) {
+        res.status(400).send({
+            message: "EL PESO ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.bultos ) {
+        res.status(400).send({
+            message: "LOS BULTOS SON OBLIGATORIOS",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else if (!req.body.volumen ) {
+        res.status(400).send({
+            message: "EL VOLUMEN ES OBLIGATORIO",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    } else {
+
+    function formatear_numero(Numero)
+    {
+        Numero = Numero.toString().replace(/\./g,'');
+        Numero = Numero.toString().replace(/\,/g,'.');
+        return Numero;
+    }
+
+    if(!req.body.volumen || req.body.volumen.length==0)
+    { req.body.volumen = 0; } else {
+        req.body.volumen = formatear_numero(req.body.volumen);
+    }
+
+    if(!req.body.peso || req.body.peso.length==0)
+    { req.body.peso = 0; } else {
+        req.body.peso = formatear_numero(req.body.peso);
+    }
+
+    if(!req.body.bultos || req.body.bultos.length==0)
+    { req.body.bultos = 0; } else {
+        req.body.bultos = formatear_numero(req.body.bultos);
+    }
+
+    let qry_1 = '';     let qry_2 = '';
+
+    qry_1 = ` estado, `;
+    qry_2 = ` 0, `;
+
+    qry_1 += ` fk_responsable, `;
+    qry_2 += ` `+req.usuario.id+`, `;
+
+    qry_1 += ` "fechaCreacion", `;
+    qry_2 += ` '`+fecha+`', `;
+
+    qry_1 += ` "fechaActualizacion", `;
+    qry_2 += ` '`+fecha+`', `;
+
+    qry_1 += ` fk_cliente, `;
+    qry_2 += ` `+req.body.fk_cliente+`, `;
+
+    qry_1 += ` fk_proveedor, `;
+    qry_2 += ` `+req.body.fk_proveedor+`, `;
+
+    qry_1 += ` volumen, `;
+    qry_2 += ` `+req.body.volumen+`, `;
+
+    qry_1 += ` peso, `;
+    qry_2 += ` `+req.body.peso+`, `;
+
+    qry_1 += ` bultos `;
+    qry_2 += ` `+req.body.bultos+` `;
+
+      try {
+
+          let existe = await client.query(`
+          SELECT
+          prov.id
+          , prov.estado
+          , prov.fk_responsable
+          , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+          , prov.fk_cliente
+          , prov.fk_proveedor
+          , prove.nombre
+          , prov.volumen
+          , prov.bultos
+          , peso
+          FROM public.gc_propuestas_proveedores as prov
+          INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+          WHERE
+          prov.estado!=999
+          and prov.fk_proveedor=`+req.body.fk_proveedor+`
+          and prov.fk_cliente=`+req.body.fk_cliente+` order by prov.id desc`);
+
+          if(existe.rows.length>0) {
+            res.status(400).send({
+                message: "EL PROVEEDOR YA ESTA INGRESADO",
+                success:false
+            }); res.end(); res.connection.destroy();
+          } else {
+
+            await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
+
+            let UltimoId = await client.query(`SELECT id from public.gc_propuestas_proveedores where fk_responsable=`+req.usuario.id+` order by id desc limit 1`);
+
+            qry_1 = ` fecha_creacion, `;
+            qry_2 = ` '`+fecha+`', `;
+
+            qry_1 += ` fecha_recepcion, `;
+            qry_2 += ` null, `;
+
+            qry_1 += ` fk_propuesta, `;
+            qry_2 += ` null, `;
+
+            qry_1 += ` cantidad_bultos, `;
+            qry_2 += ` `+req.body.bultos+`, `;
+
+            qry_1 += ` peso, `;
+            qry_2 += ` `+req.body.peso+`, `;
+
+            qry_1 += ` volumen, `;
+            qry_2 += ` `+req.body.volumen+`, `;
+
+            qry_1 += ` tipo_carga, `;
+            qry_2 += ` 1, `;
+
+            qry_1 += ` fk_proveedor, `;
+            qry_2 += ` `+req.body.fk_proveedor+`, `;
+
+            qry_1 += ` fk_cliente, `;
+            qry_2 += ` `+req.body.fk_cliente+`, `;
+
+            qry_1 += ` tipo, `;
+            qry_2 += ` 2, `;
+
+            qry_1 += ` estado, `;
+            qry_2 += ` 0, `;
+
+            qry_1 += ` foto1, `;
+            qry_2 += ` null, `;
+
+            qry_1 += ` foto2, `;
+            qry_2 += ` null, `;
+
+            qry_1 += ` foto3, `;
+            qry_2 += ` null, `;
+
+            qry_1 += ` fk_proveedor_cliente `;
+            qry_2 += ` `+UltimoId.rows[0]['id']+` `;
+
+            await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
+
+            let Proveedores = await client.query(`
+              SELECT
+              prov.id
+              , prov.estado
+              , prov.fk_responsable
+              , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+              , prov.fk_cliente
+              , prov.fk_proveedor
+              , prove.nombre
+              , prov.volumen
+              , prov.bultos
+              , peso
+              FROM public.gc_propuestas_proveedores as prov
+              INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+              WHERE
+              prov.estado=0
+              and prov.fk_cliente=`+req.body.fk_cliente+` order by prov.id desc`);
+
+            res.status(200).send(Proveedores.rows);
+            res.end(); res.connection.destroy();
+          }
+
+      } catch (error) {
+
+          res.status(400).send({
+              message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+              success:false,
+          }); res.end(); res.connection.destroy();
+
+      }
+
+    }
+} catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}
+/************************************************************/
+/************************************************************/
+exports.GetListProvCliente = async (req, res) => {
+    try {
+
+        let Lista = await client.query(`
+        SELECT
+        tabla_1.id
+        , TO_CHAR(tabla_1."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+        , tabla_1.fk_cliente
+        , tabla_1.fk_proveedor
+        , prov.nombre as proveedornombre
+        , tabla_1.volumen
+        , tabla_1.bultos
+        , tabla_1.peso
+        , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
+        FROM public.gc_propuestas_proveedores as tabla_1
+        inner join public.proveedores as prov on tabla_1.fk_proveedor=prov.id
+        where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(Object.values(req.params.id))+` order by tabla_1.id desc`);
+        console.log('CONSULTA');
+        console.log(` SELECT * FROM public.gc_propuestas_proveedores order by id desc`);
+        console.log(JSON.stringify(Lista));
+        res.status(200).send(Lista.rows);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+        console.log("ERROR");
+        console.log(error);
+        console.log("ERROR");
+        res.status(400).send({
+            message: "ERROR AL CARGAR PROVEEDOR CLIENTES "+error,
+            success:false,
+        });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/
+exports.DeleteProveedor = async (req, res) => {
+    try {
+
+        await client.query(`DELETE from proveedores where id=`+parseInt(req.params.id));
+        console.log('CONSULTA');
+        console.log(`DELETE from proveedores where id=`+parseInt(req.params.id));
+        res.status(200).send([]);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+        console.log("ERROR");
+        console.log(error);
+        console.log("ERROR");
+        res.status(400).send({
+            message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN RELACIONADA",
+            success:false,
+        });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/
+exports.DeleteProveedorPropuesta = async (req, res) => {
+    try {
+        let ExisteCabecera = await client.query(`
+        SELECT
+        id
+        FROM public.tracking as cabe
+        WHERE
+        (
+          cabe.estado>0 and cabe.fk_proveedor_cliente=`+req.body.id+`
+        )
+        or (cabe.fk_proveedor_cliente=`+req.body.id+` and (SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=cabe.id) >0 )
+        `);
+
+        if(ExisteCabecera.rows.length>0) {
+          res.status(400).send({
+              message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN DE TRACKING RELACIONADA",
+              success:false
+          }); res.end(); res.connection.destroy();
+        } else {
+
+          await client.query(`UPDATE public.tracking SET estado=-2 where fk_proveedor_cliente=`+req.body.id+` `);
+
+          await client.query(`UPDATE public.gc_propuestas_proveedores SET estado=999 where id=`+parseInt(req.body.id));
+          console.log('CONSULTA');
+          console.log(`UPDATE FROM public.gc_propuestas_proveedores SET estado=999 where id=`+parseInt(req.body.id));
+          res.status(200).send([]);
+          res.end(); res.connection.destroy();
+
         }
-        res.status(200).send(result.rows[0]);
-    });
-}
+
+    } catch (error) {
+        console.log("ERROR");
+        console.log(error);
+        console.log("ERROR");
+        res.status(400).send({
+            message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN RELACIONADA ",
+            success:false,
+        });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/
 
   exports.findList = async (req, res) => { try {
 

@@ -37,11 +37,11 @@ module.exports = (sequelize,Sequelize) => {
             type: Sequelize.DATE,
             unique: false,
         },
-        fk_cabecera: {
+        fk_cliente: {
             type: Sequelize.INTEGER,
             references: {
                 model: {
-                    tableName: "gc_propuestas_cabeceras",
+                    tableName: "clientes",
                     schema: "public"
                 },
                 key: "id",

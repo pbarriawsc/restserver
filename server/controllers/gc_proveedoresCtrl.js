@@ -1,5 +1,24 @@
 const client = require('../config/db.client');
 
+exports.GetClientes = async (req, res) => {
+    try {
+        let Lista = await client.query(` SELECT * FROM public.clientes order by nombre asc`);
+        res.status(200).send(Lista.rows);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+
+        res.status(400).send({
+            message: "ERROR AL CARGAR CLIENTES "+error,
+            success:false,
+        });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/
+
 exports.create = (req, res) => {
     var moment = require('moment');
 
@@ -54,7 +73,7 @@ exports.list = (req, res) => {
       , GCPROV.fk_proveedor
       , GCPROV.fk_contacto
       , GCPROV.estado
-      , CASE 
+      , CASE
       WHEN GCPROV.estado=0 THEN 'DESARROLLO'
       WHEN GCPROV.estado=1 THEN 'ELIMINADA'
       WHEN GCPROV.estado=2 THEN 'APROBADA'
