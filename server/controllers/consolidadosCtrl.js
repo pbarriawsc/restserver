@@ -157,7 +157,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
 
-    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre, pc."cantProveedores" FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente left join gc_propuestas_cabeceras pc on pc.id=c.fk_propuesta where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre, pc."cantProveedores",(SELECT count(id) FROM public.consolidado_tracking_detalle WHERE fk_consolidado=c.id)::integer AS bultos FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente left join gc_propuestas_cabeceras pc on pc.id=c.fk_propuesta where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
