@@ -363,8 +363,11 @@ exports.PostProvCliente = async (req, res) => { try {
     qry_1 += ` peso, `;
     qry_2 += ` `+req.body.peso+`, `;
 
-    qry_1 += ` bultos `;
-    qry_2 += ` `+req.body.bultos+` `;
+    qry_1 += ` bultos, `;
+    qry_2 += ` `+req.body.bultos+`, `;
+
+    qry_1 += ` "devImpuesto" `;
+    qry_2 += ` '`+req.body.devimpuesto+`' `;
 
       try {
 
@@ -726,8 +729,11 @@ exports.PutProvCliente = async (req, res) => { try {
           try {
 
               await client.query(`UPDATE public.gc_propuestas_proveedores SET `+qry_1+` WHERE id=`+req.body.id );
-
-              if(req.body.bultos>ExisteCabecera.rows[0]['cantidad'] )
+              console.log('CONTADOR');
+              console.log(ExisteCabecera.rows[0].cantidad);
+              console.log('BULTOS');
+              console.log(req.body.bultos);
+              if(parseInt(req.body.bultos)>parseInt(ExisteCabecera.rows[0].cantidad) )
               {
                 qry_1 = ` estado=0, `;
               }
@@ -740,6 +746,10 @@ exports.PutProvCliente = async (req, res) => { try {
               qry_1 += ` peso=`+req.body.peso+`, `;
 
               qry_1 += ` volumen=`+req.body.volumen+` `;
+
+              console.log('CAMBIANDO ESTATO TRACKING');
+
+              console.log(` UPDATE tracking SET `+qry_1+` WHERE fk_proveedor_cliente=`+req.body.id);
 
               await client.query(` UPDATE tracking SET `+qry_1+` WHERE fk_proveedor_cliente=`+req.body.id );
 
