@@ -3,7 +3,7 @@ const moment=require('moment');
 const jwt=require('jsonwebtoken');
 
 exports.list = (req, res) => {
-    client.query('SELECT c.*,(SELECT count(id) FROM public.contenedor_historial WHERE fk_contenedor=c.id)::integer AS historial,n.nave_nombre as fk_nave_nombre FROM public.contenedor c LEFT JOIN public.naves2 n on n.nave_id=c.fk_nave  ORDER BY id DESC', "", function (err, result) {
+    client.query('SELECT c.*,(SELECT count(id) FROM public.contenedor_historial WHERE fk_contenedor=c.id)::integer AS historial,n.nave_nombre as fk_nave_nombre,ne.eta_fecha,ne.eta_hora,ne.etd_fecha,ne.etd_hora FROM public.contenedor c LEFT JOIN public.naves2 n on n.nave_id=c.fk_nave LEFT JOIN public.naves_eta ne on ne.fk_nave=c.fk_nave ORDER BY id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
