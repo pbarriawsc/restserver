@@ -139,7 +139,7 @@ exports.list = (req, res) => {
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion FROM public.tracking_detalle td "+queryIn;
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_contenedor,c.codigo as fk_contenedor_codigo,n.nave_nombre as fk_nave_nombre,td.fk_nave,ne.eta_fecha,ne.eta_hora,ne.etd_fecha,ne.etd_hora FROM public.tracking_detalle td left join public.contenedor c on c.id=td.fk_contenedor left join public.naves2 n on n.nave_id=td.fk_nave left join public.naves_eta ne on ne.id=td.fk_nave_eta "+queryIn;
 		        if(req.params.estado===1 || req.params.estado==='1'){
 		        	queryFinal+=' and estado<2';
 		        }

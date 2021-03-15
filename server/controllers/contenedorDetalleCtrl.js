@@ -8,7 +8,7 @@ exports.listByContenedor = (req, res) => {
       });
       return;
     }
-    client.query('SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor,td.*,t.fk_cliente,c.nombre as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
+    client.query('SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor as fk_contenedor_cd,td.*,t.fk_cliente,c.nombre as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -16,7 +16,7 @@ exports.listByContenedor = (req, res) => {
         res.status(200).send(result.rows);
     });   
 };
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     // Validate request
     if (!req.params.id) {
       res.status(400).send({
@@ -45,15 +45,24 @@ exports.create = (req, res) => {
     		}
     	}
 
+        const contenedor=await client.query(`SELECT * FROM public.contenedor where id=`+req.params.id);
     	const query = {
 	        text: 'INSERT INTO public.contenedor_detalle(fk_contenedor, fk_tracking_detalle) VALUES($1, $2) RETURNING *',
 	        values: [req.params.id,req.body.detalle[i].id],
 	    };
+        let query2 ={
+                text: 'UPDATE public.tracking_detalle SET estado=$2 WHERE id=$1 RETURNING *',
+                values: [req.body.detalle[i].id,2]
+        };
 
-	    const query2 ={
-	        	text: 'UPDATE public.tracking_detalle SET estado=$2 WHERE id=$1 RETURNING *',
-	        	values: [req.body.detalle[i].id,2]
-	    };
+        if(contenedor.rows && contenedor.rows.length>0){
+            query2 ={
+                text: 'UPDATE public.tracking_detalle SET estado=$2,fk_contenedor=$3,fk_nave=$4,fk_nave_eta=$5 WHERE id=$1 RETURNING *',
+                values: [req.body.detalle[i].id,2,req.params.id,contenedor.rows[0].fk_nave,contenedor.rows[0].fk_nave_eta]
+            };
+        }
+
+	    
 
 	    client.query(query,"",function (err, result) {
 	        if (err) {
@@ -214,7 +223,7 @@ exports.delete = (req, res) => {
                         };
 
                         const query4={
-                            text: 'UPDATE public.tracking_detalle SET estado=$1 where id=$2',
+                            text: 'UPDATE public.tracking_detalle SET estado=$1,fk_contenedor=null,fk_nave=null,fk_nave_eta=null where id=$2',
                             values: [1,result2.rows[0].id],
                         };
 
