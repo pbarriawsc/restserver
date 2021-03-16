@@ -5,7 +5,7 @@ const moment=require('moment');
 exports.list = (req, res) => {
 	try{
 	const arrayFinal=[];
-    client.query('SELECT T.*,ct.fk_consolidado,c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id where t.estado<2 ORDER BY T.id DESC', "", function (err, result) {
+    client.query('SELECT T.*,ct.fk_consolidado,c.codigo as fk_cliente_codigo,c.nombre as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id where t.estado<2 and t.estado>=0 ORDER BY T.id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -128,7 +128,7 @@ exports.list = (req, res) => {
 
         	let queryIn='';
 		        if(ids.length>0){
-		        	queryIn+='WHERE tracking_id IN (';
+		        	queryIn+='WHERE td.tracking_id IN (';
 		        	for(var x=0;x<ids.length;x++){
 		        		if(x!==ids.length-1){
 		        			queryIn+=ids[x]+','
@@ -139,7 +139,7 @@ exports.list = (req, res) => {
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal="SELECT id,upload_id,fecha_recepcion,fecha_consolidado,codigo_interno,tipo_producto,producto,peso,volumen,observacion,tracking_id,estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,ancho,alto,altura,ubicacion FROM public.tracking_detalle "+queryIn;
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_contenedor,c.codigo as fk_contenedor_codigo,n.nave_nombre as fk_nave_nombre,td.fk_nave,ne.eta_fecha,ne.eta_hora,ne.etd_fecha,ne.etd_hora FROM public.tracking_detalle td left join public.contenedor c on c.id=td.fk_contenedor left join public.naves2 n on n.nave_id=td.fk_nave left join public.naves_eta ne on ne.id=td.fk_nave_eta "+queryIn;
 		        if(req.params.estado===1 || req.params.estado==='1'){
 		        	queryFinal+=' and estado<2';
 		        }

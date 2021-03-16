@@ -25,7 +25,7 @@ module.exports = {
       },
       fk_propuesta:{
         type: Sequelize.INTEGER,
-        allowNull:false
+        allowNull:true
       },
       estado:{
         type: Sequelize.INTEGER,

@@ -91,6 +91,18 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true
       },
+      fk_contenedor:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      fk_nave:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      fk_nave_eta: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      }
     });
   },
 

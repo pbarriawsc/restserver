@@ -157,7 +157,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
 
-    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl.nombre as fk_cliente_nombre, pc."cantProveedores",(SELECT count(id) FROM public.consolidado_tracking_detalle WHERE fk_consolidado=c.id)::integer AS bultos FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente left join gc_propuestas_cabeceras pc on pc.id=c.fk_propuesta where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -241,7 +241,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
         for(var i=0;i<req.body.delete_tracking_ids.length;i++){
           //QUERY DE ACTUALIZACIÓN DEL REGISTRO PARA DESLIGAR EL ID DE CONSOLIDADO
            const query = {
-                text: 'UPDATE public.tracking SET fk_consolidado_tracking=null WHERE id=$1 RETURNING *',
+                text: 'UPDATE public.tracking SET fk_consolidado_tracking=null,fk_propuesta=null WHERE id=$1 RETURNING *',
                 values: [req.body.delete_tracking_ids[i]],
             };
 
@@ -253,7 +253,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
 
             client.query(query,"",function (err, result) {
               if (err) {
-                  console.log(err);
+                  console.log(err); 
                   res.status(400).send(err);
               }
             });
@@ -427,7 +427,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
     }
      const arrayFinal=[];
      const queryRespaldo='SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE EXISTS (SELECT 1 FROM public.tracking where fk_propuesta=pc.id) and pc.fk_cliente=$1';// la anterior para evitar que se pierda
-     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1', [req.params.id], function (err, result) {
+     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1 AND pc.id>1', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
