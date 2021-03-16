@@ -66,6 +66,20 @@ module.exports = {
               allowNull: true,
               unique: false,
           },
+          fk_bodega: {
+              type: Sequelize.INTEGER,
+              references: {
+                  model: {
+                      tableName: "bodegas",
+                      schema: "public",
+                  },
+                  key: "id",
+                  onDelete: "RESTRICT",
+                  onUpdate: "RESTRICT",
+              },
+              allowNull: true,
+              unique: false,
+          },          
           volumen: {
               allowNull: true,
               type: Sequelize.FLOAT,

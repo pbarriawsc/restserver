@@ -5,7 +5,7 @@ const jwt=require('jsonwebtoken');
 exports.GetClientes = async (req, res) => {
     try {
 
-        let Lista = await client.query(` SELECT * FROM public.clientes order by nombre asc`);
+        let Lista = await client.query(` SELECT * FROM public.clientes order by "razonSocial" asc`);
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
 
@@ -289,196 +289,187 @@ exports.PostProvCliente = async (req, res) => { try {
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
+    }
+    else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
         res.status(400).send({
             message: "EL PROVEEDOR ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.peso ) {
+    }
+    else if (!req.body.fk_bodega || req.body.fk_bodega==0) {
+        res.status(400).send({
+            message: "LA BODEGA ES OBLIGATORIA",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    }
+    else if (!req.body.peso ) {
         res.status(400).send({
             message: "EL PESO ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.bultos ) {
+    }
+    else if (!req.body.bultos ) {
         res.status(400).send({
             message: "LOS BULTOS SON OBLIGATORIOS",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.volumen ) {
+    }
+    else if (!req.body.volumen ) {
         res.status(400).send({
             message: "EL VOLUMEN ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else {
-
-    function formatear_numero(Numero)
+    }
+    else
     {
-        Numero = Numero.toString().replace(/\./g,'');
-        Numero = Numero.toString().replace(/\,/g,'.');
-        return Numero;
-    }
+        function formatear_numero(Numero)
+        {
+            Numero = Numero.toString().replace(/\./g,'');
+            Numero = Numero.toString().replace(/\,/g,'.');
+            return Numero;
+        }
 
-    if(!req.body.volumen || req.body.volumen.length==0)
-    { req.body.volumen = 0; } else {
-        req.body.volumen = formatear_numero(req.body.volumen);
-    }
+        if(!req.body.volumen || req.body.volumen.length==0)
+        { req.body.volumen = 0; } else {
+            req.body.volumen = formatear_numero(req.body.volumen);
+        }
 
-    if(!req.body.peso || req.body.peso.length==0)
-    { req.body.peso = 0; } else {
-        req.body.peso = formatear_numero(req.body.peso);
-    }
+        if(!req.body.peso || req.body.peso.length==0)
+        { req.body.peso = 0; } else {
+            req.body.peso = formatear_numero(req.body.peso);
+        }
 
-    if(!req.body.bultos || req.body.bultos.length==0)
-    { req.body.bultos = 0; } else {
-        req.body.bultos = formatear_numero(req.body.bultos);
-    }
+        if(!req.body.bultos || req.body.bultos.length==0)
+        { req.body.bultos = 0; } else {
+            req.body.bultos = formatear_numero(req.body.bultos);
+        }
 
-    let qry_1 = '';     let qry_2 = '';
+        let qry_1 = '';     let qry_2 = '';
 
-    qry_1 = ` estado, `;
-    qry_2 = ` 0, `;
+        qry_1 = ` estado, `;
+        qry_2 = ` 0, `;
 
-    qry_1 += ` fk_responsable, `;
-    qry_2 += ` `+req.usuario.id+`, `;
+        qry_1 += ` fk_responsable, `;
+        qry_2 += ` `+req.usuario.id+`, `;
 
-    qry_1 += ` "fechaCreacion", `;
-    qry_2 += ` '`+fecha+`', `;
+        qry_1 += ` "fechaCreacion", `;
+        qry_2 += ` '`+fecha+`', `;
 
-    qry_1 += ` "fechaActualizacion", `;
-    qry_2 += ` '`+fecha+`', `;
+        qry_1 += ` "fechaActualizacion", `;
+        qry_2 += ` '`+fecha+`', `;
 
-    qry_1 += ` fk_cliente, `;
-    qry_2 += ` `+req.body.fk_cliente+`, `;
+        qry_1 += ` fk_cliente, `;
+        qry_2 += ` `+req.body.fk_cliente+`, `;
 
-    qry_1 += ` fk_proveedor, `;
-    qry_2 += ` `+req.body.fk_proveedor+`, `;
+        qry_1 += ` fk_proveedor, `;
+        qry_2 += ` `+req.body.fk_proveedor+`, `;
 
-    qry_1 += ` volumen, `;
-    qry_2 += ` `+req.body.volumen+`, `;
+        qry_1 += ` fk_bodega, `;
+        qry_2 += ` `+req.body.fk_bodega+`, `;
 
-    qry_1 += ` peso, `;
-    qry_2 += ` `+req.body.peso+`, `;
+        qry_1 += ` volumen, `;
+        qry_2 += ` `+req.body.volumen+`, `;
 
-    qry_1 += ` bultos `;
-    qry_2 += ` `+req.body.bultos+` `;
+        qry_1 += ` peso, `;
+        qry_2 += ` `+req.body.peso+`, `;
 
-      try {
+        qry_1 += ` bultos, `;
+        qry_2 += ` `+req.body.bultos+`, `;
 
-          let existe = await client.query(`
-          SELECT
-          prov.id
-          , prov.estado
-          , prov.fk_responsable
-          , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-          , prov.fk_cliente
-          , prov.fk_proveedor
-          , prove.nombre
-          , prov.volumen
-          , prov.bultos
-          , peso
-          FROM public.gc_propuestas_proveedores as prov
-          INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
-          WHERE
-          prov.estado!=999
-          and prov.fk_proveedor=`+req.body.fk_proveedor+`
-          and prov.fk_cliente=`+req.body.fk_cliente+` order by prov.id desc`);
+        qry_1 += ` "devImpuesto" `;
+        qry_2 += ` '`+req.body.devimpuesto+`' `;
 
-          if(existe.rows.length>0) {
+        try {
+
+              await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
+
+              let UltimoId = await client.query(`SELECT id from public.gc_propuestas_proveedores where fk_responsable=`+req.usuario.id+` order by id desc limit 1`);
+
+              qry_1 = ` fecha_creacion, `;
+              qry_2 = ` '`+fecha+`', `;
+
+              qry_1 += ` fecha_recepcion, `;
+              qry_2 += ` null, `;
+
+              qry_1 += ` fk_propuesta, `;
+              qry_2 += ` null, `;
+
+              qry_1 += ` cantidad_bultos, `;
+              qry_2 += ` `+req.body.bultos+`, `;
+
+              qry_1 += ` peso, `;
+              qry_2 += ` `+req.body.peso+`, `;
+
+              qry_1 += ` volumen, `;
+              qry_2 += ` `+req.body.volumen+`, `;
+
+              qry_1 += ` tipo_carga, `;
+              qry_2 += ` 1, `;
+
+              qry_1 += ` fk_proveedor, `;
+              qry_2 += ` `+req.body.fk_proveedor+`, `;
+
+              qry_1 += ` fk_cliente, `;
+              qry_2 += ` `+req.body.fk_cliente+`, `;
+
+              qry_1 += ` tipo, `;
+              qry_2 += ` 2, `;
+
+              qry_1 += ` estado, `;
+              qry_2 += ` 0, `;
+
+              qry_1 += ` foto1, `;
+              qry_2 += ` null, `;
+
+              qry_1 += ` foto2, `;
+              qry_2 += ` null, `;
+
+              qry_1 += ` foto3, `;
+              qry_2 += ` null, `;
+
+              qry_1 += ` fk_proveedor_cliente `;
+              qry_2 += ` `+UltimoId.rows[0]['id']+` `;
+
+              await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
+
+              let Proveedores = await client.query(`
+                SELECT
+                prov.id
+                , prov.estado
+                , prov.fk_responsable
+                , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+                , prov.fk_cliente
+                , prov.fk_proveedor
+                , prove.nombre
+                , prov.volumen
+                , prov.bultos
+                , peso
+                FROM public.gc_propuestas_proveedores as prov
+                INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
+                WHERE
+                prov.estado=0
+                and prov.fk_cliente=`+req.body.fk_cliente+` order by prov.id desc`);
+
+              res.status(200).send(Proveedores.rows);
+              res.end(); res.connection.destroy();
+
+        } catch (error) {
+          console.log('ERROR PostProvCliente');
+          console.log('ERROR PostProvCliente');
+          console.log(error);
+          console.log('ERROR PostProvCliente');
+          console.log('ERROR PostProvCliente');
             res.status(400).send({
-                message: "EL PROVEEDOR YA ESTA INGRESADO",
-                success:false
+                message: "ERROR AL GUARDAR INFORMACIÓN "+error,
+                success:false,
             }); res.end(); res.connection.destroy();
-          } else {
 
-            await client.query(`INSERT INTO public.gc_propuestas_proveedores (`+qry_1+`) values (`+qry_2+`)`);
-
-            let UltimoId = await client.query(`SELECT id from public.gc_propuestas_proveedores where fk_responsable=`+req.usuario.id+` order by id desc limit 1`);
-
-            qry_1 = ` fecha_creacion, `;
-            qry_2 = ` '`+fecha+`', `;
-
-            qry_1 += ` fecha_recepcion, `;
-            qry_2 += ` null, `;
-
-            qry_1 += ` fk_propuesta, `;
-            qry_2 += ` null, `;
-
-            qry_1 += ` cantidad_bultos, `;
-            qry_2 += ` `+req.body.bultos+`, `;
-
-            qry_1 += ` peso, `;
-            qry_2 += ` `+req.body.peso+`, `;
-
-            qry_1 += ` volumen, `;
-            qry_2 += ` `+req.body.volumen+`, `;
-
-            qry_1 += ` tipo_carga, `;
-            qry_2 += ` 1, `;
-
-            qry_1 += ` fk_proveedor, `;
-            qry_2 += ` `+req.body.fk_proveedor+`, `;
-
-            qry_1 += ` fk_cliente, `;
-            qry_2 += ` `+req.body.fk_cliente+`, `;
-
-            qry_1 += ` tipo, `;
-            qry_2 += ` 2, `;
-
-            qry_1 += ` estado, `;
-            qry_2 += ` 0, `;
-
-            qry_1 += ` foto1, `;
-            qry_2 += ` null, `;
-
-            qry_1 += ` foto2, `;
-            qry_2 += ` null, `;
-
-            qry_1 += ` foto3, `;
-            qry_2 += ` null, `;
-
-            qry_1 += ` fk_proveedor_cliente `;
-            qry_2 += ` `+UltimoId.rows[0]['id']+` `;
-
-            await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
-
-            let Proveedores = await client.query(`
-              SELECT
-              prov.id
-              , prov.estado
-              , prov.fk_responsable
-              , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-              , prov.fk_cliente
-              , prov.fk_proveedor
-              , prove.nombre
-              , prov.volumen
-              , prov.bultos
-              , peso
-              FROM public.gc_propuestas_proveedores as prov
-              INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
-              WHERE
-              prov.estado=0
-              and prov.fk_cliente=`+req.body.fk_cliente+` order by prov.id desc`);
-
-            res.status(200).send(Proveedores.rows);
-            res.end(); res.connection.destroy();
-          }
-
-      } catch (error) {
-        console.log('ERROR PostProvCliente');
-        console.log('ERROR PostProvCliente');
-        console.log(error);
-        console.log('ERROR PostProvCliente');
-        console.log('ERROR PostProvCliente');
-          res.status(400).send({
-              message: "ERROR AL GUARDAR INFORMACIÓN "+error,
-              success:false,
-          }); res.end(); res.connection.destroy();
-
-      }
+        }
 
     }
 } catch (error) { res.status(400).send({ message: "ERROR GENERAR AL GUARDAR SERVICIO ADICIONAL "+error, success:false, }); res.end(); res.connection.destroy(); }}
@@ -493,13 +484,18 @@ exports.GetListProvCliente = async (req, res) => {
         , TO_CHAR(tabla_1."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
         , tabla_1.fk_cliente
         , tabla_1.fk_proveedor
+        , tabla_1.fk_bodega
+        , bod.nombre as bodeganombre
         , prov.nombre as proveedornombre
         , tabla_1.volumen
         , tabla_1.bultos
         , tabla_1.peso
         , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
+        , coalesce(trk.fk_consolidado_tracking::text,'') as consolidado
         FROM public.gc_propuestas_proveedores as tabla_1
         inner join public.proveedores as prov on tabla_1.fk_proveedor=prov.id
+        inner join public.bodegas as bod on bod.id=tabla_1.fk_bodega
+        left join public.tracking as trk on trk.fk_proveedor_cliente=tabla_1.id
         where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(req.params.id)+` order by tabla_1.id desc`);
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
@@ -771,7 +767,6 @@ exports.GetInfoQr = (req, res) => {
     client.query(`
       SELECT
       CLI.id
-      , CLI.nombre
       , CLI."razonSocial"
       , CLI.rut
       , '' as direccion
@@ -848,3 +843,21 @@ exports.GetInfoQr = (req, res) => {
               });
         });
         };
+/************************************************************/
+/************************************************************/
+exports.GetBodegas = async (req, res) => {
+    try {
+
+        let Lista = await client.query(` SELECT * FROM public.bodegas where fk_empresa=1 and estado=true order by nombre asc`);
+        res.status(200).send(Lista.rows);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+        console.log(' ======= GETBODEGAA '+error+'\n\n');
+        res.status(400).send({ message: "ERROR AL CARGAR BODEGAS "+error, success:false, });
+        res.end(); res.connection.destroy();
+    }
+
+};
+/************************************************************/
+/************************************************************/

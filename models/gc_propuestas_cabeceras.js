@@ -139,11 +139,16 @@ module.exports = (sequelize,Sequelize) => {
             allowNull: true,
             unique: false,
         },
-        fechaValidez: {
-            allowNull: true,
-            type: Sequelize.TEXT,
-            unique: false,
-        },
+				fechaValidez: {
+						allowNull: true,
+						type: Sequelize.DATE,
+						unique: false,
+				},
+				diasValidez: {
+						allowNull: true,
+						type: Sequelize.INTEGER,
+						unique: false,
+				},
         fk_zonaOrigen: {
             type: Sequelize.INTEGER,
             references: {
@@ -202,6 +207,11 @@ module.exports = (sequelize,Sequelize) => {
             unique: false,
         },
         valorUnitarioUsd: {
+            allowNull: true,
+            type: Sequelize.FLOAT,
+            unique: false,
+        },
+				valorBaseUsd: {
             allowNull: true,
             type: Sequelize.FLOAT,
             unique: false,

@@ -9,7 +9,6 @@ module.exports = {
         id:1
         , rut:'1-1'
         , codigo:'CLI-PEND'
-        , nombre:'CLIENTE PENDIENTE'
         , "razonSocial": 'CLIENTE PENDIENTE'
         , web:''
         , telefono1:''

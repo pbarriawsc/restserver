@@ -7,7 +7,7 @@ module.exports = {
     await queryInterface.bulkInsert('gc_propuestas_estados', [
       {
         id: 0,
-        nombre: 'DESARROLLO',
+        nombre: 'EN DESARROLLO',
       },
       {
         id: 1,
@@ -23,13 +23,8 @@ module.exports = {
       },
       {
         id: 4,
-        nombre: 'ELIMINADA',
+        nombre: 'ANULADA',
       },
-      {
-        id: 5,
-        nombre: 'CADUCADA',
-      },
-
       {
         id: 999,
         nombre: 'ELIMINADA',

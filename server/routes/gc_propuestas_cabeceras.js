@@ -1,86 +1,63 @@
 const express = require('express')
 const app = express()
 const {verifyToken} = require('../middlewares/authotization');
-const prefixTiposServicios='/api/gc_propuestacomercial_get_tiposdeservicios';
-const prefixZonasTarifarias='/api/gc_propuestacomercial_get_zonastarifarias';
-const prefixFormasPago='/api/gc_propuestacomercial_get_formasdepago';
-const prefixPropuestaDesarrollo='/api/gc_propuestacomercial_desarrollo';
-
-
-
-const prefix='/api/gc_propuestacomercial';
-const prefixList='/api/gc_propuestaCab_List';
-const prefixPdfCab='/api/gc_propuestacomercial_pdf_cab';
-const prefixEtiQr='/api/gc_propuestacomercial_etiquetaqr';
-const prefixPdfSerAd='/api/gc_propuestacomercial_pdf_serad';
-const prefixAprobar='/api/set_propuestapdf_aprobar';
-const prefixGetList='/api/gc_propuestacomercial_get_list';
-const prefixPostSerAd='/api/gc_propuestacomercial_postserad';
-const prefixSerAdList='/api/gc_propuestacomercial_serad_list';
-const prefixDelete='/api/gc_propuestacomercial_delete';
-const prefixSerAdDelete='/api/gc_propuestacomercial_serad_delete';
-const prefixGetClientesList='/api/cg_pc_get_clientes_list';
-const prefixGetDireccionesList='/api/cg_pc_get_clientes_direcciones';
-const prefixGetProveedoresList='/api/gc_propuestacomercial_get_proveedores';
-const prefixPostProv='/api/gc_propuestacomercial_postprov';
-const prefixPostProvList='/api/gc_propuestacomercial_proveedores_list';
-const prefixProAprobar='/api/gc_propuestacomercial_aprobar';
-const prefixProvDelete='/api/gc_propuestacomercial_prov_delete';
-
-
 const gc_propuestas_cabecerasController=require('../controllers/gc_propuestas_cabecerasCtrl');
 
-app.get(`${prefixTiposServicios}`,verifyToken,gc_propuestas_cabecerasController.ListServiciosTipos);
-
-app.get(`${prefixZonasTarifarias}`,verifyToken,gc_propuestas_cabecerasController.ListZonasTarifarias);
-
-app.get(`${prefixFormasPago}`,verifyToken,gc_propuestas_cabecerasController.ListFormasPago);
-
-app.get(`${prefixGetClientesList}`,verifyToken,gc_propuestas_cabecerasController.ListClientes);
-
-app.get(`${prefixGetProveedoresList}/:id`,verifyToken,gc_propuestas_cabecerasController.ListProveedores);
-
-app.get(`${prefixPostProvList}/:id`,verifyToken,gc_propuestas_cabecerasController.ListProv);
-
-app.get(`${prefixProAprobar}/:id`,verifyToken,gc_propuestas_cabecerasController.ProAprobar);
-
-app.get(`${prefixPropuestaDesarrollo}/:id`,verifyToken, gc_propuestas_cabecerasController.findByDesarrollo)
-
-app.get(`${prefixGetDireccionesList}/:id`,verifyToken, gc_propuestas_cabecerasController.listDirecciones)
-
-app.post(`${prefix}`,verifyToken, gc_propuestas_cabecerasController.create)
-
-app.post(`${prefixPostProv}`,verifyToken, gc_propuestas_cabecerasController.createProv)
-
-app.put(`${prefix}`,verifyToken, gc_propuestas_cabecerasController.update)
-
-app.post(`${prefixPostSerAd}`,verifyToken, gc_propuestas_cabecerasController.createSerAd)
-
-app.get(`${prefixSerAdList}/:id`,verifyToken,gc_propuestas_cabecerasController.SerAdList);
-
-app.get(`${prefixGetList}/:id`,verifyToken,gc_propuestas_cabecerasController.GetList);
-
-app.get(`${prefixSerAdDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.SerAdDelete);
-
-app.get(`${prefixDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.ProComDelete);
-
-app.get(`${prefixProvDelete}/:id`,verifyToken,gc_propuestas_cabecerasController.ProvDelete);
-
-app.get(`${prefix}`,verifyToken,gc_propuestas_cabecerasController.list);
-
-app.get(`${prefix}/:id`,verifyToken, gc_propuestas_cabecerasController.findOneBy)
-
-app.get(`${prefixList}/:id`,verifyToken, gc_propuestas_cabecerasController.findByContacto)
-
-app.get(`${prefixPdfCab}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfCabecera)
-
-app.get(`${prefixEtiQr}/:id`,verifyToken, gc_propuestas_cabecerasController.findByEtiQr)
-
-app.get(`${prefixPdfSerAd}/:id`,verifyToken, gc_propuestas_cabecerasController.findByPdfSerAd)
+const PFPC_GetListPropuestaComercial='/api/propuestas_get_list_propuestascomerciales';
+const PFPC_GetPropuestaComercial='/api/propuestas_get_propuestacomercial';
+const PFPC_GetClientes='/api/propuestas_get_clientes';
+const PFPC_GetDirecciones='/api/propuestas_get_direcciones';
+const PFPC_GetTiposServicios='/api/propuestas_get_tiposdeservicios';
+const PFPC_GetZonasTarifarias='/api/propuestas_get_zonastarifarias';
+const PFPC_GetFormasDePago='/api/propuestas_get_formasdepago';
+const PFPC_PostPropuestaComercial='/api/gc_propuestacomercial_post_propuestacomercial';
+const PFPC_PutPropuestaComercial='/api/gc_propuestacomercial_put_propuestacomercial';
+const PFPC_GetServiciosAdicionales='/api/propuestas_get_list_serviciosadicionales';
+const PFPC_PostServiciosAdicionales='/api/gc_propuestacomercial_post_servicioadicional';
+const PFPC_DeleteServiciosAdicionales='/api/propuestas_delete_serviciosadicionales';
+const PFPC_DeletePropuestaComercial='/api/propuestas_delete_propuestacomercial';
+const PFPC_GetPropuestaBase='/api/propuestas_get_propuestabase';
+const PFPC_TerminarPropuesta='/api/propuestas_terminar_propuesta';
+const PFPC_AprobarPropuesta='/api/propuestas_aprobar_propuesta';
+const PFPC_RechazarPropuesta='/api/propuestas_rechazar_propuesta';
+const PFPC_AnularPropuesta='/api/propuestas_anular_propuesta';
+const PFPC_GetPropuestaPdfCab='/api/propuestas_get_propuestapdf_cab';
+const PFPC_GetPropuestaPdfSerAd='/api/propuestas_get_propuestapdf_serad';
 
 
 
-app.put(`${prefixAprobar}/:id`,verifyToken, gc_propuestas_cabecerasController.Aprobar)
+
+app.get(`${PFPC_GetListPropuestaComercial}/:id`,verifyToken,gc_propuestas_cabecerasController.GetListPropuestaComercial);
+app.get(`${PFPC_GetPropuestaComercial}/:id`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaComercial);
+app.get(`${PFPC_GetClientes}`,verifyToken,gc_propuestas_cabecerasController.GetClientes);
+app.get(`${PFPC_GetDirecciones}/:id`,verifyToken,gc_propuestas_cabecerasController.GetDirecciones);
+app.get(`${PFPC_GetTiposServicios}`,verifyToken,gc_propuestas_cabecerasController.GetTiposServicios);
+app.get(`${PFPC_GetZonasTarifarias}`,verifyToken,gc_propuestas_cabecerasController.GetZonasTarifarias);
+app.get(`${PFPC_GetFormasDePago}`,verifyToken,gc_propuestas_cabecerasController.GetFormasDePago);
+app.post(`${PFPC_PostPropuestaComercial}`,verifyToken,gc_propuestas_cabecerasController.PostPropuestaComercial);
+app.post(`${PFPC_PutPropuestaComercial}`,verifyToken,gc_propuestas_cabecerasController.PutPropuestaComercial);
+app.get(`${PFPC_GetServiciosAdicionales}/:id`,verifyToken,gc_propuestas_cabecerasController.GetServiciosAdicionales);
+app.post(`${PFPC_PostServiciosAdicionales}`,verifyToken,gc_propuestas_cabecerasController.PostServiciosAdicionales);
+app.get(`${PFPC_DeleteServiciosAdicionales}/:id`,verifyToken,gc_propuestas_cabecerasController.DeleteServiciosAdicionales);
+app.get(`${PFPC_DeletePropuestaComercial}/:id`,verifyToken,gc_propuestas_cabecerasController.DeletePropuestaComercial);
+app.get(`${PFPC_GetPropuestaBase}`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaBase);
+app.get(`${PFPC_AprobarPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.AprobarPropuesta);
+app.get(`${PFPC_TerminarPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.TerminarPropuesta);
+app.get(`${PFPC_RechazarPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.RechazarPropuesta);
+app.get(`${PFPC_AnularPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.AnularPropuesta);
+app.get(`${PFPC_GetPropuestaPdfCab}/:id`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaPdfCab);
+app.get(`${PFPC_GetPropuestaPdfSerAd}/:id`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaPdfSerAd);
+
+
+
+
+
+
+
+
+
+
+
 
 
 module.exports=app;

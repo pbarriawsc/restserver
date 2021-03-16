@@ -19,7 +19,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.INTEGER,
                 unique: false,
-            },            
+            },
             fk_responsable: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -43,7 +43,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.DATE,
                 unique: false,
-            },   
+            },
             fk_cliente: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -56,7 +56,7 @@ module.exports = {
                     onUpdate: "RESTRICT",
                 },
                 allowNull: true
-            },     
+            },
             fk_direccion: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -69,7 +69,7 @@ module.exports = {
                     onUpdate: "RESTRICT",
                 },
                 allowNull: true
-            },                                 
+            },
             nombreCliente: {
                 allowNull: true,
                 type: Sequelize.TEXT,
@@ -93,12 +93,12 @@ module.exports = {
                 },
                 allowNull: true,
                 unique: false,
-            },            
+            },
             tipoDeCarga: {
                 allowNull: true,
                 type: Sequelize.TEXT,
                 unique: false,
-            },           
+            },
             volumenEstimado: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
@@ -108,7 +108,7 @@ module.exports = {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,
-            },            
+            },
             fk_zonaDespacho: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -143,7 +143,12 @@ module.exports = {
             },
             fechaValidez: {
                 allowNull: true,
-                type: Sequelize.TEXT,
+                type: Sequelize.DATE,
+                unique: false,
+            },
+            diasValidez: {
+                allowNull: true,
+                type: Sequelize.INTEGER,
                 unique: false,
             },
             fk_zonaOrigen: {
@@ -187,32 +192,32 @@ module.exports = {
                 },
                 allowNull: true,
                 unique: false,
-            },            
-            factor: {
-                allowNull: true,
-                type: Sequelize.FLOAT,
-                unique: false,
-            },              
+            },
             cmbPeso: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,
-            },  
+            },
             unidadesACobrar: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,
-            },  
+            },
             valorUnitarioUsd: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,
-            },                          
+            },
+            valorBaseUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },            
             tarifaUsd: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,
-            },  
+            },
         });
     },
 
