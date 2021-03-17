@@ -12,7 +12,8 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    await queryInterface.bulkInsert('usuario', [{
+    await queryInterface.bulkInsert('usuario', [
+      {
        usuario:'rekkiem',
        nombre: 'Pablo',
        password: bcrypt.hashSync('123456',10),
@@ -37,7 +38,21 @@ module.exports = {
        estado:true
       //createdAt:'2020-11-24 00:00:00',
       //updatedAt:'2020-11-24 00:00:00'
-   }], {});
+    },
+    {
+      usuario:'comercial',
+      nombre: 'COMERCIAL',
+      password: bcrypt.hashSync('123456',10),
+      apellidos:'TEST',
+       email:'edo.v80@gmail.com',
+       telefono:'+56976631136',
+       rut:'11111111-1',
+       fk_rol:2,
+       estado:true
+      //createdAt:'2020-11-24 00:00:00',
+      //updatedAt:'2020-11-24 00:00:00'
+    },
+    ], {});
   },
 
   down: async (queryInterface, Sequelize) => {

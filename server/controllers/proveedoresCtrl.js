@@ -290,6 +290,13 @@ exports.PostProvCliente = async (req, res) => { try {
         }); res.end(); res.connection.destroy();
         return;
     }
+    else if (!req.body.fk_direccion || req.body.fk_direccion==0) {
+        res.status(400).send({
+            message: "LA DIRECCIÓN ES OBLIGATORIA",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    }
     else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
         res.status(400).send({
             message: "EL PROVEEDOR ES OBLIGATORIO",
@@ -368,6 +375,9 @@ exports.PostProvCliente = async (req, res) => { try {
 
         qry_1 += ` fk_proveedor, `;
         qry_2 += ` `+req.body.fk_proveedor+`, `;
+
+        qry_1 += ` fk_direccion, `;
+        qry_2 += ` `+req.body.fk_direccion+`, `;
 
         qry_1 += ` fk_bodega, `;
         qry_2 += ` `+req.body.fk_bodega+`, `;
@@ -492,9 +502,11 @@ exports.GetListProvCliente = async (req, res) => {
         , tabla_1.peso
         , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
         , coalesce(trk.fk_consolidado_tracking::text,'') as consolidado
+        , dir.nombre as direccion
         FROM public.gc_propuestas_proveedores as tabla_1
         inner join public.proveedores as prov on tabla_1.fk_proveedor=prov.id
         inner join public.bodegas as bod on bod.id=tabla_1.fk_bodega
+        inner join public.clientes_direcciones as dir on tabla_1.fk_direccion=dir.id
         left join public.tracking as trk on trk.fk_proveedor_cliente=tabla_1.id
         where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(req.params.id)+` order by tabla_1.id desc`);
         res.status(200).send(Lista.rows);
@@ -592,6 +604,8 @@ exports.GetProveedorPropuesta = async (req, res) => {
         , TO_CHAR(tabla_1."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
         , tabla_1.fk_cliente
         , tabla_1.fk_proveedor
+        , tabla_1.fk_bodega
+        , tabla_1.fk_direccion
 
         , CASE WHEN tabla_1.volumen::TEXT LIKE '%.%' THEN
         CONCAT(REPLACE(Split_part(TO_CHAR(tabla_1.volumen,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(tabla_1.volumen,'FM999,999,999.99')::text,'.',2))
@@ -639,31 +653,50 @@ exports.PutProvCliente = async (req, res) => { try {
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.fk_cliente || req.body.fk_cliente==0) {
+    }
+    else if (!req.body.fk_cliente || req.body.fk_cliente==0) {
         res.status(400).send({
             message: "EL CLIENTE ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
+    }
+    else if (!req.body.fk_direccion || req.body.fk_direccion==0) {
+        res.status(400).send({
+            message: "LA DIRECCIÓN ES OBLIGATORIA",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    }
+    else if (!req.body.fk_bodega || req.body.fk_bodega==0) {
+        res.status(400).send({
+            message: "LA BODEGA ES OBLIGATORIA",
+            success:false
+        }); res.end(); res.connection.destroy();
+        return;
+    }
+    else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
         res.status(400).send({
             message: "EL PROVEEDOR ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.peso ) {
+    }
+    else if (!req.body.peso ) {
         res.status(400).send({
             message: "EL PESO ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.bultos ) {
+    }
+    else if (!req.body.bultos ) {
         res.status(400).send({
             message: "LOS BULTOS SON OBLIGATORIOS",
             success:false
         }); res.end(); res.connection.destroy();
         return;
-    } else if (!req.body.volumen ) {
+    }
+    else if (!req.body.volumen ) {
         res.status(400).send({
             message: "EL VOLUMEN ES OBLIGATORIO",
             success:false
@@ -712,6 +745,10 @@ exports.PutProvCliente = async (req, res) => { try {
         qry_1 += ` fk_responsable=`+req.usuario.id+`, `;
 
         qry_1 += ` "fechaActualizacion"='`+fecha+`', `;
+
+        qry_1 += ` fk_bodega=`+req.body.fk_bodega+`, `;
+
+        qry_1 += ` fk_direccion=`+req.body.fk_direccion+`, `;
 
         qry_1 += ` volumen=`+req.body.volumen+`, `;
 
@@ -771,6 +808,7 @@ exports.PutProvCliente = async (req, res) => { try {
 /************************************************************/
 /************************************************************/
 exports.GetInfoQr = (req, res) => {
+
     client.query(`
       SELECT
       CLI.id
@@ -779,8 +817,14 @@ exports.GetInfoQr = (req, res) => {
       , '' as direccion
       , CLI.telefono1
       , CLI.codigo
+      , CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre) as direccion
       FROM public.gc_propuestas_proveedores as prove
       inner join public.clientes as cli on prove.fk_cliente=cli.id
+      inner join public.clientes_direcciones as dir on prove.fk_direccion=dir.id
+      inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo
+      inner join pais on pais.id=dir.fk_pais
+      inner join region on region.id=dir.fk_region
+      inner join comunas on comunas.id=dir.fk_comuna
       where
       prove.id=$1`, [req.params.id], function (err, result) {
         if (err) {
@@ -864,6 +908,33 @@ exports.GetBodegas = async (req, res) => {
         res.status(400).send({ message: "ERROR AL CARGAR BODEGAS "+error, success:false, });
         res.end(); res.connection.destroy();
     }
+
+};
+/************************************************************/
+/************************************************************/
+exports.GetDirecciones = async (req, res) => {
+  try {
+      let Lista = await client.query(`
+      SELECT
+      dir.id
+      , CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre) as direccion
+      FROM public.clientes_direcciones as dir
+      inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo
+      inner join pais on pais.id=dir.fk_pais
+      inner join region on region.id=dir.fk_region
+      inner join comunas on comunas.id=dir.fk_comuna
+      where dir.fk_cliente=`+parseInt(req.params.id)+` order by id desc`);
+      res.status(200).send(Lista.rows);
+      res.end(); res.connection.destroy();
+
+  } catch (error) {
+    console.log('ERROR GetDirecciones '+error); console.log(' '); console.log(' ');
+      res.status(400).send({
+          message: "ERROR AL CARGAR DIRECCIONES "+error,
+          success:false,
+      });
+      res.end(); res.connection.destroy();
+  }
 
 };
 /************************************************************/

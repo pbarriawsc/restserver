@@ -16,6 +16,7 @@ const PF_GetProveedorPropuesta='/api/proveedores_get_proveedorpropuesta';
 const PF_PutProvCliente='/api/proveedores_put_proveedorcliente';
 const PF_GetInfoQr='/api/proveedores_get_infoqr';
 const PF_GetBodegas='/api/proveedores_get_bodegas';
+const PF_GetDirecciones='/api/proveedores_get_clientes_direcciones';
 
 
 
@@ -54,6 +55,8 @@ app.get(`${prefixList}/:id`,verifyToken, proveedoresController.findList)
 app.delete(`${prefix}/:id`,verifyToken, proveedoresController.delete)
 
 app.get(`${PF_GetBodegas}`,verifyToken, proveedoresController.GetBodegas)
+
+app.get(`${PF_GetDirecciones}/:id`,verifyToken,proveedoresController.GetDirecciones);
 
 
 module.exports=app;

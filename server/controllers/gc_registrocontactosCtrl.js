@@ -19,49 +19,44 @@ const jwt=require('jsonwebtoken');
         });
     };
     /************************************************************/
-    /************************************************************/    
+    /************************************************************/
     exports.create = async (req, res) => {
         var moment = require('moment');
 
+        console.log("1");
         if (!req.body.gcrc_fk_tipo || req.body.gcrc_fk_tipo==0) {
             res.status(400).send({
                 message: "EL TIPO DE CONTACTO ES OBLIGATORIO",
                 success:false
-            });
-            return;
+            }); res.end(); res.connection.destroy();
         }else if (!req.body.gcrc_fk_comercial || req.body.gcrc_fk_comercial==0) {
             res.status(400).send({
                 message: "EL COMERCIAL ES OBLIGATORIO",
                 success:false
-            });
-            return;
+            }); res.end(); res.connection.destroy();
         }else if (!req.body.gcrc_nombres || req.body.gcrc_nombres=='') {
             res.status(400).send({
                 message: "EL NOMBRE ES OBLIGATORIO",
                 success:false
-            });
-            return;
+            }); res.end(); res.connection.destroy();
         }else if (!req.body.gcrc_apellidos || req.body.gcrc_apellidos=='') {
             res.status(400).send({
                 message: "EL APELLIDO ES OBLIGATORIO",
                 success:false
-            });
-            return;
+            }); res.end(); res.connection.destroy();
         }else if ( (!req.body.gcrc_email || req.body.gcrc_email=='') && (!req.body.gcrc_telefono1 || req.body.gcrc_telefono1=='') && (!req.body.gcrc_telefono2 || req.body.gcrc_telefono2=='') ) {
             res.status(400).send({
                 message: "DEBE INGRESAR UN EMAIL, O TELEFONO PRINCIPAL, O TELEFONO SECUNDARIO",
                 success:false
-            });
-            return;
+            }); res.end(); res.connection.destroy();
         }else if ( !req.body.gcrc_texto || req.body.gcrc_texto=='' ) {
             res.status(400).send({
                 message: "EL COMENTARIO ES OBLIGATORIO",
                 success:false
-            });
-            return;
-        }    
+            }); res.end(); res.connection.destroy();
+        }
         else if (req.body.gcrc_email && req.body.gcrc_fk_comercial) {
-
+            console.log("2");
             let token= req.get('Authorization');
             jwt.verify(token, process.env.SECRET, (err,decoded)=>{
             if(err){
@@ -72,14 +67,14 @@ const jwt=require('jsonwebtoken');
             }
             req.usuario = decoded.usuario;
             });
-                            
-            var existe = await client.query(` SELECT * FROM public.gc_registrocontactos where email = '`+req.body.gcrc_email+`' and fk_comercial!=`+req.body.gcrc_fk_comercial+` `);   
+
+            var existe = await client.query(` SELECT * FROM public.gc_registrocontactos where email = '`+req.body.gcrc_email+`' and fk_comercial!=`+req.body.gcrc_fk_comercial+` `);
 
             if(existe.rows.length>0){
                 res.status(400).send({
                     message: "EL MAIL ESTÁ ASOCIADO A OTRO COMERCIAL",
                     success:false
-                });
+                }); res.end(); res.connection.destroy();
             }
             else{
 
@@ -87,14 +82,14 @@ const jwt=require('jsonwebtoken');
                 if (!req.body.gcrc_apellidos) { req.body.gcrc_apellidos = ''; }
                 if (!req.body.gcrc_telefono1) { req.body.gcrc_telefono1 = ''; }
                 if (!req.body.gcrc_telefono2) { req.body.gcrc_telefono2 = ''; }
-            
+
                 let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-                
+
                 let qry_1 = '';     let qry_2 = '';
-                
+
                 qry_1 = `"fechaCreacion", `;
                 qry_2 = `'`+fecha+`', `;
-                
+
                 qry_1 += `"fechaActualizacion", `;
                 qry_2 += `'`+fecha+`', `;
 
@@ -108,40 +103,38 @@ const jwt=require('jsonwebtoken');
                 qry_2 += ` `+req.body.gcrc_fk_tipo+`, `;
 
                 qry_1 += `fk_comercial, `;
-                qry_2 += ` `+req.body.gcrc_fk_comercial+`, `;  
-                
+                qry_2 += ` `+req.body.gcrc_fk_comercial+`, `;
+
                 qry_1 += `nombres, `;
-                qry_2 += ` '`+req.body.gcrc_nombres+`', `;  
-                
+                qry_2 += ` '`+req.body.gcrc_nombres+`', `;
+
                 qry_1 += `apellidos, `;
-                qry_2 += ` '`+req.body.gcrc_apellidos+`', `;   
+                qry_2 += ` '`+req.body.gcrc_apellidos+`', `;
 
                 qry_1 += `email, `;
-                qry_2 += ` '`+req.body.gcrc_email+`', `;   
+                qry_2 += ` '`+req.body.gcrc_email+`', `;
 
                 qry_1 += `telefono1, `;
-                qry_2 += ` '`+req.body.gcrc_telefono1+`', `; 
-                
+                qry_2 += ` '`+req.body.gcrc_telefono1+`', `;
+
                 qry_1 += `telefono2, `;
-                qry_2 += ` '`+req.body.gcrc_telefono2+`', `;                     
+                qry_2 += ` '`+req.body.gcrc_telefono2+`', `;
 
                 qry_1 += `texto `;
-                qry_2 += ` '`+req.body.gcrc_texto+`' `;  
+                qry_2 += ` '`+req.body.gcrc_texto+`' `;
 
                 try {
 
-                    await client.query(`INSERT INTO public.gc_registrocontactos (`+qry_1+`) values (`+qry_2+`)`);   
-                    
-                    let UltimoId = await client.query(`SELECT * FROM public.gc_registrocontactos WHERE fk_responsable=`+req.usuario.id+` ORDER BY id DESC LIMIT 1`);
-
-                    res.status(200).send(UltimoId.rows[0]);
+                    console.log(`INSERT INTO public.gc_registrocontactos (`+qry_1+`) values (`+qry_2+`)`);
+                    await client.query(`INSERT INTO public.gc_registrocontactos (`+qry_1+`) values (`+qry_2+`)`);
+                    res.status(200).send([]); res.connection.destroy();
 
                 } catch (error) {
-                    
+
                     res.status(400).send({
                         message: "ERROR AL GUARDAR INFORMACIÓN "+error,
                         success:false
-                    });
+                    }); res.end(); res.connection.destroy();
 
                 }
 
@@ -165,7 +158,7 @@ const jwt=require('jsonwebtoken');
         , contact.telefono1
         , contact.telefono2
         , contact.texto
-        , case 
+        , case
         when contact.estado=0 then 'EN DESARROLLO'
         when contact.estado=1 then 'APROBADA'
         when contact.estado=999 then 'ELIMINADA'
@@ -174,7 +167,7 @@ const jwt=require('jsonwebtoken');
         inner join public.usuario as usu on contact.fk_comercial=usu.id
         inner join public.gc_contactos_tipos as ctip on ctip.id=contact.fk_tipo
         where contact.estado!=999
-        order by id desc 
+        order by id desc
         `, "", function (err, result) {
             if (err) {
                 console.log(err);
@@ -205,7 +198,7 @@ const jwt=require('jsonwebtoken');
     /************************************************************/
     exports.update = async (req, res) => {
         var moment = require('moment');
-    
+
         // Validate request
         if (!req.body.gcrc_fk_tipo || req.body.gcrc_fk_tipo==0) {
             res.status(400).send({
@@ -238,21 +231,21 @@ const jwt=require('jsonwebtoken');
             });
             return;
         };
-    
+
         if (!req.body.gcrc_email) { req.body.gcrc_email = ''; }
         if (!req.body.gcrc_apellidos) { req.body.gcrc_apellidos = ''; }
         if (!req.body.gcrc_telefono1) { req.body.gcrc_telefono1 = ''; }
         if (!req.body.gcrc_telefono2) { req.body.gcrc_telefono2 = ''; }
-    
+
         if (!req.body.gcrc_email) { req.body.gcrc_email = ''; }
         if (!req.body.gcrc_apellidos) { req.body.gcrc_apellidos = ''; }
         if (!req.body.gcrc_telefono1) { req.body.gcrc_telefono1 = ''; }
         if (!req.body.gcrc_telefono2) { req.body.gcrc_telefono2 = ''; }
-    
+
         let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
-    
+
         let qry_1 = '';
-            
+
         qry_1 = `"fechaActualizacion"='`+fecha+`', `;
 
         qry_1 += `fk_responsable=`+req.usuario.id+`, `;
@@ -260,29 +253,29 @@ const jwt=require('jsonwebtoken');
         qry_1 += `fk_tipo=`+req.body.gcrc_fk_tipo+`, `;
 
         qry_1 += `fk_comercial=`+req.body.gcrc_fk_comercial+`, `;
-        
-        qry_1 += `nombres='`+req.body.gcrc_nombres+`', `;  
-        
-        qry_1 += `apellidos='`+req.body.gcrc_apellidos+`', `;   
 
-        qry_1 += `email='`+req.body.gcrc_email+`', `;   
+        qry_1 += `nombres='`+req.body.gcrc_nombres+`', `;
 
-        qry_1 += `telefono1='`+req.body.gcrc_telefono1+`', `; 
-        
-        qry_1 += `telefono2='`+req.body.gcrc_telefono2+`', `;                     
+        qry_1 += `apellidos='`+req.body.gcrc_apellidos+`', `;
 
-        qry_1 += `texto='`+req.body.gcrc_texto+`' `;  
+        qry_1 += `email='`+req.body.gcrc_email+`', `;
+
+        qry_1 += `telefono1='`+req.body.gcrc_telefono1+`', `;
+
+        qry_1 += `telefono2='`+req.body.gcrc_telefono2+`', `;
+
+        qry_1 += `texto='`+req.body.gcrc_texto+`' `;
 
         try {
 
-            await client.query(`UPDATE public.gc_registrocontactos SET `+qry_1+` WHERE id=`+req.body.gcrc_id+` `);   
-            
+            await client.query(`UPDATE public.gc_registrocontactos SET `+qry_1+` WHERE id=`+req.body.gcrc_id+` `);
+
             let UltimoId = await client.query(`SELECT * FROM public.gc_registrocontactos WHERE id=`+req.body.gcrc_id+` `);
 
             res.status(200).send(UltimoId.rows[0]);
 
         } catch (error) {
-            
+
             res.status(400).send({
                 message: "ERROR AL ACTUALIZAR INFORMACIÓN "+error,
                 success:false

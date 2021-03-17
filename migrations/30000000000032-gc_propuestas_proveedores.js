@@ -79,7 +79,21 @@ module.exports = {
               },
               allowNull: true,
               unique: false,
-          },          
+          },
+          fk_direccion: {
+              type: Sequelize.INTEGER,
+              references: {
+                  model: {
+                      tableName: "clientes_direcciones",
+                      schema: "public",
+                  },
+                  key: "id",
+                  onDelete: "RESTRICT",
+                  onUpdate: "RESTRICT",
+              },
+              allowNull: true,
+              unique: false,
+          },
           volumen: {
               allowNull: true,
               type: Sequelize.FLOAT,

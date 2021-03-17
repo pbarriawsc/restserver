@@ -1,5 +1,5 @@
 const client = require('../config/db.client');
-exports.create = (req, res) => {
+exports.PostContactosTipos = (req, res) => {
     // Validate request
     if (!req.body.nombre) {
         res.status(400).send({
@@ -14,7 +14,7 @@ exports.create = (req, res) => {
         values: [req.body.nombre],
     };
 
-    client.query(query,"",function (err, result) 
+    client.query(query,"",function (err, result)
     {
         if (err) {
             console.log(err);
@@ -24,7 +24,7 @@ exports.create = (req, res) => {
     });
 }
 
-exports.update = (req, res) => {
+exports.PutContactosTipos = (req, res) => {
     // Validate request
     if (!req.body.nombre){
         res.status(400).send({
@@ -49,7 +49,7 @@ exports.update = (req, res) => {
     });
 }
 
-    exports.list = (req, res) => {
+    exports.GetContactosTipos = (req, res) => {
     client.query('SELECT * FROM public.gc_contactos_tipos', "", function (err, result) {
         if (err) {
             console.log(err);
@@ -59,7 +59,7 @@ exports.update = (req, res) => {
     });
     };
 
-    exports.findOneBy = (req,res) =>{
+    exports.GetContactoTipo = (req,res) =>{
     if (!req.params.id) {
         res.status(400).send({
             message: "EL ID ES OBLIGATORIO",
@@ -76,7 +76,7 @@ exports.update = (req, res) => {
     });
     };
 
-    exports.delete = (req,res) =>{
+    exports.DeleteContactoTipo = (req,res) =>{
         if (!req.params.id) {
             res.status(400).send({
                 message: "EL ID ES OBLIGATORIO",

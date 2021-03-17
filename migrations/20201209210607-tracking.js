@@ -109,7 +109,21 @@ module.exports = {
       fk_proveedor_cliente:{
         type: Sequelize.INTEGER,
         allowNull: true,
-      }
+      },
+      fk_bodega: {
+          type: Sequelize.INTEGER,
+          references: {
+              model: {
+                  tableName: "bodegas",
+                  schema: "public",
+              },
+              key: "id",
+              onDelete: "RESTRICT",
+              onUpdate: "RESTRICT",
+          },
+          allowNull: true,
+          unique: false,
+      },   
     });
   },
 
