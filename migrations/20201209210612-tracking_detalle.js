@@ -102,7 +102,11 @@ module.exports = {
       fk_nave_eta: {
         type: Sequelize.INTEGER,
         allowNull: true,
-      }
+      },
+       currier:{
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
 
