@@ -157,7 +157,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
 
-    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl."razonSocial" as fk_cliente_nombre, pc."cantProveedores",(SELECT count(id) FROM public.consolidado_tracking_detalle WHERE fk_consolidado=c.id)::integer AS bultos FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente left join gc_propuestas_cabeceras pc on pc.id=c.fk_propuesta where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT c.*,u.nombre as fk_usuario_nombre, u.apellidos as fk_usuario_apellidos,cl."razonSocial" as fk_cliente_nombre, pc."cantProveedores",(SELECT count(id) FROM public.consolidado_tracking_detalle WHERE fk_consolidado=c.id)::integer AS bultos,(SELECT SUM (t.cantidad_bultos ) as total from  public.tracking t inner join public.consolidado_tracking ct on ct.fk_tracking=t.id where ct.fk_consolidado=c.id)::integer as bultos_programados,(SELECT count(td.id) FROM public.tracking_detalle td inner join public.tracking t on t.id=td.tracking_id inner join public.consolidado_tracking ct on ct.fk_tracking=t.id WHERE ct.fk_consolidado=c.id and td.estado=1)::integer AS bultos_completos FROM public.consolidado c inner join usuario u on u.id=c.fk_usuario inner join public.clientes cl on cl.id=c.fk_cliente left join gc_propuestas_cabeceras pc on pc.id=c.fk_propuesta where c.fk_cliente=$1 ORDER BY c.id DESC', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -176,7 +176,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       return;
     }
   const arrayFinal=[];
-    client.query('SELECT ct.fk_tracking,t.id,t.fecha_creacion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.estado,t.prioridad,p.nombre as fk_proveedor_nombre,p.codigo as fk_proveedor_codigo,t.fk_consolidado_tracking,t.fk_propuesta FROM public.consolidado c inner join public.consolidado_tracking ct on ct.fk_consolidado=c.id inner join public.tracking t on t.id=ct.fk_tracking inner join public.proveedores p on p.id=t.fk_proveedor where c.id=$1', [parseInt(req.params.id)], function (err, result) {
+    client.query('SELECT ct.fk_tracking,t.id,t.fecha_creacion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.estado,t.prioridad,p.nombre as fk_proveedor_nombre,p.codigo as fk_proveedor_codigo,t.fk_consolidado_tracking,t.fk_propuesta,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=t.id and estado>=1)::integer AS bultos_completos FROM public.consolidado c inner join public.consolidado_tracking ct on ct.fk_consolidado=c.id inner join public.tracking t on t.id=ct.fk_tracking inner join public.proveedores p on p.id=t.fk_proveedor where c.id=$1', [parseInt(req.params.id)], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
