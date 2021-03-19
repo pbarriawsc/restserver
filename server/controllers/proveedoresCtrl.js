@@ -421,6 +421,9 @@ exports.PostProvCliente = async (req, res) => { try {
               qry_1 += ` fk_cliente, `;
               qry_2 += ` `+req.body.fk_cliente+`, `;
 
+              qry_1 += ` fk_bodega, `;
+              qry_2 += ` `+req.body.fk_bodega+`, `;
+
               qry_1 += ` tipo, `;
               qry_2 += ` 2, `;
 
