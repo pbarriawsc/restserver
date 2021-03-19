@@ -184,7 +184,7 @@ exports.list = (req, res) => {
 exports.listByReadyToCharge = (req, res) => {
   	try{
 	const arrayFinal=[];
-    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.estado=$1 AND t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 ORDER BY T.prioridad ASC',[req.params.estado], function (err, result) {
+    client.query('SELECT T.*,cst.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.estado=$1 AND t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 ORDER BY T.prioridad ASC',[req.params.estado], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
