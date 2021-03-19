@@ -3,7 +3,7 @@
 module.exports = {
     up: async (queryInterface, Sequelize) => {
 
-        await queryInterface.createTable('gc_propuestas_cabeceras', {
+        await queryInterface.createTable('gc_propuestas_tarifas', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
@@ -12,12 +12,7 @@ module.exports = {
             },
             estado: {
                 allowNull: false,
-                type: Sequelize.INTEGER,
-                unique: false,
-            },
-            cantProveedores: {
-                allowNull: false,
-                type: Sequelize.INTEGER,
+                type: Sequelize.BOOLEAN,
                 unique: false,
             },
             fk_responsable: {
@@ -44,67 +39,20 @@ module.exports = {
                 type: Sequelize.DATE,
                 unique: false,
             },
-            fk_cliente: {
+            fk_cabecera: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: {
-                        tableName: "clientes",
+                        tableName: "gc_propuestas_cabeceras",
                         schema: "public"
                     },
                     key: "id",
                     onDelete: "RESTRICT",
                     onUpdate: "RESTRICT",
                 },
-                allowNull: true
+                allowNull: false
             },
-            fk_direccion: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: {
-                        tableName: "clientes_direcciones",
-                        schema: "public"
-                    },
-                    key: "id",
-                    onDelete: "RESTRICT",
-                    onUpdate: "RESTRICT",
-                },
-                allowNull: true
-            },
-            nombreCliente: {
-                allowNull: true,
-                type: Sequelize.TEXT,
-                unique: false,
-            },
-            atencionA: {
-                allowNull: true,
-                type: Sequelize.TEXT,
-                unique: false,
-            },
-            fk_tipoDeServicio: {
-                type: Sequelize.INTEGER,
-                references: {
-                    model: {
-                        tableName: "servicios_tipos",
-                        schema: "public",
-                    },
-                    key: "id",
-                    onDelete: "RESTRICT",
-                    onUpdate: "RESTRICT",
-                },
-                allowNull: true,
-                unique: false,
-            },
-            volumenEstimado: {
-                allowNull: true,
-                type: Sequelize.FLOAT,
-                unique: false,
-            },
-            pesoEstimado: {
-                allowNull: true,
-                type: Sequelize.FLOAT,
-                unique: false,
-            },
-            fk_zonaDespacho: {
+            fk_zonaOrigen: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: {
@@ -118,15 +66,11 @@ module.exports = {
                 allowNull: true,
                 unique: false,
             },
-            direccion: {
-                allowNull: true,
-                type: Sequelize.STRING,
-            },
-            fk_formaDePago: {
+            fk_zonaAlmacenaje: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: {
-                        tableName: "formas_pago",
+                        tableName: "zonas_tarifarias",
                         schema: "public"
                     },
                     key: "id",
@@ -136,20 +80,74 @@ module.exports = {
                 allowNull: true,
                 unique: false,
             },
-            fechaValidez: {
+            fk_zonaDestino: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: {
+                        tableName: "zonas_tarifarias",
+                        schema: "public"
+                    },
+                    key: "id",
+                    onDelete: "RESTRICT",
+                    onUpdate: "RESTRICT",
+                },
                 allowNull: true,
-                type: Sequelize.DATE,
                 unique: false,
             },
-            diasValidez: {
+            tipoDeCarga: {
+                allowNull: false,
+                type: Sequelize.TEXT,
+                unique: false,
+            },
+            cmbPeso: {
                 allowNull: true,
-                type: Sequelize.INTEGER,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            unidadesACobrar: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            valorUnitarioUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            valorBaseUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            tarifaUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },   
+            Pb_cmbPeso: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            Pb_unidadesACobrar: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            Pb_valorUnitarioUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            Pb_valorBaseUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
                 unique: false,
             },
         });
     },
 
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('gc_propuestas_cabeceras');
+        await queryInterface.dropTable('gc_propuestas_tarifas');
     }
 };

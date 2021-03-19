@@ -288,28 +288,24 @@ exports.PostProvCliente = async (req, res) => { try {
             message: "EL CLIENTE ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
-        return;
     }
     else if (!req.body.fk_direccion || req.body.fk_direccion==0) {
         res.status(400).send({
             message: "LA DIRECCIÓN ES OBLIGATORIA",
             success:false
         }); res.end(); res.connection.destroy();
-        return;
     }
     else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
         res.status(400).send({
             message: "EL PROVEEDOR ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
-        return;
     }
     else if (!req.body.fk_bodega || req.body.fk_bodega==0) {
         res.status(400).send({
             message: "LA BODEGA ES OBLIGATORIA",
             success:false
         }); res.end(); res.connection.destroy();
-        return;
     }
     else if (!req.body.peso ) {
         res.status(400).send({
@@ -323,14 +319,12 @@ exports.PostProvCliente = async (req, res) => { try {
             message: "LOS BULTOS SON OBLIGATORIOS",
             success:false
         }); res.end(); res.connection.destroy();
-        return;
     }
     else if (!req.body.volumen ) {
         res.status(400).send({
             message: "EL VOLUMEN ES OBLIGATORIO",
             success:false
         }); res.end(); res.connection.destroy();
-        return;
     }
     else
     {
@@ -536,18 +530,12 @@ exports.DeleteProveedor = async (req, res) => {
         res.end(); res.connection.destroy();
 
     } catch (error) {
-      console.log('ERROR DeleteProveedor');
-      console.log('ERROR DeleteProveedor');
-      console.log(error);
-      console.log('ERROR DeleteProveedor');
-      console.log('ERROR DeleteProveedor');
+        console.log('ERROR DeleteProveedor '+error); console.log(' '); console.log(' ');
         res.status(400).send({
             message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN RELACIONADA",
             success:false,
-        });
-        res.end(); res.connection.destroy();
+        }); res.end(); res.connection.destroy();
     }
-
 };
 /************************************************************/
 /************************************************************/
@@ -818,6 +806,7 @@ exports.GetInfoQr = (req, res) => {
       , CLI.telefono1
       , CLI.codigo
       , CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre) as direccion
+      , prove.fk_bodega
       FROM public.gc_propuestas_proveedores as prove
       inner join public.clientes as cli on prove.fk_cliente=cli.id
       inner join public.clientes_direcciones as dir on prove.fk_direccion=dir.id

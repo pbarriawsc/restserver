@@ -75,23 +75,28 @@ exports.PutContactosTipos = (req, res) => {
         res.status(200).send(result.rows);
     });
     };
-
-    exports.DeleteContactoTipo = (req,res) =>{
+    /************************************************************/
+    /************************************************************/
+    exports.DeleteContactoTipo = async (req, res) => {
         if (!req.params.id) {
             res.status(400).send({
                 message: "EL ID ES OBLIGATORIO",
                 success:false
-            });
-            return;
-        }
-        client.query('DELETE FROM public.gc_contactos_tipos where id = $1', [req.params.id], function (err, result) {
-            if (err) {
-                console.log(err);
-                res.status(400).send(err);
+            }); res.end(); res.connection.destroy();
+        } else {
+            try {
+
+                await client.query(`DELETE from gc_contactos_tipos where id=`+parseInt(req.params.id));
+                res.status(200).send([]); res.end(); res.connection.destroy();
+
+            } catch (error) {
+                console.log('ERROR DeleteProveedor '+error); console.log(' '); console.log(' ');
+                res.status(400).send({
+                    message: "EL REGISTRO NO SE PUEDE ELIMINAR, POR QUE TIENE INFORMACIÓN RELACIONADA",
+                    success:false,
+                }); res.end(); res.connection.destroy();
             }
-            res.status(200).send({
-                message: "EL TIPO DE CONTACTO FUE ELIMINADO CORRECTAMENTE",
-                success:true
-            });
-        });
-        };
+        }
+    };
+    /************************************************************/
+    /************************************************************/

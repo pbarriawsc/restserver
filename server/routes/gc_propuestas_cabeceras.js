@@ -23,9 +23,11 @@ const PFPC_RechazarPropuesta='/api/propuestas_rechazar_propuesta';
 const PFPC_AnularPropuesta='/api/propuestas_anular_propuesta';
 const PFPC_GetPropuestaPdfCab='/api/propuestas_get_propuestapdf_cab';
 const PFPC_GetPropuestaPdfSerAd='/api/propuestas_get_propuestapdf_serad';
-
-
-
+const PFPC_GetDiasValidez='/api/propuestas_get_diasvalidez';
+const PFPC_PostTarifas='/api/gc_propuestacomercial_post_tarifas';
+const PFPC_GetTarifas='/api/propuestas_get_list_tarifas';
+const PFPC_DeleteTarifa='/api/propuestas_delete_tarifa';
+const PFPC_ActualizarEstado='/api/propuestas_actualizarestado';
 
 app.get(`${PFPC_GetListPropuestaComercial}/:id`,verifyToken,gc_propuestas_cabecerasController.GetListPropuestaComercial);
 app.get(`${PFPC_GetPropuestaComercial}/:id`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaComercial);
@@ -40,13 +42,18 @@ app.get(`${PFPC_GetServiciosAdicionales}/:id`,verifyToken,gc_propuestas_cabecera
 app.post(`${PFPC_PostServiciosAdicionales}`,verifyToken,gc_propuestas_cabecerasController.PostServiciosAdicionales);
 app.get(`${PFPC_DeleteServiciosAdicionales}/:id`,verifyToken,gc_propuestas_cabecerasController.DeleteServiciosAdicionales);
 app.get(`${PFPC_DeletePropuestaComercial}/:id`,verifyToken,gc_propuestas_cabecerasController.DeletePropuestaComercial);
-app.get(`${PFPC_GetPropuestaBase}`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaBase);
+app.post(`${PFPC_GetPropuestaBase}`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaBase);
 app.get(`${PFPC_AprobarPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.AprobarPropuesta);
 app.get(`${PFPC_TerminarPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.TerminarPropuesta);
 app.get(`${PFPC_RechazarPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.RechazarPropuesta);
 app.get(`${PFPC_AnularPropuesta}/:id`,verifyToken,gc_propuestas_cabecerasController.AnularPropuesta);
 app.get(`${PFPC_GetPropuestaPdfCab}/:id`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaPdfCab);
 app.get(`${PFPC_GetPropuestaPdfSerAd}/:id`,verifyToken,gc_propuestas_cabecerasController.GetPropuestaPdfSerAd);
+app.get(`${PFPC_GetDiasValidez}`,verifyToken,gc_propuestas_cabecerasController.GetDiasValidez);
+app.post(`${PFPC_PostTarifas}`,verifyToken,gc_propuestas_cabecerasController.PostTarifas);
+app.get(`${PFPC_GetTarifas}/:id`,verifyToken,gc_propuestas_cabecerasController.GetTarifas);
+app.get(`${PFPC_DeleteTarifa}/:id`,verifyToken,gc_propuestas_cabecerasController.DeleteTarifa);
+app.get(`${PFPC_ActualizarEstado}/:id`,verifyToken,gc_propuestas_cabecerasController.ActualizarEstado);
 
 
 

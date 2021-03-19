@@ -99,6 +99,11 @@ module.exports = {
                 type: Sequelize.FLOAT,
                 unique: false,
             },
+            base_tarifa: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
         });
     },
 

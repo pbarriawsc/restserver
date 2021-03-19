@@ -6,17 +6,17 @@ module.exports = {
 
     await queryInterface.bulkInsert('zonas_tarifarias', [
       {
-        nombre: 'YIWU',
-        estado:true,
-        fechaCreacion:'2021-01-01 00:00:00-03',
-        fechaActualizacion:'2021-01-01 00:00:00-03',
-      },
-      {
         nombre: 'SANTIAGO',
         estado:true,
         fechaCreacion:'2021-01-01 00:00:00-03',
         fechaActualizacion:'2021-01-01 00:00:00-03',
       },
+      {
+        nombre: 'YIWU',
+        estado:true,
+        fechaCreacion:'2021-01-01 00:00:00-03',
+        fechaActualizacion:'2021-01-01 00:00:00-03',
+      },      
     ], {});
 
   },
