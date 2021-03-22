@@ -18,6 +18,20 @@ module.exports = {
           nombre: {
             type: Sequelize.STRING
           },
+          fk_bodega: {
+          type: Sequelize.INTEGER,
+          references: {
+              model: {
+                  tableName: "bodegas",
+                  schema: "public",
+              },
+              key: "id",
+              onDelete: "RESTRICT",
+              onUpdate: "RESTRICT",
+          },
+          allowNull: true,
+          unique: false,
+      },   
     });
   },
 
