@@ -1,4 +1,5 @@
 const client = require('../config/db.client');
+const bcrypt= require('bcrypt');
 exports.create = (req, res) => {
     // Validate request
     if (!req.body.nombre) {
@@ -22,7 +23,7 @@ exports.create = (req, res) => {
     }
     const query = {
         text: 'INSERT INTO public.usuario(nombre, password,usuario,apellidos,email,telefono,rut,fk_rol,estado) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
-        values: [req.body.nombre, req.body.password,req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado],
+        values: [req.body.nombre, bcrypt.hashSync(req.body.password,10),req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado],
     };
 
     client.query(query,"",function (err, result) {
