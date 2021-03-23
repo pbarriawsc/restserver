@@ -414,33 +414,16 @@ exports.PostProvCliente = async (req, res) => { try {
               qry_1 += ` foto3, `;
               qry_2 += ` null, `;
 
-              qry_1 += ` "devImpuesto" `;
-              qry_2 += ` '`+req.body.devimpuesto+`' `;
+              qry_1 += ` "devImpuesto", `;
+              qry_2 += ` '`+req.body.devimpuesto+`', `;
 
               qry_1 += ` fk_proveedor_cliente `;
               qry_2 += ` `+UltimoId.rows[0]['id']+` `;
 
               await client.query(` INSERT INTO tracking (`+qry_1+`) VALUES (`+qry_2+`) `);
 
-              let Proveedores = await client.query(`
-                SELECT
-                prov.id
-                , prov.estado
-                , prov.fk_responsable
-                , TO_CHAR(prov."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-                , prov.fk_cliente
-                , prov.fk_proveedor
-                , prove.nombre
-                , prov.volumen
-                , prov.bultos
-                , peso
-                FROM public.gc_propuestas_proveedores as prov
-                INNER JOIN public.proveedores as prove on prov.fk_proveedor=prove.id
-                WHERE
-                prov.estado=0
-                and prov.fk_cliente=`+req.body.fk_cliente+` order by prov.id desc`);
 
-              res.status(200).send(Proveedores.rows);
+              res.status(200).send([]);
               res.end(); res.connection.destroy();
 
         } catch (error) {
