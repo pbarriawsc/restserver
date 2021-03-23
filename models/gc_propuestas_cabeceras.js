@@ -32,6 +32,34 @@ module.exports = (sequelize,Sequelize) => {
 						allowNull: false,
 						unique: false,
 				},
+				fk_responsableUpdate: {
+						type: Sequelize.INTEGER,
+						references: {
+								model: {
+										tableName: "usuario",
+										schema: "public",
+								},
+								key: "id",
+								onDelete: "RESTRICT",
+								onUpdate: "RESTRICT",
+						},
+						allowNull: false,
+						unique: false,
+				}, 				
+				fk_contacto: {
+						type: Sequelize.INTEGER,
+						references: {
+								model: {
+										tableName: "gc_registrocontactos",
+										schema: "public",
+								},
+								key: "id",
+								onDelete: "RESTRICT",
+								onUpdate: "RESTRICT",
+						},
+						allowNull: true,
+						unique: false,
+				},
 				fechaCreacion: {
 						allowNull: false,
 						type: Sequelize.DATE,

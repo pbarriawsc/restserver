@@ -228,11 +228,6 @@ exports.PostPropuestaComercial = async (req, res) => {
     if(req.body.fk_tipoDeServicio==0) { req.body.fk_tipoDeServicio = null; }
     if(req.body.fk_zonaDespacho==0) { req.body.fk_zonaDespacho = null; }
     if(req.body.fk_formaDePago==0) { req.body.fk_formaDePago = null; }
-    /*
-    if(req.body.fk_zonaOrigen==0) { req.body.fk_zonaOrigen = null; }
-    if(req.body.fk_zonaAlmacenaje==0) { req.body.fk_zonaAlmacenaje = null; }
-    if(req.body.fk_zonaDestino==0) { req.body.fk_zonaDestino = null; }
-    */
     if(req.body.fk_cliente==0) { req.body.fk_cliente = null; }
     if(req.body.fk_direccion==0) { req.body.fk_direccion = null; }
     if(!req.body.cantProveedores || req.body.cantProveedores.length==0) { req.body.cantProveedores = 0; }
@@ -244,29 +239,6 @@ exports.PostPropuestaComercial = async (req, res) => {
         return Numero;
     }
 
-    /*
-    if(!req.body.volumenEstimado || req.body.volumenEstimado.length==0)
-    { req.body.volumenEstimado = 0; }
-
-    if(!req.body.pesoEstimado || req.body.pesoEstimado.length==0)
-    { req.body.pesoEstimado = 0; }
-
-    if(!req.body.cmbPeso || req.body.cmbPeso.length==0)
-    { req.body.cmbPeso = 0; }
-
-    if(!req.body.unidadesACobrar || req.body.unidadesACobrar.length==0)
-    { req.body.unidadesACobrar = 0; }
-
-    if(!req.body.valorUnitarioUsd || req.body.valorUnitarioUsd.length==0)
-    { req.body.valorUnitarioUsd = 0; }
-
-    if(!req.body.valorBaseUsd || req.body.valorBaseUsd.length==0)
-    { req.body.valorBaseUsd = 0; }
-
-    if(!req.body.tarifaUsd || req.body.tarifaUsd.length==0)
-    { req.body.tarifaUsd = 0; }
-    */
-
     if(!req.body.diasValidez) { req.body.diasValidez = 0; }
 
     var fechaValidez = moment(fecha).add(req.body.diasValidez, 'days').format("YYYY-MM-DD HH:mm:ss");
@@ -277,6 +249,9 @@ exports.PostPropuestaComercial = async (req, res) => {
     qry_2 = ` 0, `;
 
     qry_1 += ` fk_responsable, `;
+    qry_2 += ` `+req.usuario.id+`, `;
+
+    qry_1 += ` "fk_responsableUpdate", `;
     qry_2 += ` `+req.usuario.id+`, `;
 
     qry_1 += ` "fechaCreacion", `;
@@ -318,41 +293,6 @@ exports.PostPropuestaComercial = async (req, res) => {
     qry_1 += ` "diasValidez" `;
     qry_2 += ` `+req.body.diasValidez+` `;
 
-    /*
-    qry_1 += ` "tipoDeCarga", `;
-    qry_2 += ` '`+req.body.tipoDeCarga+`', `;
-
-    qry_1 += ` "fk_zonaOrigen", `;
-    qry_2 += ` `+req.body.fk_zonaOrigen+`, `;
-
-    qry_1 += ` "fk_zonaAlmacenaje", `;
-    qry_2 += ` `+req.body.fk_zonaAlmacenaje+`, `;
-
-    qry_1 += ` "fk_zonaDestino", `;
-    qry_2 += ` `+req.body.fk_zonaDestino+`, `;
-
-    qry_1 += ` "volumenEstimado", `;
-    qry_2 += ` `+req.body.volumenEstimado+`, `;
-
-    qry_1 += ` "pesoEstimado", `;
-    qry_2 += ` `+req.body.pesoEstimado+`, `;
-
-    qry_1 += ` "cmbPeso", `;
-    qry_2 += ` `+req.body.cmbPeso+`, `;
-
-    qry_1 += ` "unidadesACobrar", `;
-    qry_2 += ` `+req.body.unidadesACobrar+`, `;
-
-    qry_1 += ` "valorUnitarioUsd", `;
-    qry_2 += ` `+req.body.valorUnitarioUsd+`, `;
-
-    qry_1 += ` "valorBaseUsd", `;
-    qry_2 += ` `+req.body.valorBaseUsd+`, `;
-
-    qry_1 += ` "tarifaUsd" `;
-    qry_2 += ` `+req.body.tarifaUsd+` `;
-    */
-
     try {
         console.log(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
         await client.query(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
@@ -373,6 +313,7 @@ exports.GetServiciosAdicionales = async (req,res) =>{
     let Lista = await client.query(`
     SELECT
     SERAD.id
+    , SERAD.bloqueo
     , SERAD.estado
     , SERAD.fk_responsable
     , TO_CHAR(SERAD."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
@@ -385,9 +326,8 @@ exports.GetServiciosAdicionales = async (req,res) =>{
     , coalesce(SERAD."fk_zonaDestino",0) as fk_zonaDestino
     , ZTD.nombre as destinoNombre
 
-    , CASE WHEN SERAD.tarifa::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999.99')::text,'.',2))
-    ELSE SERAD.tarifa::TEXT END as tarifa
+    , SERAD.tarifa
+    , SERAD.base_tarifa
 
     FROM public.gc_propuestas_servicios_adicionales AS SERAD
     INNER JOIN public.servicios_tipos as TS ON TS.id=SERAD."fk_tipoDeServicio"
@@ -453,15 +393,6 @@ if (!req.body.fk_cabecera || req.body.fk_cabecera==0) {
   and "fk_zonaOrigen"=`+req.body.fk_zonaOrigen+` and "fk_zonaDestino"=`+req.body.fk_zonaDestino+`
   `);
 
-  console.log(" 123123123123123123123 "+`
-  SELECT
-  tarifa
-  FROM public.gc_propuestas_servicios_adicionales
-  where
-  estado=0 and fk_cabecera=1 and "fk_tipoDeServicio"=`+req.body.fk_tipoServicio+`
-  and "fk_zonaOrigen"=`+req.body.fk_zonaOrigen+` and "fk_zonaDestino"=`+req.body.fk_zonaDestino+`
-  `);
-
   console.log(" CANTIDAD "+Base_Tarifa.rows.length)
   if(Base_Tarifa.rows.length>0)
   {
@@ -474,6 +405,9 @@ if (!req.body.fk_cabecera || req.body.fk_cabecera==0) {
 
   qry_1 = ` estado, `;
   qry_2 = ` 0, `;
+
+  qry_1 += ` bloqueo, `;
+  qry_2 += ` false, `;
 
   qry_1 += ` fk_responsable, `;
   qry_2 += ` `+req.usuario.id+`, `;
@@ -603,7 +537,7 @@ exports.PutPropuestaComercial = async (req, res) => {
 
     qry_1 = ` estado=0, `;
 
-    qry_1 += ` fk_responsable=`+req.usuario.id+`, `;
+    qry_1 += ` "fk_responsableUpdate"=`+req.usuario.id+`, `;
 
     qry_1 += ` "fechaActualizacion"='`+fecha+`', `;
 
@@ -917,104 +851,29 @@ exports.GetPropuestaPdfCab = async (req,res) =>{
     try {
 
     let Informacion = await client.query(`
-    SELECT
-    cabe.id
-    , coalesce(cabe."nombreCliente",'') as nombreCliente
-    , coalesce(cabe."atencionA",'') as atencionA
-    , coalesce(cabe."fk_tipoDeServicio",0) as fk_tipoDeServicio
-    , coalesce(cabe."tipoDeCarga",'') as tipoDeCarga
-    , cabe.fk_cliente
-    , cabe.fk_direccion
-    , cabe."cantProveedores" as cantproveedores
-    , coalesce(cabe.direccion, '') as direccion
-
-    , CASE WHEN cabe."volumenEstimado"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."volumenEstimado",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."volumenEstimado"::TEXT END as volumenEstimado
-
-    , CASE WHEN cabe."pesoEstimado"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."pesoEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."pesoEstimado",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."pesoEstimado"::TEXT END as pesoEstimado
-
-    , coalesce(cabe."fk_zonaDespacho",0) as fk_zonaDespacho
-    , coalesce(cabe.direccion,'') as direccion
-    , coalesce(cabe."fk_formaDePago",0) as fk_formaDePago
-    , TO_CHAR(cabe."fechaValidez", 'DD-MM-YYYY HH24:MI') as fechaValidez
-    , coalesce(cabe."fk_zonaOrigen",0) as fk_zonaOrigen
-    , coalesce(cabe."fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
-    , coalesce(cabe."fk_zonaDestino",0) as fk_zonaDestino
-
-    , CASE WHEN cabe."cmbPeso"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."cmbPeso",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."cmbPeso",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."cmbPeso"::TEXT END as cmbPeso
-
-    , CASE WHEN cabe."unidadesACobrar"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."unidadesACobrar",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."unidadesACobrar",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."unidadesACobrar"::TEXT END as unidadesACobrar
-
-    , CASE WHEN cabe."valorUnitarioUsd"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."valorUnitarioUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."valorUnitarioUsd",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."valorUnitarioUsd"::TEXT END as valorUnitarioUsd
-
-    , CASE WHEN cabe."tarifaUsd"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."tarifaUsd",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."tarifaUsd"::TEXT END as tarifaUsd
-
-    , coalesce(ser.nombre,'') as servicio_nombre
-    FROM
-    public.gc_propuestas_cabeceras as cabe
-    left join public.servicios_tipos as ser on cabe."fk_tipoDeServicio"=ser.id
-    WHERE cabe.id=`+parseInt(req.params.id)+` limit 1`);
-
-    console.log(`
-    SELECT
-    cabe.id
-    , coalesce(cabe."nombreCliente",'') as nombreCliente
-    , coalesce(cabe."atencionA",'') as atencionA
-    , coalesce(cabe."fk_tipoDeServicio",0) as fk_tipoDeServicio
-    , coalesce(cabe."tipoDeCarga",'') as tipoDeCarga
-    , cabe.fk_cliente
-    , cabe.fk_direccion
-    , cabe."cantProveedores" as cantproveedores
-    , coalesce(cabe.direccion, '') as direccion
-
-    , CASE WHEN cabe."volumenEstimado"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."volumenEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."volumenEstimado",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."volumenEstimado"::TEXT END as volumenEstimado
-
-    , CASE WHEN cabe."pesoEstimado"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."pesoEstimado",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."pesoEstimado",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."pesoEstimado"::TEXT END as pesoEstimado
-
-    , coalesce(cabe."fk_zonaDespacho",0) as fk_zonaDespacho
-    , coalesce(cabe.direccion,'') as direccion
-    , coalesce(cabe."fk_formaDePago",0) as fk_formaDePago
-    , TO_CHAR(cabe."fechaValidez", 'DD-MM-YYYY HH24:MI') as fechaValidez
-    , coalesce(cabe."fk_zonaOrigen",0) as fk_zonaOrigen
-    , coalesce(cabe."fk_zonaAlmacenaje",0) as fk_zonaAlmacenaje
-    , coalesce(cabe."fk_zonaDestino",0) as fk_zonaDestino
-
-    , CASE WHEN cabe."cmbPeso"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."cmbPeso",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."cmbPeso",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."cmbPeso"::TEXT END as cmbPeso
-
-    , CASE WHEN cabe."unidadesACobrar"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."unidadesACobrar",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."unidadesACobrar",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."unidadesACobrar"::TEXT END as unidadesACobrar
-
-    , CASE WHEN cabe."valorUnitarioUsd"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."valorUnitarioUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."valorUnitarioUsd",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."valorUnitarioUsd"::TEXT END as valorUnitarioUsd
-
-    , CASE WHEN cabe."tarifaUsd"::TEXT LIKE '%.%' THEN
-    CONCAT(REPLACE(Split_part(TO_CHAR(cabe."tarifaUsd",'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(cabe."tarifaUsd",'FM999,999,999.99')::text,'.',2))
-    ELSE cabe."tarifaUsd"::TEXT END as tarifaUsd
-
-    , coalesce(ser.nombre,'') as servicio_nombre
-    FROM
-    public.gc_propuestas_cabeceras as cabe
-    left join public.servicios_tipos as ser on cabe."fk_tipoDeServicio"=ser.id
-    WHERE cabe.id=`+parseInt(req.params.id)+` limit 1`);
+      SELECT
+      cabe.id
+      , coalesce(cabe."nombreCliente",'') as nombreCliente
+      , coalesce(cabe."atencionA",'') as atencionA
+      , coalesce(cabe."fk_tipoDeServicio",0) as fk_tipoDeServicio
+      , cabe.fk_cliente
+      , cabe.fk_direccion
+      , cabe."cantProveedores" as cantproveedores
+      , coalesce(cabe.direccion, '') as direccion
+      , coalesce(cabe."fk_zonaDespacho",0) as fk_zonaDespacho
+      , coalesce(cabe.direccion,'') as direccion
+      , coalesce(cabe."fk_formaDePago",0) as fk_formaDePago
+      , TO_CHAR(cabe."fechaValidez", 'DD-MM-YYYY HH24:MI') as fechaValidez
+      , coalesce(ser.nombre,'') as servicio_nombre
+      , est.nombre as estado_nombre
+      , coalesce(CONCAT(comer.nombre,' ',comer.apellidos),'') as comer_nombre
+      , coalesce(comer.telefono,'') as comer_telefono
+      FROM
+      public.gc_propuestas_cabeceras as cabe
+      inner join public.gc_propuestas_estados as est on est.id=cabe.estado
+      left join public.servicios_tipos as ser on cabe."fk_tipoDeServicio"=ser.id
+      left join public.usuario as comer on cabe.fk_responsable=comer.id
+      WHERE cabe.id=`+parseInt(req.params.id)+` limit 1`);
 
     res.status(200).send(Informacion.rows);
 
@@ -1033,20 +892,33 @@ exports.GetPropuestaPdfSerAd = async (req,res) =>{
 
     try {
 
-    let Informacion = await client.query(`
-    Select
-    TO_CHAR(tar."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
-    , TO_CHAR(tar."fechaActualizacion", 'DD-MM-YYYY HH24:MI') as actualizacion
-    , tar.id
-    , tar.origen
-    , tar.tarifa
-    , tar.destino
-    , tar.estado
-    , tar.fk_cabecera
-    FROM public.gc_propuestas_serviciosadicionales as tar
-    where tar.estado=0 and tar.fk_cabecera=`+parseInt(req.params.id)+` order by SERAD.id desc`);
+      let Lista = await client.query(`
+      SELECT
+      SERAD.id
+      , SERAD.estado
+      , SERAD.fk_responsable
+      , TO_CHAR(SERAD."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+      , SERAD."fechaActualizacion"
+      , SERAD.fk_cabecera
+      , coalesce(SERAD."fk_tipoDeServicio",0) as fk_tipoDeServicio
+      , TS.nombre as tipoDeServicioNombre
+      , coalesce(SERAD."fk_zonaOrigen",0) as fk_zonaOrigen
+      , ZTO.nombre as origenNombre
+      , coalesce(SERAD."fk_zonaDestino",0) as fk_zonaDestino
+      , ZTD.nombre as destinoNombre
 
-    res.status(200).send(Informacion.rows);
+      , CASE WHEN SERAD.tarifa::TEXT LIKE '%.%' THEN
+      CONCAT(REPLACE(Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999.99')::text,'.',2))
+      ELSE SERAD.tarifa::TEXT END as tarifa
+
+      FROM public.gc_propuestas_servicios_adicionales AS SERAD
+      INNER JOIN public.servicios_tipos as TS ON TS.id=SERAD."fk_tipoDeServicio"
+      INNER JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
+      INNER JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
+
+      WHERE SERAD.estado!=999 AND SERAD.fk_cabecera=`+parseInt(req.params.id)+` order by SERAD.id desc`);
+
+    res.status(200).send(Lista.rows);
 
     } catch (error) {
 
@@ -1120,10 +992,10 @@ exports.PostTarifas = async (req, res) => {
     }
     else
     {
-
         let columna = '';     let valor = '';
 
         columna+=`estado, `; valor+=`true, `;
+        columna+=`bloqueo, `; valor+=`false, `;
         columna+=`fk_responsable, `; valor+=``+req.usuario.id+`, `;
         columna+=`"fechaCreacion", `; valor+=`'`+fecha+`', `;
         columna+=`"fechaActualizacion", `; valor+=`'`+fecha+`', `;
@@ -1133,6 +1005,8 @@ exports.PostTarifas = async (req, res) => {
         columna+=`"fk_zonaDestino", `; valor+=``+req.body.fk_zonaDestino+`, `;
         columna+=`"tipoDeCarga", `; valor+=`'`+req.body.tipoDeCarga+`', `;
         columna+=`"cmbPeso", `; valor+=``+req.body.cmbPeso+`, `;
+        columna+=`"pesoEstimado", `; valor+=``+req.body.pesoEstimado+`, `;
+        columna+=`"volumenEstimado", `; valor+=``+req.body.volumenEstimado+`, `;
         columna+=`"unidadesACobrar", `; valor+=``+req.body.unidadesACobrar+`, `;
         columna+=`"valorUnitarioUsd", `; valor+=``+req.body.valorUnitarioUsd+`, `;
         columna+=`"valorBaseUsd", `; valor+=``+req.body.valorBaseUsd+`, `;
@@ -1162,6 +1036,7 @@ exports.GetTarifas = async (req,res) =>{
     let Lista = await client.query(`
     SELECT
     tabla_1.id
+    , tabla_1.bloqueo
     , tabla_1.fk_cabecera
     , org.nombre as origen
     , alm.nombre as almacenaje
@@ -1172,6 +1047,12 @@ exports.GetTarifas = async (req,res) =>{
     , tabla_1."valorUnitarioUsd"
     , tabla_1."valorBaseUsd"
     , tabla_1."tarifaUsd"
+    , tabla_1."pesoEstimado"
+    , tabla_1."volumenEstimado"
+    , tabla_1."Pb_unidadesACobrar"
+    , tabla_1."Pb_cmbPeso"
+    , tabla_1."Pb_valorUnitarioUsd"
+    , tabla_1."Pb_valorBaseUsd"
 
     FROM public.gc_propuestas_tarifas as tabla_1
     inner join public.zonas_tarifarias as org on tabla_1."fk_zonaOrigen"=org.id
@@ -1220,30 +1101,57 @@ exports.ActualizarEstado = async (req,res) =>{
     estado is true
     and fk_cabecera=`+parseInt(req.params.id)+` `);
 
+    await client.query(`
+    UPDATE
+    public.gc_propuestas_tarifas
+    SET
+    bloqueo=false
+    WHERE
+    fk_cabecera=`+parseInt(req.params.id)+` `);
+
     for(var i=0; i<Tarifas.rows.length; i++)
     {
-        if(Tarifas.rows[i]['cmbPeso']<Tarifas.rows[i]['cmbPeso']) { Estado=2; }
-        else if(Tarifas.rows[i]['valorUnitarioUsd']<Tarifas.rows[i]['Pb_valorUnitarioUsd']) { Estado=2; }
-        else if(Tarifas.rows[i]['valorBaseUsd']<Tarifas.rows[i]['Pb_valorBaseUsd']) { Estado=2; }
-        else if(Tarifas.rows[i]['tarifaUsd']==0) { Estado=2; }
+        if(
+          ( Tarifas.rows[i]['cmbPeso']<Tarifas.rows[i]['Pb_cmbPeso'] )
+          || ( Tarifas.rows[i]['valorUnitarioUsd']<Tarifas.rows[i]['Pb_valorUnitarioUsd'] )
+          || ( Tarifas.rows[i]['valorBaseUsd']<Tarifas.rows[i]['Pb_valorBaseUsd'] )
+          || ( Tarifas.rows[i]['tarifaUsd']==0 )
+        )
+        {
+            Estado=2;
+            await client.query(`UPDATE public.gc_propuestas_tarifas SET bloqueo=true WHERE id=`+Tarifas.rows[i]['id']+``);
+        }
     }
 
     var SerAds = await client.query(`
     SELECT
-    coalesce(tarifa,0) as tarifa_1
+    id
+    , coalesce(tarifa,0) as tarifa_1
     , coalesce(base_tarifa,0) as tarifa_2
     FROM public.gc_propuestas_servicios_adicionales
     where
     estado=0 and fk_cabecera=`+parseInt(req.params.id)+` `);
 
+    await client.query(`
+    UPDATE
+    public.gc_propuestas_servicios_adicionales
+    SET
+    bloqueo=false
+    WHERE
+    fk_cabecera=`+parseInt(req.params.id)+` `);
+
     for(var i=0; i<SerAds.rows.length; i++)
     {
-        if(Number(SerAds.rows[i]['tarifa_1'])==0) { Estado=2; }
-        else if(Number(SerAds.rows[i]['tarifa_2'])==0) { Estado=2; }
-        else if(Number(SerAds.rows[i]['tarifa_1'])<Number(Tarifas.rows[i]['tarifa_2'])) { Estado=2; }
+        if(
+          ( Number(SerAds.rows[i]['tarifa_1'])==0 )
+          || ( Number(SerAds.rows[i]['tarifa_2'])==0 )
+          || ( Number(SerAds.rows[i]['tarifa_1'])<Number(Tarifas.rows[i]['tarifa_2']) )
+        )
+        {
+            Estado=2;
+            await client.query(`UPDATE public.gc_propuestas_servicios_adicionales SET bloqueo=true WHERE id=`+SerAds.rows[i]['id']+``);
+        }
     }
-
-    await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=`+Estado+` WHERE id=`+parseInt(req.params.id)+``);
 
     var Cabecera = await client.query(`
     SELECT
@@ -1258,7 +1166,7 @@ exports.ActualizarEstado = async (req,res) =>{
     res.status(200).send(Cabecera.rows); res.end(); res.connection.destroy();
 
     } catch (error) {
-        console.log("ERROR DeleteTarifa "+error);
+        console.log("ERROR "+error);
         res.status(400).send({ message: "ERROR AL ELIMINAR TARIFAS ", success:false, });
         res.end(); res.connection.destroy();
     }

@@ -110,6 +110,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      devImpuesto:{
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
       fk_bodega: {
           type: Sequelize.INTEGER,
           references: {
@@ -123,7 +127,7 @@ module.exports = {
           },
           allowNull: true,
           unique: false,
-      },   
+      },
     });
   },
 

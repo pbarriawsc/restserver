@@ -13,6 +13,11 @@ module.exports = (sequelize,Sequelize) => {
 									type: Sequelize.BOOLEAN,
 									unique: false,
 							},
+							bloqueo: {
+	                allowNull: false,
+	                type: Sequelize.BOOLEAN,
+	                unique: false,
+	            },   							
 							fk_responsable: {
 									type: Sequelize.INTEGER,
 									references: {
@@ -141,6 +146,16 @@ module.exports = (sequelize,Sequelize) => {
 	                allowNull: true,
 	                type: Sequelize.FLOAT,
 	                unique: false,
-	            },							
+	            },
+							volumenEstimado: {
+	                allowNull: true,
+	                type: Sequelize.FLOAT,
+	                unique: false,
+	            },
+	            pesoEstimado: {
+	                allowNull: true,
+	                type: Sequelize.FLOAT,
+	                unique: false,
+	            },
 	});
 };

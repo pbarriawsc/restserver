@@ -20,7 +20,35 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 unique: false,
             },
+            fk_contacto: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: {
+                        tableName: "gc_registrocontactos",
+                        schema: "public",
+                    },
+                    key: "id",
+                    onDelete: "RESTRICT",
+                    onUpdate: "RESTRICT",
+                },
+                allowNull: true,
+                unique: false,
+            },
             fk_responsable: {
+                type: Sequelize.INTEGER,
+                references: {
+                    model: {
+                        tableName: "usuario",
+                        schema: "public",
+                    },
+                    key: "id",
+                    onDelete: "RESTRICT",
+                    onUpdate: "RESTRICT",
+                },
+                allowNull: false,
+                unique: false,
+            },
+            fk_responsableUpdate: {
                 type: Sequelize.INTEGER,
                 references: {
                     model: {

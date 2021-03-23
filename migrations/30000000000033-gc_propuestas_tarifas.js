@@ -15,6 +15,11 @@ module.exports = {
                 type: Sequelize.BOOLEAN,
                 unique: false,
             },
+            bloqueo: {
+                allowNull: false,
+                type: Sequelize.BOOLEAN,
+                unique: false,
+            },
             fk_responsable: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -123,7 +128,7 @@ module.exports = {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,
-            },   
+            },
             Pb_cmbPeso: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
@@ -140,6 +145,16 @@ module.exports = {
                 unique: false,
             },
             Pb_valorBaseUsd: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            volumenEstimado: {
+                allowNull: true,
+                type: Sequelize.FLOAT,
+                unique: false,
+            },
+            pesoEstimado: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
                 unique: false,

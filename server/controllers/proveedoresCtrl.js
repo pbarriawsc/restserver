@@ -53,12 +53,8 @@ exports.Create = async (req, res) => { try {
         message: "EL CLIENTE ES OBLIGATORIO",
         success:false
       }); res.end(); res.connection.destroy();
-    }else if (!req.body.codigo || req.body.codigo.trim().length==0) {
-      res.status(400).send({
-        message: "EL CODIGO ES OBLIGATORIO",
-        success:false
-      }); res.end(); res.connection.destroy();
-    }else if (!req.body.nombre || req.body.nombre.trim().length==0) {
+    }
+    else if (!req.body.nombre || req.body.nombre.trim().length==0) {
       res.status(400).send({
         message: "EL NOMBRE ESPAÑOL ES OBLIGATORIO",
         success:false
@@ -67,7 +63,6 @@ exports.Create = async (req, res) => { try {
     else
     {
 
-      var codigo = req.body.codigo.trim();
       var nombre = req.body.nombre.trim();
       var fk_cliente = req.body.fk_cliente;
 
@@ -77,30 +72,25 @@ exports.Create = async (req, res) => { try {
       if(!req.body.nombreChi || req.body.nombreChi.trim().length==0)
       { var nombreChi = ''; } else { var nombreChi = req.body.nombreChi.trim(); }
 
-      let ExisteCodigo = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and codigo='`+req.body.codigo+`' `);
-
       let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
 
       let Existenombre = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombre+`' `);
 
       let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
 
-      if( ExisteCodigo.rows.length>0 ) {
-        res.status(400).send({
-            message: "EL CÓDIGO YA ESTÁ INGRESADO",
-            success:false
-        }); res.end(); res.connection.destroy();
-      } else if( ExisteCodigoTributario.rows.length>0 ) {
+      if( ExisteCodigoTributario.rows.length>0 ) {
           res.status(400).send({
               message: "EL CÓDIGO TRIBUTARIO YA ESTÁ INGRESADO",
               success:false
           }); res.end(); res.connection.destroy();
-      } else if( Existenombre.rows.length>0 ) {
+      }
+      else if( Existenombre.rows.length>0 ) {
         res.status(400).send({
             message: "EL NOMBRE ESPAÑOL YA ESTÁ INGRESADO",
             success:false
         }); res.end(); res.connection.destroy();
-      } else if( ExisteNombreChi.rows.length>0 ) {
+      }
+      else if( ExisteNombreChi.rows.length>0 ) {
         res.status(400).send({
             message: "EL NOMBRE CHINO YA ESTÁ INGRESADO",
             success:false
@@ -111,9 +101,6 @@ exports.Create = async (req, res) => { try {
 
 
         let qry_1 = '';     let qry_2 = '';
-
-        qry_1 = ` codigo, `;
-        qry_2 = ` '`+codigo+`', `;
 
         qry_1 += ` "codigoTributario", `;
         qry_2 += ` '`+codigoTributario+`', `;
@@ -187,12 +174,8 @@ exports.Update = async (req, res) => { try {
         message: "EL CLIENTE ES OBLIGATORIO",
         success:false
       }); res.end(); res.connection.destroy();
-    }else if (!req.body.codigo || req.body.codigo.trim().length==0) {
-      res.status(400).send({
-        message: "EL CODIGO ES OBLIGATORIO",
-        success:false
-      }); res.end(); res.connection.destroy();
-    }else if (!req.body.nombre || req.body.nombre.trim().length==0) {
+    }
+    else if (!req.body.nombre || req.body.nombre.trim().length==0) {
       res.status(400).send({
         message: "EL NOMBRE ESPAÑOL ES OBLIGATORIO",
         success:false
@@ -201,7 +184,6 @@ exports.Update = async (req, res) => { try {
     else
     {
 
-      var codigo = req.body.codigo.trim();
       var nombre = req.body.nombre.trim();
       var fk_cliente = req.body.fk_cliente;
 
@@ -211,30 +193,25 @@ exports.Update = async (req, res) => { try {
       if(!req.body.nombreChi || req.body.nombreChi.trim().length==0)
       { var nombreChi = ''; } else { var nombreChi = req.body.nombreChi.trim(); }
 
-      let ExisteCodigo = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and codigo='`+req.body.codigo+`' `);
-
       let ExisteCodigoTributario = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "codigoTributario"='`+req.body.codigoTarifario+`' and length("codigoTributario")>0  `);
 
       let Existenombre = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and nombre='`+req.body.nombre+`' `);
 
       let ExisteNombreChi = await client.query(` SELECT * FROM public.proveedores WHERE id!=`+req.body.id+` and fk_cliente=`+req.body.fk_cliente+` and "nombreChi"='`+req.body.nombreChi+`' and length("nombreChi")>0 `);
 
-      if( ExisteCodigo.rows.length>0 ) {
-        res.status(400).send({
-            message: "EL CÓDIGO YA ESTÁ INGRESADO",
-            success:false
-        }); res.end(); res.connection.destroy();
-      } else if( ExisteCodigoTributario.rows.length>0 ) {
+      if( ExisteCodigoTributario.rows.length>0 ) {
           res.status(400).send({
               message: "EL CÓDIGO TRIBUTARIO YA ESTÁ INGRESADO",
               success:false
           }); res.end(); res.connection.destroy();
-      } else if( Existenombre.rows.length>0 ) {
+      }
+      else if( Existenombre.rows.length>0 ) {
         res.status(400).send({
             message: "EL NOMBRE ESPAÑOL YA ESTÁ INGRESADO",
             success:false
         }); res.end(); res.connection.destroy();
-      } else if( ExisteNombreChi.rows.length>0 ) {
+      }
+      else if( ExisteNombreChi.rows.length>0 ) {
         res.status(400).send({
             message: "EL NOMBRE CHINO YA ESTÁ INGRESADO",
             success:false
@@ -244,8 +221,6 @@ exports.Update = async (req, res) => { try {
       {
 
         let qry_1 = '';
-
-        qry_1 = ` codigo='`+codigo+`', `;
 
         qry_1 += ` "codigoTributario"='`+codigoTributario+`', `;
 
@@ -439,6 +414,9 @@ exports.PostProvCliente = async (req, res) => { try {
               qry_1 += ` foto3, `;
               qry_2 += ` null, `;
 
+              qry_1 += ` "devImpuesto" `;
+              qry_2 += ` '`+req.body.devimpuesto+`' `;
+
               qry_1 += ` fk_proveedor_cliente `;
               qry_2 += ` `+UltimoId.rows[0]['id']+` `;
 
@@ -492,6 +470,7 @@ exports.GetListProvCliente = async (req, res) => {
         , tabla_1.fk_cliente
         , tabla_1.fk_proveedor
         , tabla_1.fk_bodega
+        , coalesce(tabla_1.fk_direccion, 0) as id_direccion
         , bod.nombre as bodeganombre
         , prov.nombre as proveedornombre
         , tabla_1.volumen
@@ -503,7 +482,7 @@ exports.GetListProvCliente = async (req, res) => {
         FROM public.gc_propuestas_proveedores as tabla_1
         inner join public.proveedores as prov on tabla_1.fk_proveedor=prov.id
         inner join public.bodegas as bod on bod.id=tabla_1.fk_bodega
-        inner join public.clientes_direcciones as dir on tabla_1.fk_direccion=dir.id
+        left join public.clientes_direcciones as dir on tabla_1.fk_direccion=dir.id
         left join public.tracking as trk on trk.fk_proveedor_cliente=tabla_1.id
         where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(req.params.id)+` order by tabla_1.id desc`);
         res.status(200).send(Lista.rows);
@@ -745,7 +724,9 @@ exports.PutProvCliente = async (req, res) => { try {
 
         qry_1 += ` peso=`+req.body.peso+`, `;
 
-        qry_1 += ` bultos=`+req.body.bultos+` `;
+        qry_1 += ` bultos=`+req.body.bultos+`, `;
+
+        qry_1 += ` "devImpuesto"=`+req.body.devimpuesto+` `;
 
           try {
 
@@ -808,7 +789,7 @@ exports.GetInfoQr = (req, res) => {
       , '' as direccion
       , CLI.telefono1
       , CLI.codigo
-      , CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre) as direccion
+      , COALESCE(CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre),'') as direccion
       , prove.fk_bodega
       FROM public.gc_propuestas_proveedores as prove
       inner join public.clientes as cli on prove.fk_cliente=cli.id
@@ -915,7 +896,10 @@ exports.GetDirecciones = async (req, res) => {
       inner join pais on pais.id=dir.fk_pais
       inner join region on region.id=dir.fk_region
       inner join comunas on comunas.id=dir.fk_comuna
-      where dir.fk_cliente=`+parseInt(req.params.id)+` order by id desc`);
+      where
+      dir.fk_cliente=`+parseInt(req.params.id)+`
+      and dir.fk_tipo=1
+      order by id desc`);
       res.status(200).send(Lista.rows);
       res.end(); res.connection.destroy();
 

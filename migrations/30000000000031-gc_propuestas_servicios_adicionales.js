@@ -15,6 +15,11 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 unique: false,
             },
+            bloqueo: {
+                allowNull: false,
+                type: Sequelize.BOOLEAN,
+                unique: false,
+            },               
             fk_responsable: {
                 type: Sequelize.INTEGER,
                 references: {
