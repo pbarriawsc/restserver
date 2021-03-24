@@ -1,79 +1,363 @@
 const client = require('../config/db.client');
+const jwt=require('jsonwebtoken');
 
-exports.create = async (req,res) =>{
-    // Validate request
+/************************************************************/
+/************************************************************/
+exports.GetClientesList = async (req,res) =>{ try {
 
-    if (!req.body.codigo || req.body.codigo=='0') {
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+    var condicion = ` `;
+
+    if(parseInt(req.params.id)!=1)
+    {
+        var condicion = ` and id=-1 `;
+    }
+
+    if(req.usuario.fk_rol==2)
+    {
+        if(condicion!='')
+        {
+          var condicion = ` and fk_comercial=`+req.usuario.id+``;
+        }
+        else
+        {
+          var condicion = ` and fk_comercial=`+req.usuario.id+``;
+        }
+
+    }
+
+    let Lista = await client.query(`
+    SELECT
+    *
+    FROM public.clientes
+    where
+    estado is true
+    `+condicion+`
+    order by codigo asc`);
+
+    res.status(200).send(Lista.rows); res.end(); res.connection.destroy();
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "ERROR AL CARGAR LISTA DE CLIENTES ",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
+exports.GetCliente = async (req,res) =>{ try {
+
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+    let Cliente = await client.query(`
+    SELECT
+    *
+    FROM public.clientes
+    where id=`+parseInt(req.params.id)+`
+    order by codigo asc`);
+
+    res.status(200).send(Cliente.rows); res.end(); res.connection.destroy();
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "ERROR AL CARGAR CLIENTE ",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
+exports.PostCliente = async (req,res) =>{ try {
+
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+    function LimpiarTexto (texto) { if(!texto) { return ''; } else { return texto.trim(); } }
+
+    if (!req.body.codigo || req.body.codigo.trim().length==0) {
       res.status(400).send({
-        message: "EL CODIGO ES OBLIGATORIO",
-        success:false
+      message: "EL NOMBRE CORTO ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.rut || req.body.rut.trim().length==0) {
+      res.status(400).send({
+      message: "EL RUT ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.razonSocial || req.body.razonSocial.trim().length==0) {
+      res.status(400).send({
+      message: "LA RAZON SOCIAL ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.telefono1 || req.body.telefono1.trim().length==0) {
+      res.status(400).send({
+      message: "EL TELEFONO ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.dteEmail || req.body.dteEmail.trim().length==0) {
+      res.status(400).send({
+      message: "EL EMAIL ES OBLIGATORIO",
+      success:false
       }); res.end(); res.connection.destroy();
     }
     else
     {
 
-      var codigo = req.body.codigo.trim();
-
-      if(!req.body.rut || req.body.rut.trim().length==0) { var rut = ''; }
-      else { var rut = req.body.rut.trim(); }
-
-      if(!req.body.razonSocial || req.body.razonSocial.trim().length==0) { var razonSocial = ''; }
-      else { var razonSocial = req.body.razonSocial.trim(); }
-
-      if(!req.body.web || req.body.web.trim().length==0) { var web = ''; }
-      else { var web = req.body.web.trim(); }
-
-      if(!req.body.telefono1 || req.body.telefono1.trim().length==0) { var telefono1 = ''; }
-      else { var telefono1 = req.body.telefono1.trim(); }
-
-      if(!req.body.telefono2 || req.body.telefono2.trim().length==0) { var telefono2 = ''; }
-      else { var telefono2 = req.body.telefono2.trim(); }
-
-      if(!req.body.dteEmail || req.body.dteEmail.trim().length==0) { var dteEmail = ''; }
-      else { var dteEmail = req.body.dteEmail.trim(); }
-
-      if(!req.body.aproComercial || req.body.aproComercial.trim().length==0) { var aproComercial = 1; }
-      else { var aproComercial = req.body.aproComercial.trim(); }
-
-      if(!req.body.aproFinanciera || req.body.aproFinanciera.trim().length==0) { var aproFinanciera = 1; }
-      else { var aproFinanciera = req.body.aproFinanciera.trim(); }
+      var codigo          = LimpiarTexto(req.body.codigo);
+      var rut             = LimpiarTexto(req.body.rut);
+      var razonSocial     = LimpiarTexto(req.body.razonSocial);
+      var codigoSii       = LimpiarTexto(req.body.codigoSii);
+      var giro            = LimpiarTexto(req.body.giro);
+      var web             = LimpiarTexto(req.body.web);
+      var telefono1       = LimpiarTexto(req.body.telefono1);
+      var telefono2       = LimpiarTexto(req.body.telefono2);
+      var dteEmail        = LimpiarTexto(req.body.dteEmail);
+      var aproComercial   = req.body.aproComercial;
+      var aproFinanciera  = req.body.aproFinanciera;
+      var repLegalRut     = LimpiarTexto(req.body.repLegalRut);
+      var repLegalNombre    = LimpiarTexto(req.body.repLegalNombre);
+      var repLegalApellido  = LimpiarTexto(req.body.repLegalApellido);
+      var repLegalMail      = LimpiarTexto(req.body.repLegalMail);
 
       let ExisteCodigo = await client.query(` SELECT * FROM public.clientes WHERE codigo='`+codigo+`' `);
 
       let ExisteRut = await client.query(` SELECT * FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 `);
 
+      let ExisteEmail = await client.query(` SELECT * FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 `);
+
       if( ExisteCodigo.rows.length>0 ) {
         res.status(400).send({
-            message: "EL CÓDIGO YA ESTÁ INGRESADO",
-            success:false
+        message: "EL NOMBRE CORTO YA ESTÁ INGRESADO",
+        success:false
         }); res.end(); res.connection.destroy();
-      } else if( ExisteRut.rows.length>0 ) {
-          res.status(400).send({
-              message: "EL RUT YA ESTÁ INGRESADO",
-              success:false
-          }); res.end(); res.connection.destroy();
+      }
+      else if( ExisteRut.rows.length>0 ) {
+        res.status(400).send({
+        message: "EL RUT YA ESTÁ INGRESADO",
+        success:false
+        }); res.end(); res.connection.destroy();
+      }
+      else if( ExisteEmail.rows.length>0 ) {
+        res.status(400).send({
+        message: "EL EMAIL YA ESTÁ INGRESADO",
+        success:false
+        }); res.end(); res.connection.destroy();
       }
       else
       {
           let columnas = '';     let datos = '';
 
-          columnas=`codigo, `; datos=`'`+codigo+`', `;
-          columnas+=`rut, `; datos+=`'`+rut+`', `;
-          columnas+=`"razonSocial", `; datos+=`'`+razonSocial+`', `;
-          columnas+=`web, `; datos+=`'`+web+`', `;
-          columnas+=`telefono1, `; datos+=`'`+telefono1+`', `;
-          columnas+=`telefono2, `; datos+=`'`+telefono2+`', `;
-          columnas+=`"dteEmail", `; datos+=`'`+dteEmail+`', `;
-          columnas+=`"aproComercial", `; datos+= aproComercial+`, `;
-          columnas+=`"aproFinanciera" `; datos+= aproFinanciera+` `;
+          columnas=`codigo,`;             datos=`'`+codigo+`', `;
+          columnas+=`estado, `;           datos+=`true, `;
+          columnas+=`rut, `;              datos+=`'`+rut+`', `;
+          columnas+=`"razonSocial", `;    datos+=`'`+razonSocial+`', `;
+          columnas+=`"codigoSii", `;      datos+=`'`+codigoSii+`', `;
+          columnas+=`web, `;              datos+=`'`+web+`', `;
+          columnas+=`telefono1, `;        datos+=`'`+telefono1+`', `;
+          columnas+=`telefono2, `;        datos+=`'`+telefono2+`', `;
+          columnas+=`"dteEmail", `;       datos+=`'`+dteEmail+`', `;
+          columnas+=`"aproComercial", `;  datos+= aproComercial+`, `;
+          columnas+=`fk_responsable, `;   datos+= req.usuario.id+`, `;
+          columnas+=`fk_comercial, `;     datos+= req.usuario.id+`, `;
+          columnas+=`giro, `;             datos+= `'`+giro+`', `;
+          columnas+=`"repLegalRut", `;    datos+= `'`+repLegalRut+`', `;
+          columnas+=`"repLegalNombre", `; datos+= `'`+repLegalNombre+`', `;
+          columnas+=`"repLegalApellido", `; datos+= `'`+repLegalApellido+`', `;
+          columnas+=`"repLegalMail", `;   datos+= `'`+repLegalMail+`', `;
+          columnas+=`"aproFinanciera" `;  datos+= aproFinanciera+` `;
 
           console.log(`INSERT INTO public.clientes (`+columnas+`) values (`+datos+`)`);
           await client.query(`INSERT INTO public.clientes (`+columnas+`) values (`+datos+`)`);
 
-          res.status(200).send([]);
+          var Lista = await client.query(`SELECT * FROM clientes where fk_responsable=`+req.usuario.id+` order by id desc limit 1` );
+
+          res.status(200).send(Lista.rows); res.end(); res.connection.destroy();
         }
     }
-}
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "ERROR AL CARGAR CLIENTE ",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
+exports.GetComercialesList = async (req,res) =>{ try {
+
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+    var condicion = ` `;
+
+    if(req.usuario.fk_rol==2)
+    {
+      var condicion = ` and id=`+req.usuario.id+``;
+    }
+
+    let Lista = await client.query(`
+    SELECT
+    id, rut, usuario, nombre, password, apellidos, email, telefono, estado, fk_rol
+    FROM public.usuario
+    where
+    fk_rol=2
+    `+condicion+`
+    order by nombre asc`);
+
+    res.status(200).send(Lista.rows); res.end(); res.connection.destroy();
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "ERROR AL CARGAR LISTA DE CLIENTES ",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
+exports.PutCliente = async (req,res) =>{ try {
+
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+    function LimpiarTexto (texto) { if(!texto) { return ''; } else { return texto.trim(); } }
+
+    if (!req.body.id || req.body.id==0 ) {
+      res.status(400).send({
+      message: "EL ID ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.codigo || req.body.codigo.trim().length==0) {
+      res.status(400).send({
+      message: "EL NOMBRE CORTO ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.rut || req.body.rut.trim().length==0) {
+      res.status(400).send({
+      message: "EL RUT ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.razonSocial || req.body.razonSocial.trim().length==0) {
+      res.status(400).send({
+      message: "LA RAZON SOCIAL ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.telefono1 || req.body.telefono1.trim().length==0) {
+      res.status(400).send({
+      message: "EL TELEFONO ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else if (!req.body.dteEmail || req.body.dteEmail.trim().length==0) {
+      res.status(400).send({
+      message: "EL EMAIL ES OBLIGATORIO",
+      success:false
+      }); res.end(); res.connection.destroy();
+    }
+    else
+    {
+
+      var id          = req.body.id;
+      var codigo          = LimpiarTexto(req.body.codigo);
+      var rut             = LimpiarTexto(req.body.rut);
+      var razonSocial     = LimpiarTexto(req.body.razonSocial);
+      var codigoSii       = LimpiarTexto(req.body.codigoSii);
+      var giro            = LimpiarTexto(req.body.giro);
+      var web             = LimpiarTexto(req.body.web);
+      var telefono1       = LimpiarTexto(req.body.telefono1);
+      var telefono2       = LimpiarTexto(req.body.telefono2);
+      var dteEmail        = LimpiarTexto(req.body.dteEmail);
+      var aproComercial   = req.body.aproComercial;
+      var aproFinanciera  = req.body.aproFinanciera;
+      var repLegalRut     = LimpiarTexto(req.body.repLegalRut);
+      var repLegalNombre    = LimpiarTexto(req.body.repLegalNombre);
+      var repLegalApellido  = LimpiarTexto(req.body.repLegalApellido);
+      var repLegalMail      = LimpiarTexto(req.body.repLegalMail);
+
+      let ExisteCodigo = await client.query(` SELECT * FROM public.clientes WHERE codigo='`+codigo+`' and id!=`+id+` `);
+
+      let ExisteRut = await client.query(` SELECT * FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 and id!=`+id+` `);
+
+      let ExisteEmail = await client.query(` SELECT * FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 and id!=`+id+` `);
+
+      if( ExisteCodigo.rows.length>0 ) {
+        res.status(400).send({
+        message: "EL NOMBRE CORTO YA ESTÁ INGRESADO",
+        success:false
+        }); res.end(); res.connection.destroy();
+      }
+      else if( ExisteRut.rows.length>0 ) {
+        res.status(400).send({
+        message: "EL RUT YA ESTÁ INGRESADO",
+        success:false
+        }); res.end(); res.connection.destroy();
+      }
+      else if( ExisteEmail.rows.length>0 ) {
+        res.status(400).send({
+        message: "EL EMAIL YA ESTÁ INGRESADO",
+        success:false
+        }); res.end(); res.connection.destroy();
+      }
+      else
+      {
+          let datos = '';
+
+          datos+=`codigo='`+codigo+`', `;
+          datos+=`estado=true', `;
+          datos+=`rut='`+rut+`', `;
+          datos+=`"razonSocial"='`+razonSocial+`', `;
+          datos+=`"codigoSii"='`+codigoSii+`', `;
+          datos+=`web='`+web+`', `;
+          datos+=`telefono1='`+telefono1+`', `;
+          datos+=`telefono2='`+telefono2+`', `;
+          datos+=`"dteEmail"='`+dteEmail+`', `;
+          datos+= `"aproComercial"=`+aproComercial+`, `;
+          datos+= `fk_comercial=`+req.usuario.id+`, `;
+          datos+= `giro='`+giro+`', `;
+          datos+= `"repLegalRut"='`+repLegalRut+`', `;
+          datos+= `"repLegalNombre"='`+repLegalNombre+`', `;
+          datos+= `"repLegalApellido"='`+repLegalApellido+`', `;
+          datos+= `"repLegalMail"='`+repLegalMail+`', `;
+          datos+= `"aproFinanciera"=`+aproFinanciera+` `;
+
+          console.log(`UPDATE public.clientes set `+datos+` where id=`+req.body.id);
+          await client.query(`UPDATE public.clientes set `+datos+` where id=`+req.body.id);
+
+          res.status(200).send([]); res.end(); res.connection.destroy();
+        }
+    }
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "ERROR AL CARGAR CLIENTE ",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
+exports.DeleteCliente = async (req,res) =>{ try {
+
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+    await client.query(`UPDATE public.clientes SET estado=false where id=`+parseInt(req.params.id));
+    res.status(200).send([]); res.end(); res.connection.destroy();
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "NO SE PUEDE ELIMINAR, TIENE INFORMACIÓN RELACIONADA",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
+
 
 exports.update = (req, res) => {
     // Validate request
