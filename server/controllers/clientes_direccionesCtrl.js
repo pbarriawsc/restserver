@@ -165,12 +165,30 @@ exports.update = (req, res) => {
       , dir."fechaActualizacion"
       , dir.estado
       , dir.id
+      , concat(dir.direccion,' ',dir.numero,', ',comunas.nombre,', ',region.nombre) as direccionCompleta
       FROM public.clientes_direcciones as dir
       inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo
       inner join pais on pais.id=dir.fk_pais
       inner join region on region.id=dir.fk_region
       inner join comunas on comunas.id=dir.fk_comuna
       where dir.fk_cliente=$1`, [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });
+  };
+
+exports.GetDireccion = (req,res) =>{
+    if (!req.params.id) {
+        res.status(400).send({
+            message: "EL ID ES OBLIGATORIO",
+            success:false
+          });
+          return;
+    }
+    client.query('SELECT * FROM public.clientes_direcciones where id = $1', [req.params.id], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
