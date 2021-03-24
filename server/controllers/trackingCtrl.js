@@ -5,7 +5,7 @@ const moment=require('moment');
 exports.list = (req, res) => {
 	try{
 	const arrayFinal=[];
-    client.query('SELECT T.*,ct.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,c.web as fk_cliente_web,c.telefono1 as fk_cliente_telefono1,c.telefono2 as fk_cliente_telefono2,c."dteEmail" as fk_cliente_email,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones,t.fk_bodega,b.nombre as fk_bodega_nombre FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id left join public.bodegas b on b.id=t.fk_bodega where t.estado<2 and t.estado>=0 ORDER BY T.id DESC', "", function (err, result) {
+    client.query('SELECT T.*,ct.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,c.web as fk_cliente_web,c.telefono1 as fk_cliente_telefono1,c.telefono2 as fk_cliente_telefono2,c."dteEmail" as fk_cliente_email,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones,t.fk_bodega,b.nombre as fk_bodega_nombre,(SELECT SUM(peso) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS peso_recepcionado,(SELECT SUM(volumen) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS volumen_recepcionado FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id left join public.bodegas b on b.id=t.fk_bodega where t.estado<2 and t.estado>=0 ORDER BY T.id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -113,7 +113,7 @@ exports.list = (req, res) => {
   exports.listByEstado = (req, res) => {
   	try{
 	const arrayFinal=[];
-    client.query('SELECT T.*, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where t.estado=$1 ORDER BY T.prioridad DESC', [req.params.estado], function (err, result) {
+    client.query('SELECT T.*,ct.fk_consolidado, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,t.fk_bodega,b.nombre as fk_bodega_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT SUM(peso) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS peso_recepcionado,(SELECT SUM(volumen) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS volumen_recepcionado FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id left join public.bodegas b on b.id=t.fk_bodega where t.estado=$1 ORDER BY T.prioridad DESC', [req.params.estado], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -585,7 +585,7 @@ exports.update = (req,res) =>{
             return;
     }
 
-    const fechaRecepcion=(req.body.fecha_recepcion && req.body.fecha_recepcion!==null) ? req.body.fecha_recepcion:moment().format('YYYYMMDD HHmmss');
+    const fechaRecepcion=moment().format('YYYYMMDD HHmmss');
     const query = {
         text: 'UPDATE public.tracking SET tipo=$1,estado=$2,fk_cliente=$3,fk_proveedor=$4,fecha_recepcion=$5,cantidad_bultos=$6,peso=$7,volumen=$8,tipo_carga=$9,currier=$10,prioridad=$11 WHERE id=$12 RETURNING *',
         values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,fechaRecepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier,req.body.prioridad,req.body.id],
@@ -593,7 +593,7 @@ exports.update = (req,res) =>{
 
     client.query(query,"",function (err, result) {
         if (err) {
-            console.log(err);
+            console.log(err); 
             res.status(400).send(err);
         }
 
