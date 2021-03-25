@@ -357,8 +357,49 @@ success:false,
 } };
 /************************************************************/
 /************************************************************/
+exports.GetInfoQr = async (req,res) =>{ try {
 
+    let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
 
+    var InfoQr = await client.query(`
+    SELECT
+    CLI.id
+    , CLI."razonSocial"
+    , CLI.rut
+    , '' as direccion
+    , CLI.telefono1
+    , CLI.codigo
+    , COALESCE(CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre),'') as direccion
+    from public.clientes as cli
+    inner join public.clientes_direcciones as dir on cli.id=dir.fk_cliente
+    inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo
+    inner join pais on pais.id=dir.fk_pais
+    inner join region on region.id=dir.fk_region
+    inner join comunas on comunas.id=dir.fk_comuna
+    where
+    cli.id=`+parseInt(req.params.id));
+
+    if(InfoQr.rows.length>0)
+    {
+      res.status(200).send(InfoQr.rows); res.end(); res.connection.destroy();
+    }
+    else {
+      console.log("ERROR "+error);
+      res.status(400).send({
+      message: "FALTA INFORMACION PARA GENERAR LA ETIQUETA",
+      success:false,
+      }); res.end(); res.connection.destroy();
+    }
+
+} catch (error) {
+console.log("ERROR "+error);
+res.status(400).send({
+message: "NO SE PUEDE ELIMINAR, TIENE INFORMACIÓN RELACIONADA",
+success:false,
+}); res.end(); res.connection.destroy();
+} };
+/************************************************************/
+/************************************************************/
 exports.update = (req, res) => {
     // Validate request
     if (!req.body.codigo){
