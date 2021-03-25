@@ -11,6 +11,12 @@ module.exports = {
     		, fk_zonaTarifaria:1
     		, fk_empresa:1
       },
+      {
+        estado:true
+        , nombre:'GUANGZHOU'
+        , fk_zonaTarifaria:1
+        , fk_empresa:1
+      },
     ], {});
 
   },

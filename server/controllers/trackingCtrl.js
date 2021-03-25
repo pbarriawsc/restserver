@@ -197,13 +197,13 @@ exports.listByReadyToCharge = async(req, res) => {
     req.usuario = decoded.usuario;
 	});
 
-    let bodega=null;
-    if( req.usuario.fk_rol!==null){
+    let bodega=req.usuario.fk_bodega;
+   /* if( req.usuario.fk_rol!==null){
     	 let rol = await client.query(` SELECT * FROM public.roles where id=`+req.usuario.fk_rol);
     	 if(rol.rows && rol.rows.length>0){
     	 	bodega=rol.rows[0].fk_bodega;
     	 }
-    }
+    }*/
 
     let query='SELECT T.*,cst.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.estado=$1 AND t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 ORDER BY T.prioridad ASC';
     if(bodega!==null){
@@ -291,13 +291,13 @@ exports.listByClient = async(req, res) => {
     req.usuario = decoded.usuario;
 	});
 
-    let bodega=null;
-    if( req.usuario.fk_rol!==null){
+    let bodega=req.usuario.fk_bodega;
+   /* if( req.usuario.fk_rol!==null){
     	 let rol = await client.query(` SELECT * FROM public.roles where id=`+req.usuario.fk_rol);
     	 if(rol.rows && rol.rows.length>0){
     	 	bodega=rol.rows[0].fk_bodega;
     	 }
-    }
+    }*/
 
 	let query='SELECT T.*,ct.fk_consolidado, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id where t.fk_cliente=$1 AND t.estado<2 ORDER BY T.id DESC';
     

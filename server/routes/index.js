@@ -51,4 +51,5 @@ app.use(require('./naves_eta'));
 app.use(require('./contenedorHistorial'));
 app.use(require('./puertos'));
 app.use(require('./consolidados'));
+app.use(require('./bodegasUbicaciones'));
 module.exports=app;

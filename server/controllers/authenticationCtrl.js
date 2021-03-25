@@ -15,7 +15,7 @@ exports.postToken = (req, res) => {
             });
             return;
     }
-    client.query('SELECT u.*,r.nombre as fk_rol_nombre FROM public.usuario u inner join public.roles r on r.id=u.fk_rol where u.usuario = $1', [req.body.usuario], function (err, result) {
+    client.query('SELECT u.*,r.nombre as fk_rol_nombre,r.fk_bodega FROM public.usuario u inner join public.roles r on r.id=u.fk_rol where u.usuario = $1', [req.body.usuario], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -30,6 +30,7 @@ exports.postToken = (req, res) => {
                 telefono:result.rows[0].telefono,
                 fk_rol:result.rows[0].fk_rol,
                 fk_rol_nombre:result.rows[0].fk_rol_nombre,
+                fk_bodega:result.rows[0].fk_bodega
                 };
                 let token=jwt.sign({
                     usuario
