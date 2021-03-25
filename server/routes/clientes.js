@@ -8,6 +8,7 @@ const PFCLI_PostCliente='/api/clientes_post_cliente';
 const PFCLI_GetComercialesList='/api/clientes_get_list_comerciales';
 const PFCLI_PutCliente='/api/clientes_put_cliente';
 const PFCLI_DeleteCliente='/api/clientes_delete_cliente';
+const PFCLI_GetInfoQr='/api/clientes_get_infoqr';
 
 
 
@@ -19,6 +20,7 @@ app.post(`${PFCLI_PostCliente}`,verifyToken, clientesController.PostCliente);
 app.get(`${PFCLI_GetComercialesList}`,verifyToken, clientesController.GetComercialesList);
 app.post(`${PFCLI_PutCliente}`,verifyToken, clientesController.PutCliente);
 app.get(`${PFCLI_DeleteCliente}/:id`,verifyToken, clientesController.DeleteCliente);
+app.get(`${PFCLI_GetInfoQr}/:id`,verifyToken, clientesController.GetInfoQr);
 
 
 app.get(`${prefix}`,verifyToken,clientesController.list);

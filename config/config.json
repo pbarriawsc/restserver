@@ -15,7 +15,7 @@
   },
   "production": {
     "username": "postgres",
-    "password": "p0stgr3s.n0djs.r00ts",
+    "password": "p0stgr3s.n0djs.r00t",
     "database": "wscargo8",
     "host": "127.0.0.1",
     "dialect": "postgres"
