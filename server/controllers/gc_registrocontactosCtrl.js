@@ -369,6 +369,7 @@ exports.CrearPropuesta = async (req, res) => { try {
         columna+=` estado, `; valor+=` 0, `;
         columna+=` fk_contacto, `; valor+=``+parseInt(req.params.id)+`, `;
         columna+=` fk_responsable, `; valor+=``+req.usuario.id+`, `;
+        columna+=` "fk_responsableUpdate", `; valor+=``+req.usuario.id+`, `;
         columna+=` "fechaCreacion", `; valor+=`'`+fecha+`', `;
         columna+=` "fechaActualizacion", `; valor+=`'`+fecha+`', `;
         columna+=` "nombreCliente", `; valor+=`'`+Cabecera.rows[0]['nombres']+`', `;

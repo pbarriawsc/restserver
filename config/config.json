@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "postgres",
-    "password": "wsc2020",
+    "password": "p0stgr3s.n0djs.r00t",
     "database": "wscargo8",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "wsc2020",
+    "password": "p0stgr3s.n0djs.r00t",
     "database": "wscargo8",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "wsc2020",
+    "password": "p0stgr3s.n0djs.r00ts",
     "database": "wscargo8",
     "host": "127.0.0.1",
     "dialect": "postgres"
