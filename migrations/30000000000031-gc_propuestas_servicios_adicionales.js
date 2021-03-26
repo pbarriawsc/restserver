@@ -19,7 +19,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.BOOLEAN,
                 unique: false,
-            },               
+            },
             fk_responsable: {
                 type: Sequelize.INTEGER,
                 references: {
@@ -107,6 +107,11 @@ module.exports = {
             base_tarifa: {
                 allowNull: true,
                 type: Sequelize.FLOAT,
+                unique: false,
+            },
+            detalle: {
+                allowNull: true,
+                type: Sequelize.TEXT,
                 unique: false,
             },
         });

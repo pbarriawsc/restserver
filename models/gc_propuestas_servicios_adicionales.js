@@ -17,7 +17,7 @@ module.exports = (sequelize,Sequelize) => {
 						allowNull: false,
 						type: Sequelize.BOOLEAN,
 						unique: false,
-				},   				
+				},
 				fk_responsable: {
 						type: Sequelize.INTEGER,
 						references: {
@@ -107,5 +107,10 @@ module.exports = (sequelize,Sequelize) => {
 						type: Sequelize.FLOAT,
 						unique: false,
 				},
+				detalle: {
+						allowNull: true,
+						type: Sequelize.TEXT,
+						unique: false,
+				},   
 	});
 };
