@@ -378,8 +378,8 @@ exports.create = (req, res) => {
     if(req.body.proveedor){
     	if(parseInt(req.body.proveedor.id)===0 && req.body.proveedor.nombre.length>0){
     		const query0 = {
-		        text: 'INSERT INTO public.proveedores(codigo, nombre) VALUES($1, $2) RETURNING *',
-		        values: [req.body.proveedor.codigo, req.body.proveedor.nombre],
+		        text: 'INSERT INTO public.proveedores(codigo, nombre,fk_cliente) VALUES($1, $2, $3) RETURNING *',
+		        values: [req.body.proveedor.codigo, req.body.proveedor.nombre,req.body.fk_cliente],
 		    };
 
 		    client.query(query0,"",function (err, result) {
@@ -391,7 +391,7 @@ exports.create = (req, res) => {
 	        }
 	        console.log('aqui 1');
 	        const query = {
-		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,currier) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',
+		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,currier) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *',
 		        values: [result.rows[0].id,req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier],
 		    	};
 
@@ -403,6 +403,7 @@ exports.create = (req, res) => {
 			            res.status(400).send(err1);
 			        }
 			       
+                   console.log('aqui de nuevo 1');
 			        if(result.rows && result.rows[0]){
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
