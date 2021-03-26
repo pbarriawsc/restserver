@@ -10,10 +10,10 @@ module.exports = {
      */
     await queryInterface.createTable('clientes', {
         id: {
-			allowNull: false,
-			autoIncrement: true,
-			primaryKey: true,
-			type: Sequelize.INTEGER
+    			allowNull: false,
+    			autoIncrement: true,
+    			primaryKey: true,
+    			type: Sequelize.INTEGER
         },
         estado: {
             allowNull: false,
@@ -123,7 +123,9 @@ module.exports = {
             allowNull: false,
             unique: false,
         },
-    });
+    },{
+		    initialAutoIncrement: 2500
+	  });
   },
 
   down: async (queryInterface, Sequelize) => {

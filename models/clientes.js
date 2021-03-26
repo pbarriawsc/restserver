@@ -116,5 +116,7 @@ module.exports = (sequelize,Sequelize) => {
             allowNull: false,
             unique: false,
         },
-	});
+		},{
+				initialAutoIncrement: 2500
+		});
 };

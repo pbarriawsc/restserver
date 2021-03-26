@@ -377,18 +377,17 @@ exports.GetInfoQr = async (req,res) =>{ try {
     inner join region on region.id=dir.fk_region
     inner join comunas on comunas.id=dir.fk_comuna
     where
-    cli.id=`+parseInt(req.params.id));
+    cli.id=`+parseInt(req.params.id)+`
+    limit 1
+    `
+    );
 
     if(InfoQr.rows.length>0)
     {
       res.status(200).send(InfoQr.rows); res.end(); res.connection.destroy();
     }
     else {
-      console.log("ERROR "+error);
-      res.status(400).send({
-      message: "FALTA INFORMACION PARA GENERAR LA ETIQUETA",
-      success:false,
-      }); res.end(); res.connection.destroy();
+      res.status(200).send([]); res.end(); res.connection.destroy();
     }
 
 } catch (error) {
