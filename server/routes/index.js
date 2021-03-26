@@ -52,4 +52,5 @@ app.use(require('./contenedorHistorial'));
 app.use(require('./puertos'));
 app.use(require('./consolidados'));
 app.use(require('./bodegasUbicaciones'));
+app.use(require('./viajes'));
 module.exports=app;

@@ -465,7 +465,8 @@ exports.findOneByCodigo = (req,res) =>{
           });
           return;
     }
-        client.query('SELECT * FROM public.clientes where codigo = $1 LIMIT 1', [parseInt(req.params.codigo)], function (err, result) {
+    let query="SELECT * FROM public.clientes where codigo ='"+req.params.codigo+"' LIMIT 1";
+        client.query(query,"", function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
