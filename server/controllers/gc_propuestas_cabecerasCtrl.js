@@ -296,7 +296,9 @@ exports.PostPropuestaComercial = async (req, res) => {
     try {
         console.log(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
         await client.query(`INSERT INTO public.gc_propuestas_cabeceras (`+qry_1+`) values (`+qry_2+`)`);
-        let UltimoId = await client.query(`SELECT id from public.gc_propuestas_cabeceras where fk_responsable=`+req.usuario.id+` order by id desc limit 1`);
+
+        let UltimoId = await client.query(`SELECT * from public.gc_propuestas_cabeceras where fk_responsable=`+req.usuario.id+` order by id desc limit 1`);
+
         res.status(200).send(UltimoId.rows); res.end(); res.connection.destroy();
     } catch (error) {
         console.log("ERROR POST "+error); console.log(" "); console.log(" ");
@@ -327,12 +329,13 @@ exports.GetServiciosAdicionales = async (req,res) =>{
     , ZTD.nombre as destinoNombre
 
     , SERAD.tarifa
+    , SERAD.detalle
     , SERAD.base_tarifa
 
     FROM public.gc_propuestas_servicios_adicionales AS SERAD
     INNER JOIN public.servicios_tipos as TS ON TS.id=SERAD."fk_tipoDeServicio"
-    INNER JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
-    INNER JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
+    left JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
+    left JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
 
     WHERE SERAD.estado!=999 AND SERAD.fk_cabecera=`+parseInt(req.params.id)+` order by SERAD.id desc`);
 
@@ -359,13 +362,9 @@ if (!req.body.fk_cabecera || req.body.fk_cabecera==0) {
     res.status(400).send({
     message: "EL TIPO DE SERVICIO ES OBLIGATORIO",
     success:false }); res.end(); res.connection.destroy();
-} else if (!req.body.fk_zonaOrigen || req.body.fk_zonaOrigen==0) {
+} else if (!req.body.detalle || req.body.detalle.trim().length==0) {
     res.status(400).send({
-    message: "EL ORIGEN ES OBLIGATORIO",
-    success:false }); res.end(); res.connection.destroy();
-} else if (!req.body.fk_zonaDestino || req.body.fk_zonaDestino==0) {
-    res.status(400).send({
-    message: "EL DESTINO ES OBLIGATORIO",
+    message: "EL DETALLE ES OBLIGATORIO",
     success:false }); res.end(); res.connection.destroy();
 } else if (!req.body.tarifa || req.body.tarifa==0) {
     res.status(400).send({
@@ -383,25 +382,6 @@ if (!req.body.fk_cabecera || req.body.fk_cabecera==0) {
   { req.body.tarifa = 0; }
 
   let qry_1 = '';     let qry_2 = '';
-
-  var Base_Tarifa = await client.query(`
-  SELECT
-  tarifa
-  FROM public.gc_propuestas_servicios_adicionales
-  where
-  estado=0 and fk_cabecera=1 and "fk_tipoDeServicio"=`+req.body.fk_tipoServicio+`
-  and "fk_zonaOrigen"=`+req.body.fk_zonaOrigen+` and "fk_zonaDestino"=`+req.body.fk_zonaDestino+`
-  `);
-
-  console.log(" CANTIDAD "+Base_Tarifa.rows.length)
-  if(Base_Tarifa.rows.length>0)
-  {
-    var ValorBase = Base_Tarifa.rows[0]['tarifa'];
-  }
-  else
-  {
-    var ValorBase = 0;
-  }
 
   qry_1 = ` estado, `;
   qry_2 = ` 0, `;
@@ -425,39 +405,24 @@ if (!req.body.fk_cabecera || req.body.fk_cabecera==0) {
   qry_2 += ` `+req.body.fk_tipoServicio+`, `;
 
   qry_1 += ` "fk_zonaOrigen", `;
-  qry_2 += ` `+req.body.fk_zonaOrigen+`, `;
+  qry_2 += ` null, `;
 
   qry_1 += ` "fk_zonaDestino", `;
-  qry_2 += ` `+req.body.fk_zonaDestino+`, `;
+  qry_2 += ` null, `;
 
   qry_1 += ` tarifa, `;
   qry_2 += ` `+req.body.tarifa+`, `;
 
+  qry_1 += ` detalle, `;
+  qry_2 += ` '`+req.body.detalle.trim()+`', `;
+
   qry_1 += ` base_tarifa `;
-  qry_2 += ` `+ValorBase+` `;
+  qry_2 += ` 0 `;
 
   try {
 
-      let Existe = await client.query(`
-      SELECT
-      *
-      FROM
-      public.gc_propuestas_servicios_adicionales
-      where
-      estado=0 and fk_cabecera=`+req.body.fk_cabecera+` and "fk_tipoDeServicio"=`+req.body.fk_tipoServicio+`
-      and "fk_zonaOrigen"=`+req.body.fk_zonaOrigen+` and "fk_zonaDestino"=`+req.body.fk_zonaDestino+`
-      `);
-
-      if(Existe.rows.length>0)
-      {
-        res.status(400).send({
-        message: "LA INFORMACIÓN YA ESTÁ REGISTRADA",
-        success:false, }); res.end(); res.connection.destroy();
-      }
-      else {
-        await client.query(`INSERT INTO public.gc_propuestas_servicios_adicionales (`+qry_1+`) values (`+qry_2+`)`);
-        res.status(200).send([]); res.end(); res.connection.destroy();
-      }
+      await client.query(`INSERT INTO public.gc_propuestas_servicios_adicionales (`+qry_1+`) values (`+qry_2+`)`);
+      res.status(200).send([]); res.end(); res.connection.destroy();
 
 
   } catch (error) {
@@ -711,8 +676,6 @@ exports.TerminarPropuesta = async (req,res) =>{
     and (
       "cantProveedores" is null
       or fk_responsable is null
-      or fk_cliente is null or fk_cliente=0
-      or fk_direccion is null or fk_direccion=0
       or LENGTH(TRIM("nombreCliente"))=0
       or LENGTH(TRIM("atencionA"))=0
       or "fk_tipoDeServicio" is null or "fk_tipoDeServicio"=0
@@ -868,6 +831,9 @@ exports.GetPropuestaPdfCab = async (req,res) =>{
       , est.nombre as estado_nombre
       , coalesce(CONCAT(comer.nombre,' ',comer.apellidos),'') as comer_nombre
       , coalesce(comer.telefono,'') as comer_telefono
+      , cabe."cantProveedores" as cantProveedores
+      , cabe."diasValidez" as diasValidez
+
       FROM
       public.gc_propuestas_cabeceras as cabe
       inner join public.gc_propuestas_estados as est on est.id=cabe.estado
@@ -902,19 +868,17 @@ exports.GetPropuestaPdfSerAd = async (req,res) =>{
       , SERAD.fk_cabecera
       , coalesce(SERAD."fk_tipoDeServicio",0) as fk_tipoDeServicio
       , TS.nombre as tipoDeServicioNombre
-      , coalesce(SERAD."fk_zonaOrigen",0) as fk_zonaOrigen
-      , ZTO.nombre as origenNombre
-      , coalesce(SERAD."fk_zonaDestino",0) as fk_zonaDestino
-      , ZTD.nombre as destinoNombre
 
       , CASE WHEN SERAD.tarifa::TEXT LIKE '%.%' THEN
       CONCAT(REPLACE(Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(SERAD.tarifa,'FM999,999,999.99')::text,'.',2))
       ELSE SERAD.tarifa::TEXT END as tarifa
 
+      , coalesce(SERAD.detalle,'') as detalle
+
       FROM public.gc_propuestas_servicios_adicionales AS SERAD
       INNER JOIN public.servicios_tipos as TS ON TS.id=SERAD."fk_tipoDeServicio"
-      INNER JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
-      INNER JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
+      left JOIN public.zonas_tarifarias as ZTO ON SERAD."fk_zonaOrigen" = ZTO.id
+      left JOIN public.zonas_tarifarias as ZTD ON SERAD."fk_zonaDestino" = ZTD.id
 
       WHERE SERAD.estado!=999 AND SERAD.fk_cabecera=`+parseInt(req.params.id)+` order by SERAD.id desc`);
 
@@ -1120,36 +1084,6 @@ exports.ActualizarEstado = async (req,res) =>{
         {
             Estado=2;
             await client.query(`UPDATE public.gc_propuestas_tarifas SET bloqueo=true WHERE id=`+Tarifas.rows[i]['id']+``);
-        }
-    }
-
-    var SerAds = await client.query(`
-    SELECT
-    id
-    , coalesce(tarifa,0) as tarifa_1
-    , coalesce(base_tarifa,0) as tarifa_2
-    FROM public.gc_propuestas_servicios_adicionales
-    where
-    estado=0 and fk_cabecera=`+parseInt(req.params.id)+` `);
-
-    await client.query(`
-    UPDATE
-    public.gc_propuestas_servicios_adicionales
-    SET
-    bloqueo=false
-    WHERE
-    fk_cabecera=`+parseInt(req.params.id)+` `);
-
-    for(var i=0; i<SerAds.rows.length; i++)
-    {
-        if(
-          ( Number(SerAds.rows[i]['tarifa_1'])==0 )
-          || ( Number(SerAds.rows[i]['tarifa_2'])==0 )
-          || ( Number(SerAds.rows[i]['tarifa_1'])<Number(Tarifas.rows[i]['tarifa_2']) )
-        )
-        {
-            Estado=2;
-            await client.query(`UPDATE public.gc_propuestas_servicios_adicionales SET bloqueo=true WHERE id=`+SerAds.rows[i]['id']+``);
         }
     }
 
