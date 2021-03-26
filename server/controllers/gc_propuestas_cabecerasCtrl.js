@@ -676,8 +676,6 @@ exports.TerminarPropuesta = async (req,res) =>{
     and (
       "cantProveedores" is null
       or fk_responsable is null
-      or fk_cliente is null or fk_cliente=0
-      or fk_direccion is null or fk_direccion=0
       or LENGTH(TRIM("nombreCliente"))=0
       or LENGTH(TRIM("atencionA"))=0
       or "fk_tipoDeServicio" is null or "fk_tipoDeServicio"=0
