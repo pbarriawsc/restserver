@@ -1,6 +1,6 @@
 const client = require('../config/db.client');
 const bcrypt= require('bcrypt');
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     // Validate request
     if (!req.body.nombre) {
       res.status(400).send({
@@ -21,7 +21,13 @@ exports.create = (req, res) => {
           });
           return;
     }
-    const query = {
+
+    const existUser=await client.query("SELECT * FROM public.usuario where usuario='"+req.body.usuario+"'");
+    if(existUser.rows && existUser.rows.length>0){
+         res.status(400).send({ message: "YA EXISTEN REGISTROS ASOCIADOS AL NOMBRE DE USUARIO INGRESADO", success:false, });
+        res.end(); res.connection.destroy();
+    }else{
+        const query = {
         text: 'INSERT INTO public.usuario(nombre, password,usuario,apellidos,email,telefono,rut,fk_rol,estado) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
         values: [req.body.nombre, bcrypt.hashSync(req.body.password,10),req.body.usuario,req.body.apellidos,req.body.email,req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado],
     };
@@ -32,7 +38,10 @@ exports.create = (req, res) => {
             res.status(400).send(err);
         }
         res.status(200).send(result.rows[0]);
+        res.end(); res.connection.destroy();
     });
+    }
+    
 };
 
 exports.list = (req, res) => {
