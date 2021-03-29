@@ -31,6 +31,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull:false
       },
+      fk_nave:{
+        type: Sequelize.INTEGER,
+        allowNull:true
+      },
       fecha_creacion:{
         type: Sequelize.DATE,
         allowNull:false

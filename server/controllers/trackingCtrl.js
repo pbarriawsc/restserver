@@ -445,10 +445,10 @@ exports.create = (req, res) => {
 			        }
 			    });
 	        });
-    	}else{
+    	 }else{
     		console.log('aqui 2');
     		const query = {
-		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,currier) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *',
+		        text: 'INSERT INTO public.tracking(fk_proveedor,tipo,fecha_creacion,estado,fk_cliente,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,currier) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *',
 		        values: [req.body.proveedor.id, req.body.tipo,req.body.fecha_creacion,req.body.estado,req.body.fk_cliente,req.body.fecha_recepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier],
 		    	};
 
