@@ -6,7 +6,7 @@ process.env.PORT = process.env.PORT || 3000;
 //================================
 //CADUCIDAD DEL TOKEN
 //================================
-process.env.EXPIRATION_TOKEN=60 * 60 * 24 * 30; // 30 dias.
+process.env.EXPIRATION_TOKEN='24h';//60 * 60 * 24 * 30; // 30 dias.
 
 //================================
 //secret token
