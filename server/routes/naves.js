@@ -1,17 +1,17 @@
 const express = require('express')
 const app = express()
 const {verifyToken} = require('../middlewares/authotization');
-const prefix='/api/naves';
-const navesController=require('../controllers/navesCtrl');
+const navesCtrl=require('../controllers/navesCtrl');
+const NAV_GetList='/api/naves_get_list';
+const NAV_Post='/api/naves_post';
+const NAV_Delete='/api/naves_delete';
+const NAV_Get='/api/naves_get';
+const NAV_Put='/api/naves_put';
 
-app.get(`${prefix}`,verifyToken,navesController.list);
-
-app.get(`${prefix}/:id`,verifyToken, navesController.findOneBy)
-
-app.post(`${prefix}`,verifyToken, navesController.create)
-
-app.put(`${prefix}`,verifyToken, navesController.update)
-
-app.delete(`${prefix}/:id`,verifyToken, navesController.delete)
+app.get(`${NAV_GetList}`,verifyToken,navesCtrl.GetList);
+app.get(`${NAV_Delete}/:id`,verifyToken,navesCtrl.Delete);
+app.get(`${NAV_Get}/:id`,verifyToken,navesCtrl.Get);
+app.post(`${NAV_Post}`,verifyToken,navesCtrl.Post);
+app.post(`${NAV_Put}`,verifyToken,navesCtrl.Put);
 
 module.exports=app;

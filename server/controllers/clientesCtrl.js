@@ -222,7 +222,6 @@ success:false,
 exports.PutCliente = async (req,res) =>{ try {
 
     let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
-    function LimpiarTexto (texto) { if(!texto) { return ''; } else { return texto.trim(); } }
 
     if (!req.body.id || req.body.id==0 ) {
       res.status(400).send({
@@ -263,6 +262,11 @@ exports.PutCliente = async (req,res) =>{ try {
     else
     {
 
+      function LimpiarTexto (texto) { if(!texto) { return ''; } else { return texto.trim(); } }
+      function LimpiarNumero (numero) { if(!numero) { return 0; } else { return parseInt(numero); } }
+      function LimpiarFecha (fecha) { if(!fecha || fecha.length<10 ) { return null; } else { return fecha; } }
+      function LimpiarFk (fk) { if(!fk || fk==0 || fk.length<10 ) { return null; } else { return fk; } }
+
       var id          = req.body.id;
       var codigo          = LimpiarTexto(req.body.codigo);
       var rut             = LimpiarTexto(req.body.rut);
@@ -279,6 +283,7 @@ exports.PutCliente = async (req,res) =>{ try {
       var repLegalNombre    = LimpiarTexto(req.body.repLegalNombre);
       var repLegalApellido  = LimpiarTexto(req.body.repLegalApellido);
       var repLegalMail      = LimpiarTexto(req.body.repLegalMail);
+      var fk_comercial      =LimpiarFk(req.body.fk_comercial);
 
       let ExisteCodigo = await client.query(` SELECT * FROM public.clientes WHERE codigo='`+codigo+`' and id!=`+id+` `);
 
@@ -307,9 +312,8 @@ exports.PutCliente = async (req,res) =>{ try {
       else
       {
           let datos = '';
-
           datos+=`codigo='`+codigo+`', `;
-          datos+=`estado=true', `;
+          datos+=`estado=true, `;
           datos+=`rut='`+rut+`', `;
           datos+=`"razonSocial"='`+razonSocial+`', `;
           datos+=`"codigoSii"='`+codigoSii+`', `;
@@ -318,7 +322,7 @@ exports.PutCliente = async (req,res) =>{ try {
           datos+=`telefono2='`+telefono2+`', `;
           datos+=`"dteEmail"='`+dteEmail+`', `;
           datos+= `"aproComercial"=`+aproComercial+`, `;
-          datos+= `fk_comercial=`+req.usuario.id+`, `;
+          datos+= `fk_comercial=`+fk_comercial+`, `;
           datos+= `giro='`+giro+`', `;
           datos+= `"repLegalRut"='`+repLegalRut+`', `;
           datos+= `"repLegalNombre"='`+repLegalNombre+`', `;

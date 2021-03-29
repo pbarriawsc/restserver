@@ -6,8 +6,7 @@ module.exports = {
 
     await queryInterface.bulkInsert('formas_pago', [
       {
-        id:1
-        , codigo:'CTD'
+        codigo:'CTD'
         , nombre:'CONTADO'
         , valor:0
       },

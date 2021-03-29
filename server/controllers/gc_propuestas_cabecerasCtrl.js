@@ -14,12 +14,12 @@ exports.GetListPropuestaComercial = async (req,res) =>{
 
         if(parseInt(req.params.id)!=1)
         {
-            var condicion = ` and cabe.id=-1 `;
+            condicion += ` and cabe.id=-1 `;
         }
 
         if(req.usuario.fk_rol==2)
         {
-            var innerJoin = ` `;
+            condicion += ` and cabe.fk_responsable=`+req.usuario.id+``;
         }
 
         let Lista = await client.query(`
@@ -695,38 +695,50 @@ exports.TerminarPropuesta = async (req,res) =>{
     }
     else
     {
-      var PropuestaInfo = await client.query(`
+      var Estado = 0;
+      var Tarifas = await client.query(`
       SELECT
       *
-      FROM public.gc_propuestas_cabeceras
-      WHERE
-      id=`+parseInt(req.params.id)+`
-      `);
+      FROM public.gc_propuestas_tarifas
+      where
+      estado is true
+      and fk_cabecera=`+parseInt(req.params.id)+` `);
 
-      var PropuestaBase = await client.query(`
+      await client.query(`
+      UPDATE
+      public.gc_propuestas_tarifas
+      SET
+      bloqueo=false
+      WHERE
+      fk_cabecera=`+parseInt(req.params.id)+` `);
+
+      for(var i=0; i<Tarifas.rows.length; i++)
+      {
+          if(
+            ( Tarifas.rows[i]['cmbPeso']<Tarifas.rows[i]['Pb_cmbPeso'] )
+            || ( Tarifas.rows[i]['valorUnitarioUsd']<Tarifas.rows[i]['Pb_valorUnitarioUsd'] )
+            || ( Tarifas.rows[i]['valorBaseUsd']<Tarifas.rows[i]['Pb_valorBaseUsd'] )
+            || ( Tarifas.rows[i]['tarifaUsd']==0 )
+          )
+          {
+              Estado=2;
+              await client.query(`UPDATE public.gc_propuestas_tarifas SET bloqueo=true WHERE id=`+Tarifas.rows[i]['id']+``);
+          }
+      }
+
+      await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=`+Estado+` WHERE id=`+parseInt(req.params.id)+``);
+
+      var Cabecera = await client.query(`
       SELECT
-      *
-      FROM public.gc_propuestas_cabeceras
-      WHERE
-      id=1
-      `);
+      cabe.id
+      , cabe.estado
+      , est.nombre as estadonombre
+      FROM public.gc_propuestas_cabeceras as cabe
+      left join public.gc_propuestas_estados as est on cabe.estado=est.id
+      WHERE cabe.id=`+parseInt(req.params.id)+`
+      LIMIT 1`);
 
-      var estado = 1;
-      console.log(PropuestaInfo.rows[0].valorUnitarioUsd+' -- '+PropuestaBase.rows[0].valorUnitarioUsd);
-      if(PropuestaInfo.rows[0].valorUnitarioUsd<PropuestaBase.rows[0].valorUnitarioUsd)
-      {
-        estado = 2;
-      }
-
-      console.log(PropuestaInfo.rows[0].diasValidez+' -- '+PropuestaBase.rows[0].diasValidez);
-      if(PropuestaInfo.rows[0].diasValidez<PropuestaBase.rows[0].diasValidez)
-      {
-        estado = 2;
-      }
-
-      console.log(`UPDATE public.gc_propuestas_cabeceras SET estado=`+estado+`, "fechaActualizacion"='`+fecha+`' WHERE id=`+parseInt(req.params.id)+` `);
-      await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=`+estado+`, "fechaActualizacion"='`+fecha+`' WHERE id=`+parseInt(req.params.id)+` `);
-      res.status(200).send(""+estado);
+      res.status(200).send(Cabecera.rows);
     }
 }
 /************************************************************/
@@ -1086,6 +1098,8 @@ exports.ActualizarEstado = async (req,res) =>{
             await client.query(`UPDATE public.gc_propuestas_tarifas SET bloqueo=true WHERE id=`+Tarifas.rows[i]['id']+``);
         }
     }
+
+    await client.query(`UPDATE public.gc_propuestas_cabeceras SET estado=`+Estado+` WHERE id=`+parseInt(req.params.id)+``);
 
     var Cabecera = await client.query(`
     SELECT

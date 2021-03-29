@@ -1,17 +1,17 @@
 const express = require('express')
 const app = express()
 const {verifyToken} = require('../middlewares/authotization');
-const prefix='/api/equipos_tipos';
-const equiposTiposController=require('../controllers/equiposTiposCtrl');
+const equiposTiposCtrl=require('../controllers/equiposTiposCtrl');
+const ET_GetList='/api/equipostipos_get_list';
+const ET_Post='/api/equipostipos_post';
+const ET_Delete='/api/equipostipos_delete';
+const ET_Get='/api/equipostipos_get';
+const ET_Put='/api/equipostipos_put';
 
-app.get(`${prefix}`,verifyToken,equiposTiposController.list);
-
-app.get(`${prefix}/:id`,verifyToken, equiposTiposController.findOneBy)
-
-app.post(`${prefix}`,verifyToken, equiposTiposController.create)
-
-app.put(`${prefix}`,verifyToken, equiposTiposController.update)
-
-app.delete(`${prefix}/:id`,verifyToken, equiposTiposController.delete)
+app.get(`${ET_GetList}`,verifyToken,equiposTiposCtrl.GetList);
+app.get(`${ET_Delete}/:id`,verifyToken,equiposTiposCtrl.Delete);
+app.get(`${ET_Get}/:id`,verifyToken,equiposTiposCtrl.Get);
+app.post(`${ET_Post}`,verifyToken,equiposTiposCtrl.Post);
+app.post(`${ET_Put}`,verifyToken,equiposTiposCtrl.Put);
 
 module.exports=app;

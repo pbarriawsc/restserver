@@ -153,6 +153,16 @@ const jwt=require('jsonwebtoken');
     /************************************************************/
     /************************************************************/
     exports.list = (req, res) => {
+
+        let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+        var condicion = ` `;
+
+        if(req.usuario.fk_rol==2)
+        {
+            condicion = ` and contact.fk_responsable=`+req.usuario.id+``;
+        }
+
         client.query(`
           SELECT
           contact.id
@@ -177,7 +187,9 @@ const jwt=require('jsonwebtoken');
           inner join public.usuario as usu on contact.fk_comercial=usu.id
           inner join public.gc_contactos_tipos as ctip on ctip.id=contact.fk_tipo
           left join public.gc_propuestas_cabeceras as prop on contact.id=prop.fk_contacto
-          where contact.estado!=999
+          where
+          contact.estado!=999
+          `+condicion+`
 
           group by
           contact.id

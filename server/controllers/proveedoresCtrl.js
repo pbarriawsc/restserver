@@ -5,7 +5,17 @@ const jwt=require('jsonwebtoken');
 exports.GetClientes = async (req, res) => {
     try {
 
-        let Lista = await client.query(` SELECT * FROM public.clientes order by "razonSocial" asc`);
+      let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+
+        var condicion = ` `;
+
+        if(req.usuario.fk_rol==2)
+        {
+            condicion += ` where fk_comercial=`+req.usuario.id+``;
+        }
+
+
+        let Lista = await client.query(` SELECT * FROM public.clientes `+condicion+` order by "razonSocial" asc`);
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
 
@@ -264,12 +274,6 @@ exports.PostProvCliente = async (req, res) => { try {
             success:false
         }); res.end(); res.connection.destroy();
     }
-    else if (!req.body.fk_direccion || req.body.fk_direccion==0) {
-        res.status(400).send({
-            message: "LA DIRECCIÓN ES OBLIGATORIA",
-            success:false
-        }); res.end(); res.connection.destroy();
-    }
     else if (!req.body.fk_proveedor || req.body.fk_proveedor==0) {
         res.status(400).send({
             message: "EL PROVEEDOR ES OBLIGATORIO",
@@ -344,9 +348,6 @@ exports.PostProvCliente = async (req, res) => { try {
 
         qry_1 += ` fk_proveedor, `;
         qry_2 += ` `+req.body.fk_proveedor+`, `;
-
-        qry_1 += ` fk_direccion, `;
-        qry_2 += ` `+req.body.fk_direccion+`, `;
 
         qry_1 += ` fk_bodega, `;
         qry_2 += ` `+req.body.fk_bodega+`, `;
@@ -453,7 +454,6 @@ exports.GetListProvCliente = async (req, res) => {
         , tabla_1.fk_cliente
         , tabla_1.fk_proveedor
         , tabla_1.fk_bodega
-        , coalesce(tabla_1.fk_direccion, 0) as id_direccion
         , bod.nombre as bodeganombre
         , prov.nombre as proveedornombre
         , tabla_1.volumen
@@ -461,11 +461,9 @@ exports.GetListProvCliente = async (req, res) => {
         , tabla_1.peso
         , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
         , coalesce(trk.fk_consolidado_tracking::text,'') as consolidado
-        , dir.nombre as direccion
         FROM public.gc_propuestas_proveedores as tabla_1
         inner join public.proveedores as prov on tabla_1.fk_proveedor=prov.id
         inner join public.bodegas as bod on bod.id=tabla_1.fk_bodega
-        left join public.clientes_direcciones as dir on tabla_1.fk_direccion=dir.id
         left join public.tracking as trk on trk.fk_proveedor_cliente=tabla_1.id
         where tabla_1.estado!=999 and tabla_1.fk_cliente=`+parseInt(req.params.id)+` order by tabla_1.id desc`);
         res.status(200).send(Lista.rows);
@@ -558,7 +556,6 @@ exports.GetProveedorPropuesta = async (req, res) => {
         , tabla_1.fk_cliente
         , tabla_1.fk_proveedor
         , tabla_1.fk_bodega
-        , tabla_1.fk_direccion
 
         , CASE WHEN tabla_1.volumen::TEXT LIKE '%.%' THEN
         CONCAT(REPLACE(Split_part(TO_CHAR(tabla_1.volumen,'FM999,999,999,999.99')::text,'.',1),',','.'),',',Split_part(TO_CHAR(tabla_1.volumen,'FM999,999,999.99')::text,'.',2))
@@ -610,13 +607,6 @@ exports.PutProvCliente = async (req, res) => { try {
     else if (!req.body.fk_cliente || req.body.fk_cliente==0) {
         res.status(400).send({
             message: "EL CLIENTE ES OBLIGATORIO",
-            success:false
-        }); res.end(); res.connection.destroy();
-        return;
-    }
-    else if (!req.body.fk_direccion || req.body.fk_direccion==0) {
-        res.status(400).send({
-            message: "LA DIRECCIÓN ES OBLIGATORIA",
             success:false
         }); res.end(); res.connection.destroy();
         return;
@@ -700,8 +690,6 @@ exports.PutProvCliente = async (req, res) => { try {
         qry_1 += ` "fechaActualizacion"='`+fecha+`', `;
 
         qry_1 += ` fk_bodega=`+req.body.fk_bodega+`, `;
-
-        qry_1 += ` fk_direccion=`+req.body.fk_direccion+`, `;
 
         qry_1 += ` volumen=`+req.body.volumen+`, `;
 
