@@ -6,6 +6,7 @@ const viajesController=require('../controllers/viajesCtrl');
 
 app.get(`${prefix}`,verifyToken,viajesController.list);
 app.post(`${prefix}`,verifyToken,viajesController.create);
+app.delete(`${prefix}/:id`,verifyToken,viajesController.delete);
 
 
 module.exports=app;

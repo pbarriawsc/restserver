@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false,
       },
       viaje_id: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: true,
       },
       fk_puerto:{
@@ -58,6 +58,10 @@ module.exports = {
       etd_hora: {
         type: Sequelize.TIME,
         allowNull: true
+      },
+      tipo:{
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       estado:{
         type: Sequelize.INTEGER,
