@@ -695,7 +695,7 @@ exports.TerminarPropuesta = async (req,res) =>{
     }
     else
     {
-      var Estado = 0;
+      var Estado = 1;
       var Tarifas = await client.query(`
       SELECT
       *
@@ -828,6 +828,7 @@ exports.GetPropuestaPdfCab = async (req,res) =>{
     let Informacion = await client.query(`
       SELECT
       cabe.id
+      , cabe.estado
       , coalesce(cabe."nombreCliente",'') as nombreCliente
       , coalesce(cabe."atencionA",'') as atencionA
       , coalesce(cabe."fk_tipoDeServicio",0) as fk_tipoDeServicio

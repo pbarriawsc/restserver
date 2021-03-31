@@ -11,20 +11,12 @@ exports.GetClientesList = async (req,res) =>{ try {
 
     if(parseInt(req.params.id)!=1)
     {
-        var condicion = ` and id=-1 `;
+        condicion += ` and id=-1 `;
     }
 
     if(req.usuario.fk_rol==2)
     {
-        if(condicion!='')
-        {
-          var condicion = ` and fk_comercial=`+req.usuario.id+``;
-        }
-        else
-        {
-          var condicion = ` and fk_comercial=`+req.usuario.id+``;
-        }
-
+        condicion += ` and fk_comercial=`+req.usuario.id+``;
     }
 
     let Lista = await client.query(`
@@ -373,7 +365,7 @@ exports.GetInfoQr = async (req,res) =>{ try {
     , '' as direccion
     , CLI.telefono1
     , CLI.codigo
-    , COALESCE(CONCAT(dir.nombre,', ',dir.direccion,' ',dir.numero,', ',comunas.nombre),'') as direccion
+    , COALESCE(CONCAT(dir.direccion,' ',dir.numero,', ',comunas.nombre),'') as direccion
     from public.clientes as cli
     inner join public.clientes_direcciones as dir on cli.id=dir.fk_cliente
     inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo

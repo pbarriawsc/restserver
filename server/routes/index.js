@@ -1,6 +1,10 @@
 const express = require('express')
 const app = express()
 
+app.use(require('./bodegas_ubicaciones'))
+app.use(require('./bodegas'))
+app.use(require('./zonastarifarias'))
+app.use(require('./empresas'))
 app.use(require('./menu'))
 app.use(require('./usuario'))
 app.use(require('./login'))
