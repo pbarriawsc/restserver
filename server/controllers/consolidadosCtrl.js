@@ -427,7 +427,7 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
     }
      const arrayFinal=[];
      const queryRespaldo='SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE EXISTS (SELECT 1 FROM public.tracking where fk_propuesta=pc.id) and pc.fk_cliente=$1 and pc.estado=2';// la anterior para evitar que se pierda
-     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1 AND pc.id>1', [req.params.id], function (err, result) {
+     client.query('SELECT pc.* from public.gc_propuestas_cabeceras pc WHERE pc.fk_cliente=$1 AND pc.id>1 AND PC.estado!=999', [req.params.id], function (err, result) {
             if (err) {
                 console.log(err);
                 res.status(400).send(err);
