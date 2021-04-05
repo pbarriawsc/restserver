@@ -6,6 +6,8 @@ const { request } = require('express')
 const Sequelize=require('sequelize')
 const cors = require('cors')
 const fileupload = require("express-fileupload");
+const fs = require('fs');
+const https = require('https');
 /*
 var corsOptions = {
   origin: 'http://example.com',
@@ -26,7 +28,11 @@ app.use(require('./routes/index'))
 app.get('/', function (req, res) {
   res.json('Bienvenido al server express')
 })
+
+https.createServer({
+  key: fs.readFileSync('../wscargo/cargows.key'),
+  cert: fs.readFileSync('../wscargo/cargows.crt')
+}, app).listen(process.env.PORT, function(){
+  console.log("My HTTPS server listening on port " + process.env.PORT + "...");
+});
  
-app.listen(process.env.PORT,()=>{
-    console.log('escuchando puerto 3000');
-})
