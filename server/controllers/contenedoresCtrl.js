@@ -58,7 +58,7 @@ exports.update = (req,res) =>{
     });
 };
 
-exports.updateShipEta =(req,res)=>{
+exports.updateShipEta = async(req,res)=>{
     if (!req.params.id) {
         res.status(400).send({
             message: "El id es obligatorio",
@@ -71,6 +71,8 @@ exports.updateShipEta =(req,res)=>{
         text: 'SELECT id,fk_nave,fk_nave_eta FROM public.contenedor WHERE id=$1',
         values: [req.params.id],
     };
+
+    
 
     client.query(query0,"",function (err, result) {
         if (err) {
@@ -112,8 +114,54 @@ exports.updateShipEta =(req,res)=>{
                 console.log(err);
                 res.status(400).send(err);
             }
-            res.status(200).send(result.rows[0]);
+           // res.status(200).send(result.rows[0]);
         });
+
+        const query00={
+            text: 'SELECT *FROM public.contenedor_detalle WHERE fk_contenedor=$1',
+            values: [req.params.id],
+        };
+
+        client.query(query00,"",function (err00, result00) {
+            if (err00) {
+                console.log(err00);
+                res.status(400).send(err00);
+            }
+
+            if(result00 && result00.rows && result00.rows.length>0){
+               const ids=[];
+               for(var i=0;i<result00.rows.length;i++){
+                 ids.push(result00.rows[i].fk_tracking_detalle);
+               }
+               let queryIn='';
+               if(ids.length>0){
+                    queryIn+='WHERE id IN (';
+                    for(var x=0;x<ids.length;x++){
+                        if(x!==ids.length-1){
+                            queryIn+=ids[x]+','
+                        }else{
+                            queryIn+=ids[x]
+                        }
+                    }
+                    queryIn+=')';
+                }
+
+                let queryFinal='UPDATE public.tracking_detalle SET fk_contenedor='+req.params.id+',fk_nave='+req.body.fk_nave+',fk_nave_eta='+req.body.fk_nave_eta+' '+queryIn;
+
+                client.query(queryFinal,"",function (err001, result001) {
+                    if (err001) {
+                        console.log(err001);
+                        res.status(400).send(err001);
+                    }
+                    //res.status(200).send(result.rows[0]);
+                });
+
+            }
+            
+        });
+
+        
+            res.status(200).send(result.rows[0]);
     });
 
     
