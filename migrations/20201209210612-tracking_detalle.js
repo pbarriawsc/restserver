@@ -103,10 +103,22 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
+      fk_viaje: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
        currier:{
         type: Sequelize.STRING,
         allowNull: true,
       },
+       fk_currier:{
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      numero_seguimiento:{
+        type: Sequelize.STRING,
+        allowNull: true,
+      }
     });
   },
 

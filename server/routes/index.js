@@ -60,4 +60,5 @@ app.use(require('./puertos'));
 app.use(require('./consolidados'));
 app.use(require('./bodegasUbicaciones'));
 app.use(require('./viajes'));
+app.use(require('./currier'));
 module.exports=app;

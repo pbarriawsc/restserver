@@ -128,6 +128,10 @@ module.exports = {
           allowNull: true,
           unique: false,
       },
+      keyaux:{
+        type: Sequelize.STRING,
+        allowNull:true
+      },
     });
   },
 
