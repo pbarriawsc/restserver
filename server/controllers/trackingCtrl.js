@@ -365,7 +365,7 @@ exports.listByClient = async(req, res) => {
         }
   };
 
-exports.create = (req, res) => {
+exports.create = async(req, res) => {
 	try{
     if (!req.body.fecha_creacion){
         res.status(400).send({
@@ -375,6 +375,9 @@ exports.create = (req, res) => {
           return;
     }
 
+    const exists=await client.query("SELECT *FROM public.tracking where keyaux='"+req.body.keyaux+"'");
+
+    if(exists && exists.rows.length===0){
     if(req.body.proveedor){
     	if(parseInt(req.body.proveedor.id)===0 && req.body.proveedor.nombre.length>0){
     		const query0 = {
@@ -408,8 +411,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier,fk_currier,numero_seguimiento) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier,req.body.tracking_detalle[i].fk_currier,req.body.tracking_detalle[i].numero_seguimiento],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -464,8 +467,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier,fk_currier,numero_seguimiento) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier,req.body.tracking_detalle[i].fk_currier,req.body.tracking_detalle[i].numero_seguimiento],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -527,8 +530,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier,fk_currier,numero_seguimiento) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier,req.body.tracking_detalle[i].fk_currier,req.body.tracking_detalle[i].numero_seguimiento],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -563,6 +566,11 @@ exports.create = (req, res) => {
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
+    }
+    
+    }else{
+            res.status(200).send('Intento duplicado');
+            res.end(); res.connection.destroy();
     }
     
     } catch (error) {
