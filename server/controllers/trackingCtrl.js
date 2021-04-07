@@ -20,7 +20,7 @@ exports.list = (req, res) => {
 
         	let queryIn='';
 		        if(ids.length>0){
-		        	queryIn+='WHERE tracking_id IN (';
+		        	queryIn+='WHERE td.tracking_id IN (';
 		        	for(var x=0;x<ids.length;x++){
 		        		if(x!==ids.length-1){
 		        			queryIn+=ids[x]+','
@@ -31,7 +31,7 @@ exports.list = (req, res) => {
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal="SELECT id,upload_id,fecha_recepcion,fecha_consolidado,codigo_interno,tipo_producto,producto,peso,volumen,observacion,tracking_id,estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,ancho,alto,altura,ubicacion FROM public.tracking_detalle "+queryIn;
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_currier,td.numero_seguimiento,c.nombre as fk_currier_nombre,c.nombre_chino as fk_currier_nombre_chino FROM public.tracking_detalle td left join public.currier c on c.id=td.fk_currier "+queryIn;
 		        client.query(queryFinal, "", function (err, result) {
 			        if (err) {
 			            console.log(err);
@@ -139,7 +139,7 @@ exports.list = (req, res) => {
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_contenedor,c.codigo as fk_contenedor_codigo,n.nave_nombre as fk_nave_nombre,td.fk_nave,ne.eta_fecha,ne.eta_hora,ne.etd_fecha,ne.etd_hora FROM public.tracking_detalle td left join public.contenedor c on c.id=td.fk_contenedor left join public.naves2 n on n.nave_id=td.fk_nave left join public.naves_eta ne on ne.id=td.fk_nave_eta "+queryIn;
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_contenedor,c.codigo as fk_contenedor_codigo,n.nave_nombre as fk_nave_nombre,td.fk_nave,ne.eta_fecha,ne.eta_hora,ne.etd_fecha,ne.etd_hora,cu.nombre as fk_currier_nombre,cu.nombre_chino as fk_currier_nombre_chino FROM public.tracking_detalle td left join public.contenedor c on c.id=td.fk_contenedor left join public.naves2 n on n.nave_id=td.fk_nave left join public.naves_eta ne on ne.id=td.fk_nave_eta left join public.currier cu on cu.id=td.fk_currier"+queryIn;
 		        if(req.params.estado===1 || req.params.estado==='1'){
 		        	queryFinal+=' and estado<2';
 		        }
@@ -365,7 +365,7 @@ exports.listByClient = async(req, res) => {
         }
   };
 
-exports.create = (req, res) => {
+exports.create = async(req, res) => {
 	try{
     if (!req.body.fecha_creacion){
         res.status(400).send({
@@ -375,6 +375,9 @@ exports.create = (req, res) => {
           return;
     }
 
+    const exists=await client.query("SELECT *FROM public.tracking where keyaux='"+req.body.keyaux+"'");
+
+    if(exists && exists.rows.length===0){
     if(req.body.proveedor){
     	if(parseInt(req.body.proveedor.id)===0 && req.body.proveedor.nombre.length>0){
     		const query0 = {
@@ -408,8 +411,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier,fk_currier,numero_seguimiento) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier,req.body.tracking_detalle[i].fk_currier,req.body.tracking_detalle[i].numero_seguimiento],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -464,8 +467,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier,fk_currier,numero_seguimiento) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier,req.body.tracking_detalle[i].fk_currier,req.body.tracking_detalle[i].numero_seguimiento],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -527,8 +530,8 @@ exports.create = (req, res) => {
 			        	if(req.body.tracking_detalle && req.body.tracking_detalle.length>0){
 			        		for(var i=0;i<req.body.tracking_detalle.length;i++){
 			        				const query2={
-						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15) RETURNING *',
-						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier],
+						        		text: 'INSERT INTO public.tracking_detalle(fecha_recepcion,tipo_producto,producto,peso,observacion,tracking_id,estado,volumen,upload_id,ancho,alto,altura,codigo_interno,ubicacion,currier,fk_currier,numero_seguimiento) VALUES($1, $2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) RETURNING *',
+						        		values: [req.body.tracking_detalle[i].fecha_recepcion, req.body.tracking_detalle[i].tipo_producto,req.body.tracking_detalle[i].producto,req.body.tracking_detalle[i].peso,req.body.tracking_detalle[i].observacion,result.rows[0].id,req.body.tracking_detalle[i].estado,req.body.tracking_detalle[i].volumen,req.body.tracking_detalle[i].upload_id,req.body.tracking_detalle[i].ancho,req.body.tracking_detalle[i].alto,req.body.tracking_detalle[i].altura,req.body.tracking_detalle[i].codigo_interno,req.body.tracking_detalle[i].ubicacion,req.body.tracking_detalle[i].currier,req.body.tracking_detalle[i].fk_currier,req.body.tracking_detalle[i].numero_seguimiento],
 			        				};
 			        				client.query(query2,"",function (err, result) {
 			        					if (err) {
@@ -563,6 +566,11 @@ exports.create = (req, res) => {
 			        	res.status(200).send(result.rows[0]);
 			        }
 			    });
+    }
+    
+    }else{
+            res.status(200).send('Intento duplicado');
+            res.end(); res.connection.destroy();
     }
     
     } catch (error) {

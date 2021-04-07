@@ -31,11 +31,19 @@ module.exports = {
             type: Sequelize.INTEGER,
             allowNull: true,
           },
+          fk_nave_viaje_1: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+          },
           fk_nave_2: {
             type: Sequelize.INTEGER,
             allowNull: true,
           },
           fk_nave_eta_2: {
+            type: Sequelize.INTEGER,
+            allowNull: true,
+          },
+          fk_nave_viaje_2: {
             type: Sequelize.INTEGER,
             allowNull: true,
           },
