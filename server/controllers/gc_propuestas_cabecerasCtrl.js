@@ -35,8 +35,16 @@ exports.GetListPropuestaComercial = async (req,res) =>{
         , coalesce(cabe."fk_formaDePago",0) as fk_formaDePago
         , TO_CHAR(cabe."fechaValidez", 'DD-MM-YYYY HH24:MI') as fechaValidez
         , est.nombre as estado_nombre
+        , UPPER(concat( case when TRIM(usu.nombre) LIKE '% %' then left(TRIM(usu.nombre), strpos(TRIM(usu.nombre), ' ') - 1) else TRIM(usu.nombre) end ,' '
+        , case when TRIM(usu.apellidos) LIKE '% %' then left(TRIM(usu.apellidos), strpos(TRIM(usu.apellidos), ' ') - 1) else TRIM(usu.apellidos) end )) as responsable
+        , coalesce(cli.codigo,'') as cli_nombre
+        , coalesce(UPPER(concat( case when TRIM(comer.nombre) LIKE '% %' then left(TRIM(comer.nombre), strpos(TRIM(comer.nombre), ' ') - 1) else TRIM(comer.nombre) end ,' '
+        , case when TRIM(comer.apellidos) LIKE '% %' then left(TRIM(comer.apellidos), strpos(TRIM(comer.apellidos), ' ') - 1) else TRIM(comer.apellidos) end )),'') as comercial
         FROM public.gc_propuestas_cabeceras as cabe
         inner join public.gc_propuestas_estados as est on est.id=cabe.estado
+        inner join public.usuario as usu on cabe.fk_responsable=usu.id
+        left join public.clientes as cli on cabe.fk_cliente=cli.id
+        left join public.usuario as comer on cli.fk_comercial=comer.id
         WHERE
         cabe.estado!=999
         and cabe.estado!=4
