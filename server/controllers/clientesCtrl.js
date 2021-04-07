@@ -453,6 +453,10 @@ exports.update = (req, res) => {
     });
     };
 
+function isNumeric(value) {
+  return /^\d+$/.test(value);
+}
+
 exports.findOneByCodigo = (req,res) =>{
     if (!req.params.codigo) {
         res.status(400).send({
@@ -461,7 +465,11 @@ exports.findOneByCodigo = (req,res) =>{
           });
           return;
     }
+
     let query="SELECT * FROM public.clientes where codigo ='"+req.params.codigo+"' LIMIT 1";
+    if(isNumeric(req.params.codigo)){
+      query="SELECT * FROM public.clientes where id ='"+req.params.codigo+"' LIMIT 1";
+    }   
         client.query(query,"", function (err, result) {
             if (err) {
                 console.log(err);
