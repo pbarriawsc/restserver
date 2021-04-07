@@ -27,11 +27,11 @@ module.exports = {
         allowNull: true,
       },
       peso: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
         allowNull: true,
       },
       volumen: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
         allowNull: true,
       },
       tipo_carga:{
