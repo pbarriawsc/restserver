@@ -311,7 +311,7 @@ union+='left join public.clientes c on c.id=t.fk_cliente ';
 union+='left join public.proveedores p on p.id=t.fk_proveedor '; 
 union+='inner join public.consolidado_tracking ct on ct.fk_tracking=t.id ';
 union+='inner join public.consolidado cnd on cnd.id=ct.fk_consolidado ';
-union+='where t.fk_cliente=1 AND t.estado<2 AND t.fk_consolidado_tracking IS NOT null AND cnd.estado=0 ';
+union+='where t.fk_cliente=$1 AND t.estado<2 AND t.fk_consolidado_tracking IS NOT null AND cnd.estado=0 ';
 
     let queryF=query+union;
     console.log('queryF',queryF);
