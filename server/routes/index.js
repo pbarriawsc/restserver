@@ -61,4 +61,5 @@ app.use(require('./consolidados'));
 app.use(require('./bodegasUbicaciones'));
 app.use(require('./viajes'));
 app.use(require('./currier'));
+app.use(require('./gc_propuestas_estados'));
 module.exports=app;
