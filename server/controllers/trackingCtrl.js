@@ -596,7 +596,7 @@ exports.create = async(req, res) => {
         }
 };
 
-exports.update = (req,res) =>{
+exports.update = async(req,res) =>{
 	try{
     if (!req.params.id) {
         res.status(400).send({
@@ -606,10 +606,25 @@ exports.update = (req,res) =>{
             return;
     }
 
+    let fk_proveedor=0;
+    if(req.body.fk_proveedor && req.body.fk_proveedor>0){
+    	fk_proveedor=req.body.fk_proveedor;
+    }
+    if(req.body.proveedor && req.body.proveedor.id===0){
+    	const query0 = {
+		        text: 'INSERT INTO public.proveedores(codigo, nombre,fk_cliente,"nombreChi") VALUES($1, $2, $3, $4) RETURNING *',
+		        values: [req.body.proveedor.codigo, req.body.proveedor.nombre,req.body.fk_cliente, req.body.proveedor.nombreChi],
+		    };
+
+    	let insertProveedor=await client.query(query0);
+    	if(insertProveedor && insertProveedor.rows){
+    		fk_proveedor=insertProveedor.rows[0].id;
+    	}
+    }
     const fechaRecepcion=moment().format('YYYYMMDD HHmmss');
     const query = {
         text: 'UPDATE public.tracking SET tipo=$1,estado=$2,fk_cliente=$3,fk_proveedor=$4,fecha_recepcion=$5,cantidad_bultos=$6,peso=$7,volumen=$8,tipo_carga=$9,currier=$10,prioridad=$11 WHERE id=$12 RETURNING *',
-        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, req.body.fk_proveedor,fechaRecepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier,req.body.prioridad,req.body.id],
+        values: [req.body.tipo, req.body.estado, req.body.fk_cliente, fk_proveedor,fechaRecepcion,req.body.cantidad_bultos,req.body.peso,req.body.volumen,req.body.tipo_carga,req.body.currier,req.body.prioridad,req.body.id],
     };
 
     client.query(query,"",function (err, result) {
