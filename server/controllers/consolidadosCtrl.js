@@ -567,3 +567,38 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
          res.status(200).send(result1.rows);
       });
   };
+
+exports.delete = (req, res) => {
+     if (!req.params.id) {
+      res.status(400).send({
+        message: "El id del consolidado es obligatorio",
+        success:false
+      });
+      return;
+    }
+
+
+ };
+
+
+exports.delete = async (req, res) => {
+    try {
+        if (!req.params.id) {
+          res.status(400).send({
+            message: "El id del consolidado es obligatorio",
+            success:false
+          });
+          return;
+        }
+
+        await client.query(`DELETE FROM public.consolidado where id=`+parseInt(req.params.id));
+        res.status(200).send([]);
+        res.end(); res.connection.destroy();
+
+    } catch (error) {
+        console.log('ERROR DeleteConsolidado '+error); console.log(' '); console.log(' ');
+        res.status(400).send({
+        message: "EL REGISTRO NO SE PUEDE ELIMINAR",
+        success:false,}); res.end(); res.connection.destroy();
+    }
+};

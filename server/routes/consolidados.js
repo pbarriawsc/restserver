@@ -11,5 +11,6 @@ app.get(`${prefix}/:id/trackings`,verifyToken, consolidadosController.listTracki
 app.put(`${prefix}/:id`,verifyToken, consolidadosController.update);
 app.get(`${prefix}/propuestasComerciales/cliente/:id`,verifyToken, consolidadosController.listGcConsolidadoByClient);
 app.put(`${prefix}/cargaContenedor/:id`,verifyToken, consolidadosController.updateStateToCharge);
+app.delete(`${prefix}/:id`,verifyToken, consolidadosController.delete);
 
 module.exports=app;
