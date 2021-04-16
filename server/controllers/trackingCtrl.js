@@ -2,6 +2,8 @@ const client = require('../config/db.client');
 const jwt=require('jsonwebtoken');
 const lodash= require('lodash');
 const moment=require('moment');
+const path = require('path');
+var fs = require('fs');
 exports.list = (req, res) => {
 	try{
 	const arrayFinal=[];
@@ -983,7 +985,17 @@ exports.uploadFilesPackingInvoice = (req,res) =>{
 
     let queryValues=[null,null,null,null,req.params.id];
     if(req.files.packingList1){
+    	//console.log('pl1',req.files.packingList1);
+    	const ext = path.extname(req.files.packingList1.name);
     	queryValues[0]=req.files.packingList1.data;
+    	let filename=req.params.id+'_packing_list1'+ext;
+    	req.files.packingList1.mv('./uploads/'+filename,function(err){
+    		if(err){
+    			console.log("Error subiendo archivo",err);
+    		}else{
+    			console.log("Archivo Copiado");
+    		}
+    	})
     }
 
     if(req.files.packingList2){
@@ -1047,6 +1059,12 @@ exports.getPackingList1 = (req,res) =>{
         res.end(result.rows[0].packing_list1);
     });
 
+   // var filePath = './uploads/';
+    //var filename=req.params.id+'_packing_list1.doc';
+    
+   // res.end(filePath+filename);  
+    
+
     } catch (error) {
 
             res.status(400).send({
@@ -1055,7 +1073,7 @@ exports.getPackingList1 = (req,res) =>{
             });
             res.end(); res.connection.destroy();
 
-        }
+     }
 };
 
 exports.getPackingList2 = (req,res) =>{
@@ -1078,6 +1096,8 @@ exports.getPackingList2 = (req,res) =>{
             console.log(err);
             res.status(400).send(err);
         }
+
+        console.log('blob',result.rows[0].packing_list2);
         res.end(result.rows[0].packing_list2);
     });
     } catch (error) {
