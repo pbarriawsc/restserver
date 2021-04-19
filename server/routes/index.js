@@ -63,4 +63,6 @@ app.use(require('./bodegasUbicaciones'));
 app.use(require('./viajes'));
 app.use(require('./currier'));
 app.use(require('./gc_propuestas_estados'));
+app.use(require('./lineasNavieras'));
+app.use(require('./embarcadoras'));
 module.exports=app;

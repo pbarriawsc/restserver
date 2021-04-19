@@ -46,7 +46,19 @@ module.exports = {
       fk_nave_eta: {
         type: Sequelize.INTEGER,
         allowNull: true,
-      }
+      },
+      fk_linea_naviera: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      fk_embarcadora: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
+      numero_sello: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
     });
   },
 
