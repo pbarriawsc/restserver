@@ -8,6 +8,7 @@ const cors = require('cors')
 const fileupload = require("express-fileupload");
 const fs = require('fs');
 const https = require('https');
+const http = require('http');
 /*
 var corsOptions = {
   origin: 'http://example.com',
@@ -28,6 +29,10 @@ app.use(require('./routes/index'))
 app.get('/', function (req, res) {
   res.json('Bienvenido al server express')
 })
+
+http.createServer({}, app).listen(3001, function(){
+  console.log("My HTTP server listening on port 3001...");
+});
 
 https.createServer({
   key: fs.readFileSync('../wscargo/cargows.key'),

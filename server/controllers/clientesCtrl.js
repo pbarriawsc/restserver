@@ -11,22 +11,30 @@ exports.GetClientesList = async (req,res) =>{ try {
 
     if(parseInt(req.params.id)!=1)
     {
-        condicion += ` and id=-1 `;
+        condicion += ` and clì.id=-1 `;
     }
 
     if(req.usuario.fk_rol==2)
     {
-        condicion += ` and fk_comercial=`+req.usuario.id+``;
+        condicion += ` and cli.fk_comercial=`+req.usuario.id+``;
     }
 
     let Lista = await client.query(`
     SELECT
-    *
-    FROM public.clientes
+    cli.id
+    , cli.rut
+    , cli.codigo
+    , cli."razonSocial" as razonsocial
+    , cli."dteEmail" as dteemail
+    , cli.telefono1
+    , UPPER(concat ( case when TRIM(comer.nombre) LIKE '% %' then left(TRIM(comer.nombre), strpos(TRIM(comer.nombre), ' ') - 1) else TRIM(comer.nombre) end ,' '
+    , case when TRIM(comer.apellidos) LIKE '% %' then left(TRIM(comer.apellidos), strpos(TRIM(comer.apellidos), ' ') - 1) else TRIM(comer.apellidos) end )) as comercial
+    FROM public.clientes as cli
+    left join public.usuario as comer on cli.fk_comercial=comer.id
     where
-    estado is true
+    cli.estado is true
     `+condicion+`
-    order by codigo asc`);
+    order by cli.codigo asc`);
 
     res.status(200).send(Lista.rows); res.end(); res.connection.destroy();
 
@@ -359,12 +367,12 @@ exports.GetInfoQr = async (req,res) =>{ try {
 
     var InfoQr = await client.query(`
     SELECT
-    CLI.id
-    , CLI."razonSocial"
-    , CLI.rut
+    cli.id
+    , cli."razonSocial"
+    , cli.rut
     , '' as direccion
-    , CLI.telefono1
-    , CLI.codigo
+    , cli.telefono1
+    , cli.codigo
     , COALESCE(CONCAT(dir.direccion,' ',dir.numero,', ',comunas.nombre),'') as direccion
     from public.clientes as cli
     inner join public.clientes_direcciones as dir on cli.id=dir.fk_cliente
