@@ -11,7 +11,7 @@ exports.GetClientesList = async (req,res) =>{ try {
 
     if(parseInt(req.params.id)!=1)
     {
-        condicion += ` and clì.id=-1 `;
+        condicion += ` and cli.id=-1 `;
     }
 
     if(req.usuario.fk_rol==2)
