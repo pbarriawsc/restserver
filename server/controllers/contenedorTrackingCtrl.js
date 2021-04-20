@@ -26,7 +26,9 @@ exports.listByContenedorActivo = async (req, res) => {
 	        	objFinal.viajes_detalle=listViajesDetalle.rows;
 	        }
 	        res.status(200).send([objFinal]);
-	    	res.end(); res.connection.destroy();
+	    }else{
+	    	res.status(200).send(result.rows);
+	    	//console.log("no encontro");
 	    }
 	    /*client.query("SELECT ct.*,u1.nombre as fk_usuario_creacion_nombre, u1.apellidos as fk_usuario_creacion_apellidos FROM public.contenedor_tracking ct inner join public.usuario u1 on u1.id=ct.fk_usuario_creacion where ct.fk_contenedor=$1 and ct.estado<2 order by ct.id desc limit 1", [req.params.fk_contenedor], function (err, result) {
 	        if (err) {
