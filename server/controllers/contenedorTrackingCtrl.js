@@ -16,7 +16,7 @@ exports.listByContenedorActivo = async (req, res) => {
 	    let result=await client.query("SELECT ct.*,u1.nombre as fk_usuario_creacion_nombre, u1.apellidos as fk_usuario_creacion_apellidos FROM public.contenedor_tracking ct inner join public.usuario u1 on u1.id=ct.fk_usuario_creacion where ct.fk_contenedor="+req.params.fk_contenedor+" and ct.estado<2 order by ct.id desc limit 1");
 	    if(result && result.rows.length>0){
 	    	let listViajes=await client.query("SELECT cv.*,v.fk_nave,v.codigo as fk_viaje_codigo,n2.nave_nombre as fk_nave_nombre FROM public.contenedor_viajes cv inner join public.viajes v on v.id=cv.fk_viaje inner join public.naves2 n2 on n2.nave_id=v.fk_nave where cv.fk_contenedor_tracking="+result.rows[0].id);
-	        let listViajesDetalle=await client.query("SELECT cvd.*,ne.fk_puerto,p.nombre as fk_puerto_nombre,ne.eta_fecha,ne.etd_fecha,ne.tipo FROM public.contenedor_viajes_detalle cvd inner join public.naves_eta ne on ne.id=cvd.fk_nave_eta inner join public.puertos p on p.id=ne.fk_puerto where cvd.fk_contenedor_tracking="+result.rows[0].id +" order by ne.tipo asc");
+	        let listViajesDetalle=await client.query("SELECT ne.id,ne.fk_puerto,p.nombre as fk_puerto_nombre,ne.eta_fecha,ne.etd_fecha,ne.tipo FROM public.contenedor_viajes_detalle cvd inner join public.naves_eta ne on ne.id=cvd.fk_nave_eta inner join public.puertos p on p.id=ne.fk_puerto where cvd.fk_contenedor_tracking="+result.rows[0].id +" order by ne.tipo asc");
 	        let objFinal=lodash.cloneDeep(result.rows[0]);
 	        if(listViajes && listViajes.rows){
 	        	objFinal.viajes=listViajes.rows;
