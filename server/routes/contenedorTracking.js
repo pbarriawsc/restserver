@@ -6,5 +6,6 @@ const prefix='/api/contenedor_tracking';
 
 app.get(`${prefix}/contenedor/:fk_contenedor`,verifyToken,contenedorTrackingCtrl.listByContenedorActivo);
 app.post(`${prefix}/:fk_contenedor`,verifyToken,contenedorTrackingCtrl.create);
+app.put(`${prefix}/:id`,verifyToken,contenedorTrackingCtrl.update);
 app.delete(`${prefix}/:id`,verifyToken,contenedorTrackingCtrl.delete);
 module.exports=app;

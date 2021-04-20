@@ -91,6 +91,7 @@ exports.listByEstado = async (req, res) => {
                     let obj=lodash.cloneDeep(item);
                     const arrayFind=resultDetalle.rows.filter(y=>y.viaje_id===item.id);
                     if(arrayFind){
+                        arrayFind.sort((a,b) => a.tipo - b.tipo);
                         obj.viaje_detalle=arrayFind;
                     }else{
                         obj.viaje_detalle=[];
