@@ -6,6 +6,7 @@ const viajesController=require('../controllers/viajesCtrl');
 
 app.get(`${prefix}`,verifyToken,viajesController.list);
 app.get(`${prefix}/estado/:estado`,verifyToken,viajesController.listByEstado);
+app.get(`${prefix}/nave/:fk_nave`,verifyToken,viajesController.listByShip);
 app.post(`${prefix}`,verifyToken,viajesController.create);
 app.delete(`${prefix}/:id`,verifyToken,viajesController.delete);
 

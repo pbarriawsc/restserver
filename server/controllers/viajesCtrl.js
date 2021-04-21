@@ -114,6 +114,66 @@ exports.listByEstado = async (req, res) => {
     
 };
 
+exports.listByShip = async (req, res) => {
+    try{
+        if (!req.params.fk_nave) {
+          res.status(400).send({
+            message: "La nave es obligatoria",
+            success:false
+          });
+          return;
+        }
+        let result=await client.query('SELECT v.*,n.nave_nombre as fk_nave_nombre,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.viajes v inner join public.usuario u on u.id=v.fk_usuario inner join public.naves2 n on n.nave_id=v.fk_nave where v.estado=0 and v.fk_nave='+req.params.fk_nave);   
+        let arrayFinal=[];
+        if(result && result.rows){
+            let ids=[];
+            for(var i=0;i<result.rows.length;i++){
+                ids.push(result.rows[i].id);
+            }
+            
+            let queryIn='';
+            if(ids.length>0){
+                queryIn+='WHERE ne.viaje_id IN (';
+                for(var x=0;x<ids.length;x++){
+                    if(x!==ids.length-1){
+                        queryIn+=ids[x]+','
+                    }else{
+                        queryIn+=ids[x]
+                    }
+                }
+                queryIn+=')';
+            }
+
+            let queryDetalle='SELECT ne.*,p.nombre as fk_puerto_nombre FROM public.naves_eta ne inner join public.puertos p on p.id=ne.fk_puerto '+queryIn;
+            let resultDetalle=await client.query(queryDetalle);
+            if(result.rows.length>0){
+                result.rows.map(function(item){
+                    let obj=lodash.cloneDeep(item);
+                    const arrayFind=resultDetalle.rows.filter(y=>y.viaje_id===item.id);
+                    if(arrayFind){
+                        arrayFind.sort((a,b) => a.tipo - b.tipo);
+                        obj.viaje_detalle=arrayFind;
+                    }else{
+                        obj.viaje_detalle=[];
+                    }
+                    arrayFinal.push(obj);
+                })
+            }
+
+            res.status(200).send(arrayFinal); 
+        }else{
+            console.log("ERROR AL OBTENER LISTADO DE VIAJES");
+            res.status(400).send({ message: "ERROR AL OBTENER LISTADO DE VIAJES ", success:false});
+            res.end(); res.connection.destroy();
+        }
+    }catch (error) {
+        console.log("ERROR "+error);
+        res.status(400).send({ message: "ERROR AL OBTENER LISTADO DE VIAJES ", success:false, });
+        res.end(); res.connection.destroy();
+    }
+    
+};
+
 exports.create = async (req, res) => {
     try{
     // Validate request
