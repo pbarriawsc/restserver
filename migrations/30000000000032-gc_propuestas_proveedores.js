@@ -114,6 +114,10 @@ module.exports = {
               type: Sequelize.TEXT,
               unique: false,
           },
+          producto:{
+            allowNull:true,
+            type:Sequelize.STRING
+          },
         });
     },
 

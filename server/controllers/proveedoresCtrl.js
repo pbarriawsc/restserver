@@ -361,8 +361,11 @@ exports.PostProvCliente = async (req, res) => { try {
         qry_1 += ` bultos, `;
         qry_2 += ` `+req.body.bultos+`, `;
 
-        qry_1 += ` "devImpuesto" `;
-        qry_2 += ` '`+req.body.devimpuesto+`' `;
+        qry_1 += ` "devImpuesto", `;
+        qry_2 += ` '`+req.body.devimpuesto+`',`;
+
+        qry_1 += ` producto `;
+        qry_2 += ` '`+req.body.producto+`' `;
 
         try {
 
@@ -454,6 +457,7 @@ exports.GetListProvCliente = async (req, res) => {
         , tabla_1.fk_cliente
         , tabla_1.fk_proveedor
         , tabla_1.fk_bodega
+        , tabla_1.producto
         , bod.nombre as bodeganombre
         , prov.nombre as proveedornombre
         , tabla_1.volumen
