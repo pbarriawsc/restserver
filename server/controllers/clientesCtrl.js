@@ -11,7 +11,7 @@ exports.GetClientesList = async (req,res) =>{ try {
 
     if(parseInt(req.params.id)!=1)
     {
-        condicion += ` and clì.id=-1 `;
+        condicion += ` and cli.id=-1 `;
     }
 
     if(req.usuario.fk_rol==2)
@@ -403,6 +403,169 @@ success:false,
 } };
 /************************************************************/
 /************************************************************/
+exports.PFCLI_UploadFile = async (req,res) =>{ try {
+
+  const query = {
+    text: 'UPDATE public.clientes SET '+req.body.tipo+'=$1, '+req.body.tipo+'_type=$2, '+req.body.tipo+'_ext=$3 WHERE id=$4 RETURNING *',
+    values: [req.files.archivo.data, req.body.type, req.body.ext, req.body.id],
+  };
+
+  client.query(query,"",function (err, result) {
+    if (err) {
+        console.log(err);
+        res.status(400).send(err);
+    }
+    else
+    {
+        res.status(200).send("OK");
+    }
+  });
+
+} catch (error) {
+  console.log("ERROR "+error);
+  res.status(400).send({
+  message: "ERROR AL SUBIR ARCHIVO",
+  success:false,
+  }); res.end(); res.connection.destroy();
+}};
+/************************************************************/
+/************************************************************/
+exports.PFCLI_Cedula_1 = async (req,res) =>{ try {
+
+  var Archivo = await client.query(` 
+  SELECT 
+  id
+  ,cedula_1 as archivo
+  ,cedula_1_type as tipo
+  ,cedula_1_ext as extension
+  from public.clientes WHERE id=`+req.params.id+` 
+  `);
+
+  if(Archivo.rows.length<=0)
+  {
+    res.status(400).send({
+    message: "NO SE ENCONTRO UN ARCHIVO",
+    success:false }); res.end(); res.connection.destroy();
+  }
+  else
+  {
+    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+    res.setHeader('Content-Disposition', 'attachment; filename=cedula_1_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+    res.end(Archivo.rows[0].archivo, 'binary');
+	}
+
+} catch (error) {
+  console.log("ERROR "+error);
+  res.status(400).send({
+  message: "ERROR AL CARGAR EL ARCHIVO",
+  success:false,
+  }); res.end(); res.connection.destroy();
+}};
+/************************************************************/
+/************************************************************/
+exports.PFCLI_Cedula_2 = async (req,res) =>{ try {
+
+  var Archivo = await client.query(` 
+  SELECT 
+  id
+  ,cedula_2 as archivo
+  ,cedula_2_type as tipo
+  ,cedula_2_ext as extension
+  from public.clientes WHERE id=`+req.params.id+` 
+  `);
+
+  if(Archivo.rows.length<=0)
+  {
+    res.status(400).send({
+    message: "NO SE ENCONTRO UN ARCHIVO",
+    success:false }); res.end(); res.connection.destroy();
+  }
+  else
+  {
+    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+    res.setHeader('Content-Disposition', 'attachment; filename=cedula_2_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+    res.end(Archivo.rows[0].archivo, 'binary');
+	}
+
+} catch (error) {
+  console.log("ERROR "+error);
+  res.status(400).send({
+  message: "ERROR AL CARGAR EL ARCHIVO",
+  success:false,
+  }); res.end(); res.connection.destroy();
+}};
+/************************************************************/
+/************************************************************/
+exports.PFCLI_PoderSimple_1 = async (req,res) =>{ try {
+
+  var Archivo = await client.query(` 
+  SELECT 
+  id
+  ,podersimple_1 as archivo
+  ,podersimple_1_type as tipo
+  ,podersimple_1_ext as extension
+  from public.clientes WHERE id=`+req.params.id+` 
+  `);
+
+  if(Archivo.rows.length<=0)
+  {
+    res.status(400).send({
+    message: "NO SE ENCONTRO UN ARCHIVO",
+    success:false }); res.end(); res.connection.destroy();
+  }
+  else
+  {
+    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+    res.setHeader('Content-Disposition', 'attachment; filename=podersimple_1_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+    res.end(Archivo.rows[0].archivo, 'binary');
+	}
+
+} catch (error) {
+  console.log("ERROR "+error);
+  res.status(400).send({
+  message: "ERROR AL CARGAR EL ARCHIVO",
+  success:false,
+  }); res.end(); res.connection.destroy();
+}};
+/************************************************************/
+/************************************************************/
+exports.PFCLI_PoderSimple_2 = async (req,res) =>{ try {
+
+  var Archivo = await client.query(` 
+  SELECT 
+  id
+  ,podersimple_2 as archivo
+  ,podersimple_2_type as tipo
+  ,podersimple_2_ext as extension
+  from public.clientes WHERE id=`+req.params.id+` 
+  `);
+
+  if(Archivo.rows.length<=0)
+  {
+    res.status(400).send({
+    message: "NO SE ENCONTRO UN ARCHIVO",
+    success:false }); res.end(); res.connection.destroy();
+  }
+  else
+  {
+    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+    res.setHeader('Content-Disposition', 'attachment; filename=podersimple_2_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+    res.end(Archivo.rows[0].archivo, 'binary');
+	}
+
+} catch (error) {
+  console.log("ERROR "+error);
+  res.status(400).send({
+  message: "ERROR AL CARGAR EL ARCHIVO",
+  success:false,
+  }); res.end(); res.connection.destroy();
+}};
+/************************************************************/
+/************************************************************/
 exports.update = (req, res) => {
     // Validate request
     if (!req.body.codigo){
@@ -424,13 +587,12 @@ exports.update = (req, res) => {
         values: [req.body.codigo, req.body.rut, req.body.nombre, req.body.razonSocial, req.body.web, req.body.telefono1, req.body.telefono2, req.body.dteEmail, req.body.aproComercial, req.body.aproFinanciera, req.body.id],
     };
 
-    client.query(query,"",function (err, result)
-    {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.status(200).send(result.rows[0]);
+    client.query(query,"",function (err, result) {
+      if (err) {
+          console.log(err);
+          res.status(400).send(err);
+      }
+      res.status(200).send(result.rows[0]);
     });
 }
 
