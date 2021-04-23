@@ -1,6 +1,7 @@
 const client = require('../config/db.client');
 const moment=require('moment');
 const jwt=require('jsonwebtoken');
+const lodash=require('lodash');
 
 exports.listByEstado = (req, res) => {
 	try{
@@ -11,13 +12,56 @@ exports.listByEstado = (req, res) => {
       });
       return;
     }
-    client.query('SELECT *FROM public.contenedor_proforma where estado=$1 ORDER BY id DESC', [req.params.estado], function (err, result) {
+    let arrayFinal=[];
+    client.query('SELECT cp.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.contenedor_proforma cp inner join usuario u on u.id=cp.fk_usuario_creacion where cp.estado=$1 ORDER BY cp.id DESC', [req.params.estado], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
         }
-        res.status(200).send(result.rows);
-        res.end(); res.connection.destroy();
+
+        const ids=[];
+        if(result.rows.length>0){
+        	for(var i=0;i<result.rows.length;i++){
+        		ids.push(result.rows[i].id);
+        	}
+
+        	let queryIn='';
+	        if(ids.length>0){
+	        	queryIn+='WHERE cpd.fk_contenedor_proforma IN (';
+	        	for(var x=0;x<ids.length;x++){
+	        		if(x!==ids.length-1){
+	        			queryIn+=ids[x]+','
+	        		}else{
+	        			queryIn+=ids[x]
+	        		}
+	        	}
+	        	queryIn+=')';
+	        }
+
+	        let queryFinal='SELECT cpd.*,td.fecha_recepcion,td.fecha_consolidado,td.tipo_producto,td.producto,td.peso,td.volumen,td.ubicacion,td.codigo_interno,t.fk_cliente,t.fk_proveedor,c.codigo as fk_cliente_codigo, c."razonSocial" as fk_cliente_razonsocial,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre, p."nombreChi" as fk_proveedor_nombre_chi  FROM public.contenedor_proforma_detalle cpd inner join public.tracking_detalle td on td.id=cpd.fk_tracking_detalle inner join public.tracking t on t.id=td.tracking_id inner join public.clientes c on c.id=t.fk_cliente inner join public.proveedores p on p.id=t.fk_proveedor '+queryIn;
+	        console.log('queryFinal',queryFinal);
+	        client.query(queryFinal, "", function (err2, result2) {
+			        if (err2) {
+			            console.log(err2);
+			            res.status(400).send(err2);
+			        }
+			        for(var i=0;i<result.rows.length;i++){
+			        		const obj=lodash.cloneDeep(result.rows[i]);
+			        		const arrayFind=result2.rows.filter(y=>y.fk_contenedor_proforma===result.rows[i].id);
+			        		if(arrayFind){
+			        			obj.detalle=arrayFind;
+			        		}else{
+			        			obj.detalle=[];
+			        		}
+			        		arrayFinal.push(obj);
+			        }
+			        res.status(200).send(arrayFinal);
+        			res.end(); res.connection.destroy();
+			  });
+        }else{
+        	res.status(200).send(arrayFinal);
+        	res.end(); res.connection.destroy();
+        }
     }); 
 
     } catch (error) {
