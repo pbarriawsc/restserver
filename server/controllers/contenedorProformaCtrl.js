@@ -38,7 +38,7 @@ exports.listByEstado = (req, res) => {
 	        	queryIn+=')';
 	        }
 
-	        let queryFinal='SELECT cpd.*,td.fecha_recepcion,td.fecha_consolidado,td.tipo_producto,td.producto,td.peso,td.volumen,td.ubicacion,td.codigo_interno,t.fk_cliente,t.fk_proveedor,c.codigo as fk_cliente_codigo, c."razonSocial" as fk_cliente_razonsocial,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre, p."nombreChi" as fk_proveedor_nombre_chi  FROM public.contenedor_proforma_detalle cpd inner join public.tracking_detalle td on td.id=cpd.fk_tracking_detalle inner join public.tracking t on t.id=td.tracking_id inner join public.clientes c on c.id=t.fk_cliente inner join public.proveedores p on p.id=t.fk_proveedor '+queryIn;
+	        let queryFinal='SELECT cpd.*,td.fecha_recepcion,td.fecha_consolidado,td.tipo_producto,td.producto,td.peso,td.volumen,td.ubicacion,td.codigo_interno,td.observacion,t.fk_cliente,t.fk_proveedor,c.codigo as fk_cliente_codigo, c."razonSocial" as fk_cliente_razonsocial,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre, p."nombreChi" as fk_proveedor_nombre_chi  FROM public.contenedor_proforma_detalle cpd inner join public.tracking_detalle td on td.id=cpd.fk_tracking_detalle inner join public.tracking t on t.id=td.tracking_id inner join public.clientes c on c.id=t.fk_cliente inner join public.proveedores p on p.id=t.fk_proveedor '+queryIn;
 	        console.log('queryFinal',queryFinal);
 	        client.query(queryFinal, "", function (err2, result2) {
 			        if (err2) {
@@ -134,7 +134,38 @@ exports.create = async (req,res) =>{
 
 exports.update = async (req,res) =>{
 	try{
+		if (!req.params.id) {
+	      res.status(400).send({
+	        message: "El id es obligatorio",
+	        success:false
+	      });
+	      return;
+	    }
 
+	    if(req.body.delete && req.body.delete.length>0){
+	    	for(let i=0;i<req.body.delete.length;i++){
+	    		let result=client.query('DELETE FROM public.contenedor_proforma_detalle where id='+parseInt(req.body.delete[i]));
+	    		if(!result){
+	    			console.log('ERROR DeleteDetalle');
+	    		}	
+	    	}
+	    }
+
+	    if(req.body.detalle && req.body.detalle.length>0){
+	    	for(let i=0;i<req.body.detalle.length;i++){
+	    		let query2={
+				        text: 'INSERT INTO public.contenedor_proforma_detalle(fk_contenedor_proforma, fk_tracking_detalle,estado) VALUES($1, $2, $3) RETURNING *',
+				        values: [req.params.id,req.body.detalle[i],0]
+	    			};
+	    		let result2=await client.query(query2);
+	    		if(!result2){
+	    			console.log('ERROR InsertDetalle');
+	    		}	
+	    	}
+	    }
+
+	    res.status(200).send([]);
+        res.end(); res.connection.destroy();
 	} catch (error) {
         console.log('ERROR UpdateContenedorProforma'+error);
         res.status(400).send({
