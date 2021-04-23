@@ -109,7 +109,7 @@ exports.listDirecciones = (req, res) => {
 };
 
   exports.listClientes = (req, res) => {
-    client.query('SELECT * FROM public.clientes order by nombre asc', "", function (err, result) {
+    client.query('SELECT id, estado, rut, codigo, "razonSocial", web, telefono1, telefono2, "dteEmail", "aproComercial", "aproFinanciera", "codigoSii", giro, "repLegalRut", "repLegalNombre", "repLegalApellido", "repLegalMail", fk_responsable, fk_comercial FROM public.clientes order by nombre asc', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);

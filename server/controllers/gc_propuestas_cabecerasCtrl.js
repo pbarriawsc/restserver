@@ -25,7 +25,7 @@ exports.GetListPropuestaComercial = async (req,res) =>{
         let Lista = await client.query(`
         SELECT
         cabe.id
-        , TO_CHAR(cabe."fechaCreacion", 'DD-MM-YYYY HH24:MI') as creacion
+        , cabe."fechaCreacion" as creacion
         , coalesce(cabe."nombreCliente",'') as nombreCliente
         , coalesce(cabe."atencionA",'') as atencionA
         , coalesce(cabe."fk_tipoDeServicio",0) as fk_tipoDeServicio
@@ -33,7 +33,7 @@ exports.GetListPropuestaComercial = async (req,res) =>{
         , coalesce(cabe."fk_zonaDespacho",0) as fk_zonaDespacho
         , coalesce(cabe.direccion,'') as direccion
         , coalesce(cabe."fk_formaDePago",0) as fk_formaDePago
-        , TO_CHAR(cabe."fechaValidez", 'DD-MM-YYYY HH24:MI') as fechaValidez
+        , cabe."fechaValidez" as fechaValidez
         , est.nombre as estado_nombre
         , UPPER(concat( case when TRIM(usu.nombre) LIKE '% %' then left(TRIM(usu.nombre), strpos(TRIM(usu.nombre), ' ') - 1) else TRIM(usu.nombre) end ,' '
         , case when TRIM(usu.apellidos) LIKE '% %' then left(TRIM(usu.apellidos), strpos(TRIM(usu.apellidos), ' ') - 1) else TRIM(usu.apellidos) end )) as responsable
@@ -111,7 +111,30 @@ exports.GetPropuestaComercial = async (req,res) =>{
 /************************************************************/
 exports.GetClientes = async (req,res) =>{
 try {
-    let Lista = await client.query(` SELECT * FROM public.clientes order by codigo asc`);
+
+    let Lista = await client.query(` 
+    SELECT 
+    id
+    , estado
+    , rut
+    , codigo
+    , "razonSocial"
+    , web
+    , telefono1
+    , telefono2
+    , "dteEmail"
+    , "aproComercial"
+    , "aproFinanciera"
+    , "codigoSii"
+    , giro
+    , "repLegalRut"
+    , "repLegalNombre"
+    , "repLegalApellido"
+    , "repLegalMail"
+    , fk_responsable
+    , fk_comercial
+    FROM 
+    public.clientes order by codigo asc`);
     res.status(200).send(Lista.rows);
     res.end(); res.connection.destroy();
 

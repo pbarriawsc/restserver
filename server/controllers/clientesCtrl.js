@@ -123,11 +123,11 @@ exports.PostCliente = async (req,res) =>{ try {
       var repLegalApellido  = LimpiarTexto(req.body.repLegalApellido);
       var repLegalMail      = LimpiarTexto(req.body.repLegalMail);
 
-      let ExisteCodigo = await client.query(` SELECT * FROM public.clientes WHERE codigo='`+codigo+`' `);
+      let ExisteCodigo = await client.query(` SELECT id FROM public.clientes WHERE codigo='`+codigo+`' `);
 
-      let ExisteRut = await client.query(` SELECT * FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 `);
+      let ExisteRut = await client.query(` SELECT id FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 `);
 
-      let ExisteEmail = await client.query(` SELECT * FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 `);
+      let ExisteEmail = await client.query(` SELECT id FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 `);
 
       if( ExisteCodigo.rows.length>0 ) {
         res.status(400).send({
@@ -285,11 +285,11 @@ exports.PutCliente = async (req,res) =>{ try {
       var repLegalMail      = LimpiarTexto(req.body.repLegalMail);
       var fk_comercial      =LimpiarFk(req.body.fk_comercial);
 
-      let ExisteCodigo = await client.query(` SELECT * FROM public.clientes WHERE codigo='`+codigo+`' and id!=`+id+` `);
+      let ExisteCodigo = await client.query(` SELECT id FROM public.clientes WHERE codigo='`+codigo+`' and id!=`+id+` `);
 
-      let ExisteRut = await client.query(` SELECT * FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 and id!=`+id+` `);
+      let ExisteRut = await client.query(` SELECT id FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 and id!=`+id+` `);
 
-      let ExisteEmail = await client.query(` SELECT * FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 and id!=`+id+` `);
+      let ExisteEmail = await client.query(` SELECT id FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 and id!=`+id+` `);
 
       if( ExisteCodigo.rows.length>0 ) {
         res.status(400).send({
@@ -597,7 +597,7 @@ exports.update = (req, res) => {
 }
 
   exports.list = (req, res) => {
-    client.query('SELECT * FROM public.clientes', "", function (err, result) {
+    client.query('SELECT id, estado, rut, codigo, "razonSocial", web, telefono1, telefono2, "dteEmail", "aproComercial", "aproFinanciera", "codigoSii", giro, "repLegalRut", "repLegalNombre", "repLegalApellido", "repLegalMail", fk_responsable, fk_comercial FROM public.clientes', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
