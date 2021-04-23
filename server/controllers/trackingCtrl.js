@@ -982,12 +982,29 @@ exports.uploadFilesPackingInvoice = (req,res) =>{
             });
             return;
     }
-
-    let queryValues=[null,null,null,null,req.params.id];
+	var ext = '';
+	var type = '';
+    let queryValues=[null,null,null,null,null,null,null,null,null,null,null,null,req.params.id];
     if(req.files.packingList1){
     	//console.log('pl1',req.files.packingList1);
-    	const ext = path.extname(req.files.packingList1.name);
-    	queryValues[0]=req.files.packingList1.data;
+		ext=''; type='';
+    	ext = path.extname(req.files.packingList1.name);
+    	
+		if( ext.toLowerCase()=='.doc' ) { type="application/msword"; }
+		else if( ext.toLowerCase()=='.docx' ) { type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; }
+		else if( ext.toLowerCase()=='.xls' ) { type="application/vnd.ms-excel"; }
+		else if( ext.toLowerCase()=='.xlsx' ) { type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; }
+		else if( ext.toLowerCase()=='.pdf' ) { type="application/pdf"; }
+		else if( ext.toLowerCase()=='.bpm' ) { type="image/bmp"; }
+		else if( ext.toLowerCase()=='.tiff' ) { type="image/tiff"; }
+		else if( ext.toLowerCase()=='.csv' ) { type="text/csv"; }
+		else if( ext.toLowerCase()=='.jpeg' ) { type="image/jpeg"; }
+		else if( ext.toLowerCase()=='.txt' ) { type="text/plain"; }
+		
+		queryValues[0]=req.files.packingList1.data;
+    	queryValues[1]=type;
+    	queryValues[2]=ext;
+
     	let filename=req.params.id+'_packing_list1'+ext;
     	req.files.packingList1.mv('./uploads/'+filename,function(err){
     		if(err){
@@ -999,21 +1016,68 @@ exports.uploadFilesPackingInvoice = (req,res) =>{
     }
 
     if(req.files.packingList2){
-    	queryValues[1]=req.files.packingList2.data;
+		ext=''; type='';
+    	ext = path.extname(req.files.packingList2.name);
+    	
+		if( ext.toLowerCase()=='.doc' ) { type="application/msword"; }
+		else if( ext.toLowerCase()=='.docx' ) { type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; }
+		else if( ext.toLowerCase()=='.xls' ) { type="application/vnd.ms-excel"; }
+		else if( ext.toLowerCase()=='.xlsx' ) { type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; }
+		else if( ext.toLowerCase()=='.pdf' ) { type="application/pdf"; }
+		else if( ext.toLowerCase()=='.bpm' ) { type="image/bmp"; }
+		else if( ext.toLowerCase()=='.tiff' ) { type="image/tiff"; }
+		else if( ext.toLowerCase()=='.csv' ) { type="text/csv"; }
+		else if( ext.toLowerCase()=='.jpeg' ) { type="image/jpeg"; }
+		else if( ext.toLowerCase()=='.txt' ) { type="text/plain"; }
+		
+		queryValues[3]=req.files.packingList2.data;
+    	queryValues[4]=type;
+    	queryValues[5]=ext;
+
     }
 
     if(req.files.invoice1){
-    	queryValues[2]=req.files.invoice1.data;
+		ext=''; type='';
+    	ext = path.extname(req.files.invoice1.name);
+    	
+		if( ext.toLowerCase()=='.doc' ) { type="application/msword"; }
+		else if( ext.toLowerCase()=='.docx' ) { type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; }
+		else if( ext.toLowerCase()=='.xls' ) { type="application/vnd.ms-excel"; }
+		else if( ext.toLowerCase()=='.xlsx' ) { type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; }
+		else if( ext.toLowerCase()=='.pdf' ) { type="application/pdf"; }
+		else if( ext.toLowerCase()=='.bpm' ) { type="image/bmp"; }
+		else if( ext.toLowerCase()=='.tiff' ) { type="image/tiff"; }
+		else if( ext.toLowerCase()=='.csv' ) { type="text/csv"; }
+		else if( ext.toLowerCase()=='.jpeg' ) { type="image/jpeg"; }
+		else if( ext.toLowerCase()=='.txt' ) { type="text/plain"; }
+		
+		queryValues[6]=req.files.invoice1.data;
+    	queryValues[7]=type;
+    	queryValues[8]=ext;
     }
 
     if(req.files.invoice2){
-    	queryValues[3]=req.files.invoice2.data;
+		ext=''; type='';
+    	ext = path.extname(req.files.invoice2.name);
+    	
+		if( ext.toLowerCase()=='.doc' ) { type="application/msword"; }
+		else if( ext.toLowerCase()=='.docx' ) { type="application/vnd.openxmlformats-officedocument.wordprocessingml.document"; }
+		else if( ext.toLowerCase()=='.xls' ) { type="application/vnd.ms-excel"; }
+		else if( ext.toLowerCase()=='.xlsx' ) { type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; }
+		else if( ext.toLowerCase()=='.pdf' ) { type="application/pdf"; }
+		else if( ext.toLowerCase()=='.bpm' ) { type="image/bmp"; }
+		else if( ext.toLowerCase()=='.tiff' ) { type="image/tiff"; }
+		else if( ext.toLowerCase()=='.csv' ) { type="text/csv"; }
+		else if( ext.toLowerCase()=='.jpeg' ) { type="image/jpeg"; }
+		else if( ext.toLowerCase()=='.txt' ) { type="text/plain"; }
+		
+		queryValues[9]=req.files.invoice2.data;
+    	queryValues[10]=type;
+    	queryValues[11]=ext;
     }
 
-
-
 	const query = {
-        text: 'UPDATE public.tracking SET packing_list1=$1,packing_list2=$2,invoice1=$3,invoice2=$4 WHERE id=$5 RETURNING *',
+        text: ' UPDATE public.tracking SET packing_list1=$1, packing_list1_type=$2, packing_list1_ext=$3, packing_list2=$4, packing_list2_type=$5, packing_list2_ext=$6, invoice1=$7, invoice1_type=$8, invoice1_ext=$9, invoice2=$10, invoice2_type=$11, invoice2_ext=$12 WHERE id=$13 RETURNING *',
         values: queryValues,
     };
 
@@ -1036,143 +1100,140 @@ exports.uploadFilesPackingInvoice = (req,res) =>{
         }
 };
 
-exports.getPackingList1 = (req,res) =>{
-	try{
-    if (!req.params.id) {
-        res.status(400).send({
-            message: "El id es obligatorio",
-            success:false
-            });
-            return;
-    }
+exports.getPackingList1 = async (req,res) =>{ try {
 
-	const query = {
-        text: 'SELECT packing_list1 from public.tracking WHERE id=$1',
-        values: [req.params.id],
-    };
+	var Archivo = await client.query(` 
+	SELECT 
+	id
+	,packing_list1 as archivo
+	,packing_list1_type as tipo
+	,packing_list1_ext as extension
+	from public.tracking WHERE id=`+req.params.id+` 
+	`);
+  
+	if(Archivo.rows.length<=0)
+	{
+	  res.status(400).send({
+	  message: "NO SE ENCONTRO UN ARCHIVO",
+	  success:false }); res.end(); res.connection.destroy();
+	}
+	else
+	{
+	  res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+	  res.setHeader('Content-Disposition', 'attachment; filename=packing_list1_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+	  res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+	  res.end(Archivo.rows[0].archivo, 'binary');
+	  }
+  
+  } catch (error) {
+	console.log("ERROR "+error);
+	res.status(400).send({
+	message: "ERROR AL CARGAR EL ARCHIVO",
+	success:false,
+	}); res.end(); res.connection.destroy();
+  }};
+  /************************************************************/
+  /************************************************************/
 
-    client.query(query,"",function (err, result) {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.end(result.rows[0].packing_list1);
-    });
+  exports.getPackingList2 = async (req,res) =>{ try {
 
-   // var filePath = './uploads/';
-    //var filename=req.params.id+'_packing_list1.doc';
-    
-   // res.end(filePath+filename);  
-    
+	var Archivo = await client.query(` 
+	SELECT 
+	id
+	,packing_list2 as archivo
+	,packing_list2_type as tipo
+	,packing_list2_ext as extension
+	from public.tracking WHERE id=`+req.params.id+` 
+	`);
+  
+	if(Archivo.rows.length<=0)
+	{
+	  res.status(400).send({
+	  message: "NO SE ENCONTRO UN ARCHIVO",
+	  success:false }); res.end(); res.connection.destroy();
+	}
+	else
+	{
+	  res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+	  res.setHeader('Content-Disposition', 'attachment; filename=packing_list2_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+	  res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+	  res.end(Archivo.rows[0].archivo, 'binary');
+	  }
+  
+  } catch (error) {
+	console.log("ERROR "+error);
+	res.status(400).send({
+	message: "ERROR AL CARGAR EL ARCHIVO",
+	success:false,
+	}); res.end(); res.connection.destroy();
+  }};
+  /************************************************************/
+  /************************************************************/
+  exports.getInvoice1 = async (req,res) =>{ try {
 
-    } catch (error) {
+	var Archivo = await client.query(` 
+	SELECT 
+	id
+	,invoice1 as archivo
+	,invoice1_type as tipo
+	,invoice1_ext as extension
+	from public.tracking WHERE id=`+req.params.id+` 
+	`);
+  
+	if(Archivo.rows.length<=0)
+	{
+	  res.status(400).send({
+	  message: "NO SE ENCONTRO UN ARCHIVO",
+	  success:false }); res.end(); res.connection.destroy();
+	}
+	else
+	{
+	  res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+	  res.setHeader('Content-Disposition', 'attachment; filename=invoice1_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+	  res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+	  res.end(Archivo.rows[0].archivo, 'binary');
+	  }
+  
+  } catch (error) {
+	console.log("ERROR "+error);
+	res.status(400).send({
+	message: "ERROR AL CARGAR EL ARCHIVO",
+	success:false,
+	}); res.end(); res.connection.destroy();
+  }};
+  /************************************************************/
+  /************************************************************/
+  exports.getInvoice2 = async (req,res) =>{ try {
 
-            res.status(400).send({
-                message: "ERROR: "+error,
-                success:false,
-            });
-            res.end(); res.connection.destroy();
-
-     }
-};
-
-exports.getPackingList2 = (req,res) =>{
-	try{
-    if (!req.params.id) {
-        res.status(400).send({
-            message: "El id es obligatorio",
-            success:false
-            });
-            return;
-    }
-
-	const query = {
-        text: 'SELECT packing_list2 from public.tracking WHERE id=$1',
-        values: [req.params.id],
-    };
-
-    client.query(query,"",function (err, result) {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-
-        console.log('blob',result.rows[0].packing_list2);
-        res.end(result.rows[0].packing_list2);
-    });
-    } catch (error) {
-
-            res.status(400).send({
-                message: "ERROR :"+error,
-                success:false,
-            });
-            res.end(); res.connection.destroy();
-
-    }
-};
-
-exports.getInvoice1 = (req,res) =>{
-	try{
-    if (!req.params.id) {
-        res.status(400).send({
-            message: "El id es obligatorio",
-            success:false
-            });
-            return;
-    }
-
-	const query = {
-        text: 'SELECT invoice1 from public.tracking WHERE id=$1',
-        values: [req.params.id],
-    };
-
-    client.query(query,"",function (err, result) {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.end(result.rows[0].invoice1);
-    });
-    } catch (error) {
-
-            res.status(400).send({
-                message: "ERROR: "+error,
-                success:false,
-            });
-            res.end(); res.connection.destroy();
-
-        }
-};
-
-exports.getInvoice2 = (req,res) =>{
-	try{
-    if (!req.params.id) {
-        res.status(400).send({
-            message: "El id es obligatorio",
-            success:false
-            });
-            return;
-    }
-
-	const query = {
-        text: 'SELECT invoice2 from public.tracking WHERE id=$1',
-        values: [req.params.id],
-    };
-
-    client.query(query,"",function (err, result) {
-        if (err) {
-            console.log(err);
-            res.status(400).send(err);
-        }
-        res.end(result.rows[0].invoice2);
-    });
-    } catch (error) {
-
-            res.status(400).send({
-                message: "ERROR :"+error,
-                success:false,
-            });
-            res.end(); res.connection.destroy();
-
-        }
-};
+	var Archivo = await client.query(` 
+	SELECT 
+	id
+	,invoice2 as archivo
+	,invoice2_type as tipo
+	,invoice2_ext as extension
+	from public.tracking WHERE id=`+req.params.id+` 
+	`);
+  
+	if(Archivo.rows.length<=0)
+	{
+	  res.status(400).send({
+	  message: "NO SE ENCONTRO UN ARCHIVO",
+	  success:false }); res.end(); res.connection.destroy();
+	}
+	else
+	{
+	  res.setHeader('Content-Type', Archivo.rows[0].tipo); 
+	  res.setHeader('Content-Disposition', 'attachment; filename=invoice2_'+Archivo.rows[0].id+Archivo.rows[0].extension);
+	  res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
+	  res.end(Archivo.rows[0].archivo, 'binary');
+	  }
+  
+  } catch (error) {
+	console.log("ERROR "+error);
+	res.status(400).send({
+	message: "ERROR AL CARGAR EL ARCHIVO",
+	success:false,
+	}); res.end(); res.connection.destroy();
+  }};
+  /************************************************************/
+  /************************************************************/

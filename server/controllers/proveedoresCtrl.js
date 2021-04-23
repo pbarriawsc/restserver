@@ -15,7 +15,28 @@ exports.GetClientes = async (req, res) => {
         }
 
 
-        let Lista = await client.query(` SELECT * FROM public.clientes `+condicion+` order by "razonSocial" asc`);
+        let Lista = await client.query(` 
+        SELECT 
+        id
+        , estado
+        , rut
+        , codigo
+        , "razonSocial"
+        , web
+        , telefono1
+        , telefono2
+        , "dteEmail"
+        , "aproComercial"
+        , "aproFinanciera"
+        , "codigoSii"
+        , giro
+        , "repLegalRut"
+        , "repLegalNombre"
+        , "repLegalApellido"
+        , "repLegalMail"
+        , fk_responsable
+        , fk_comercial
+        FROM public.clientes `+condicion+` order by "razonSocial" asc`);
         res.status(200).send(Lista.rows);
         res.end(); res.connection.destroy();
 
