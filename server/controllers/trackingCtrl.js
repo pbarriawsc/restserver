@@ -130,7 +130,7 @@ exports.list = (req, res) => {
 
         	let queryIn='';
 		        if(ids.length>0){
-		        	queryIn+='WHERE td.tracking_id IN (';
+		        	queryIn+=' WHERE td.tracking_id IN (';
 		        	for(var x=0;x<ids.length;x++){
 		        		if(x!==ids.length-1){
 		        			queryIn+=ids[x]+','
@@ -145,6 +145,7 @@ exports.list = (req, res) => {
 		        if(req.params.estado===1 || req.params.estado==='1'){
 		        	queryFinal+=' and estado<2';
 		        }
+		        console.log('queryFinal'+queryFinal);
 		        client.query(queryFinal, "", function (err, result) {
 			        if (err) {
 			            console.log(err);
@@ -153,10 +154,15 @@ exports.list = (req, res) => {
 			        if(resultHeader.rows.length>0){
 			        	for(var i=0;i<resultHeader.rows.length;i++){
 			        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
-			        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
-			        		if(arrayFind){
-			        			obj.tracking_detalle=arrayFind;
-			        		}else{
+			        		if(result.rows && result.rows.length>0){
+			        			const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
+				        		if(arrayFind){
+				        			obj.tracking_detalle=arrayFind;
+				        		}else{
+				        			obj.tracking_detalle=[];
+				        		}
+			        		}
+			        		else{
 			        			obj.tracking_detalle=[];
 			        		}
 			        		arrayFinal.push(obj);
