@@ -13,7 +13,7 @@ exports.listByEstado = (req, res) => {
       return;
     }
     let arrayFinal=[];
-    client.query('SELECT cp.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.contenedor_proforma cp inner join usuario u on u.id=cp.fk_usuario_creacion where cp.estado=$1 ORDER BY cp.id DESC', [req.params.estado], function (err, result) {
+    client.query('SELECT cp.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.contenedor_proforma cp inner join usuario u on u.id=cp.fk_usuario_creacion ORDER BY cp.id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -271,9 +271,8 @@ exports.confirmContenedor = async (req,res)=>{
 				}
 	    	}
 
-	    	console.log('5')
 	    	 /********************/
-	    	 if(ids.length>0){console.log(6);
+	    	 if(ids.length>0){
 	    	 	for(let i=0;i<ids.length;i++){
 	    	 		let query4='SELECT * FROM public.tracking_detalle where tracking_id='+parseInt(ids[i])+'and estado<2'
 	    	 		let result4=await client.query(query4);
@@ -286,6 +285,13 @@ exports.confirmContenedor = async (req,res)=>{
 	    	 		}
 	    	 	}
 	    	 }
+
+
+	    	 const query6 = {
+			                text: 'UPDATE public.contenedor_proforma SET estado=$1 WHERE id=$2 RETURNING *',
+			                values: [1, parseInt(req.params.id)],
+			            };
+			 let result6=await client.query(query6);
 			    
 			 /********************/
 
