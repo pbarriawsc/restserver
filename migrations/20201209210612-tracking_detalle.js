@@ -118,6 +118,10 @@ module.exports = {
       numero_seguimiento:{
         type: Sequelize.STRING,
         allowNull: true,
+      },
+      fk_contenedor_tracking:{
+        type:Sequelize.INTEGER,
+        allowNull: true,
       }
     });
   },

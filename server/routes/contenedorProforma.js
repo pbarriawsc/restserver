@@ -8,5 +8,6 @@ app.get(`${prefix}/estado/:estado`,verifyToken,contenedorProformaCtrl.listByEsta
 app.post(`${prefix}`,verifyToken,contenedorProformaCtrl.create);
 app.put(`${prefix}/:id`,verifyToken,contenedorProformaCtrl.update);
 app.delete(`${prefix}/:id`,verifyToken,contenedorProformaCtrl.delete);
+app.put(`${prefix}/confirmar/:id`,verifyToken,contenedorProformaCtrl.confirmContenedor);
 
 module.exports=app;

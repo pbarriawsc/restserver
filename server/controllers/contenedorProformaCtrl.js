@@ -104,15 +104,23 @@ exports.create = async (req,res) =>{
 	    	const result1=await client.query(query1);
 	    	if(result1 && result1.rows.length>0){
 	    		for(let i=0;i<req.body.detalle.length;i++){
-	    			let query2={
+	    			let query22={
+				        text: 'SELECT *FROM public.contenedor_proforma_detalle WHERE fk_contenedor_proforma=$1 and fk_tracking_detalle=$2',
+				        values: [result1.rows[0].id,req.body.detalle[i]]
+	    			};
+
+	    			let result22=await client.query(query22);
+	    			if(result22 && result22.rows.length===0){
+	    				let query2={
 				        text: 'INSERT INTO public.contenedor_proforma_detalle(fk_contenedor_proforma, fk_tracking_detalle,estado) VALUES($1, $2, $3) RETURNING *',
 				        values: [result1.rows[0].id,req.body.detalle[i],0]
-	    			};
-	    			let result2=await client.query(query2);
-	    			if(result2 && result2.rows.length>0){
+		    			};
+		    			let result2=await client.query(query2);
+		    			if(result2 && result2.rows.length>0){
 
-	    			}else{
-	    				console.log('ERROR PostContenedorProformaDetalle'+error);
+		    			}else{
+		    				console.log('ERROR PostContenedorProformaDetalle'+error);
+		    			}
 	    			}
 	    		}
 	    		res.status(200).send(result1.rows);
@@ -153,6 +161,13 @@ exports.update = async (req,res) =>{
 
 	    if(req.body.detalle && req.body.detalle.length>0){
 	    	for(let i=0;i<req.body.detalle.length;i++){
+	    		let query22={
+				        text: 'SELECT *FROM public.contenedor_proforma_detalle WHERE fk_contenedor_proforma=$1 and fk_tracking_detalle=$2',
+				        values: [req.params.id,req.body.detalle[i]]
+	    			};
+
+	    		let result22=await client.query(query22);
+	    		if(result22 && result22.rows.length===0){
 	    		let query2={
 				        text: 'INSERT INTO public.contenedor_proforma_detalle(fk_contenedor_proforma, fk_tracking_detalle,estado) VALUES($1, $2, $3) RETURNING *',
 				        values: [req.params.id,req.body.detalle[i],0]
@@ -161,6 +176,7 @@ exports.update = async (req,res) =>{
 	    		if(!result2){
 	    			console.log('ERROR InsertDetalle');
 	    		}	
+	    		}
 	    	}
 	    }
 
@@ -195,3 +211,102 @@ exports.delete = async (req,res) =>{
         success:false,}); res.end(); res.connection.destroy();
     }  
 };
+
+exports.confirmContenedor = async (req,res)=>{
+	try{
+		if (!req.params.id) {
+	      res.status(400).send({
+	        message: "El id es obligatorio",
+	        success:false
+	      });
+	      return;
+	    }else if(!req.body.fk_contenedor){
+	    	res.status(400).send({
+	        message: "El contenedor es obligatorio",
+	        success:false
+	      });
+	      return;
+	    }
+
+	    let viajeTracking=0;let ids=[];
+	    let result0=await client.query("SELECT *FROM public.contenedor_tracking where fk_contenedor="+parseInt(req.body.fk_contenedor));
+	    if(result0 && result0.rows.length>0){
+	    	viajeTracking=result0.rows[0].id;
+	    }
+
+	    let result1=await client.query("SELECT cpd.*, td.tracking_id FROM public.contenedor_proforma_detalle cpd inner join public.tracking_detalle td on td.id=cpd.fk_tracking_detalle where fk_contenedor_proforma="+parseInt(req.params.id));
+	    if(result1 && result1.rows.length>0){
+	    	for(let i=0;i<result1.rows.length;i++){
+	    		if(ids.length===0){
+	    			ids.push(result1.rows[i].tracking_id);
+	    		}else{
+	    			const exist=ids.find(x=>x==result1.rows[i].tracking_id);
+	    			if(!exist){
+	    				ids.push(result1.rows[i].tracking_id);
+	    			}
+	    		}
+
+	    		const query2 = {
+			        text: 'INSERT INTO public.contenedor_detalle(fk_contenedor, fk_tracking_detalle) VALUES($1, $2) RETURNING *',
+			        values: [req.body.fk_contenedor,result1.rows[i].fk_tracking_detalle],
+			    };
+			    let result2=await client.query(query2);
+
+				if(result2 && result2.rows.length>0){
+					let params3=[result1.rows[i].fk_tracking_detalle,2,null,req.body.fk_contenedor];
+				    if(viajeTracking>0){
+				    	params3[2]=viajeTracking;
+				    }
+
+			        let query3 ={
+			                text: 'UPDATE public.tracking_detalle SET estado=$2,fk_contenedor_tracking=$3,fk_contenedor=$4 WHERE id=$1 RETURNING *',
+			                values: params3
+			        };
+			        let result3=await client.query(query3);
+
+				}else{
+					res.status(400).send({
+			        message: "Error al cargar contenedor detalle",
+			        success:false,}); res.end(); res.connection.destroy();
+				}
+	    	}
+
+	    	console.log('5')
+	    	 /********************/
+	    	 if(ids.length>0){console.log(6);
+	    	 	for(let i=0;i<ids.length;i++){
+	    	 		let query4='SELECT * FROM public.tracking_detalle where tracking_id='+parseInt(ids[i])+'and estado<2'
+	    	 		let result4=await client.query(query4);
+	    	 		if(result4 && result4.rows.length===0){
+	    	 			const query5 = {
+			                text: 'UPDATE public.tracking SET estado=$1 WHERE id=$2 RETURNING *',
+			                values: [2, parseInt(ids[i])],
+			            };
+			            let result5=await client.query(query5);
+	    	 		}
+	    	 	}
+	    	 }
+			    
+			 /********************/
+
+
+	    	res.status(200).send([]);
+       		res.end(); res.connection.destroy();
+
+	    }else if(result1 && result1.rows.length===0){
+	    	res.status(400).send({
+	        message: "No existen cargas asociadas a la proforma para actualizar",
+	        success:false,}); res.end(); res.connection.destroy();
+	    }else{
+	    	console.log('ERROR ConfirmContenedorProforma 1'+error);
+	        res.status(400).send({
+	        message: "Problemas al confirmar proformas de contenedor",
+	        success:false,}); res.end(); res.connection.destroy();
+	    }
+	} catch (error) {
+        console.log('ERROR ConfirmContenedorProforma 2'+error);
+        res.status(400).send({
+        message: "Problemas al confirmar proformas de contenedor",
+        success:false,}); res.end(); res.connection.destroy();
+    }  
+}
