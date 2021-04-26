@@ -568,6 +568,55 @@ exports.listTrackingConsolidadoByClient = (req, res) => {
       });
   };
 
+  exports.revertUpdateStateToCharge = (req, res) => {
+     if (!req.params.id) {
+      res.status(400).send({
+        message: "El id del consolidado es obligatorio",
+        success:false
+      });
+      return;
+    }
+
+     const query1 = {
+        text: 'UPDATE public.consolidado SET estado=$1 WHERE id=$2 RETURNING *',
+        values: [0,req.params.id],
+      };
+
+      const query2 = {
+        text: 'UPDATE public.consolidado_tracking SET estado=$1 WHERE fk_consolidado=$2 RETURNING *',
+        values: [0,req.params.id],
+      };
+
+      const query3 = {
+         text: 'UPDATE public.consolidado_tracking_detalle SET estado=$1 WHERE fk_consolidado=$2 RETURNING *',
+         values: [0,req.params.id],
+      };
+      client.query(query1,"",function (err1, result1) {
+        if (err1) {
+            console.log(err1);
+            res.status(400).send(err1);
+        }
+
+        client.query(query2,"",function (err2, result2) {
+        if (err2) {
+            console.log(err2);
+            res.status(400).send(err2);
+        }
+          client.query(query3,"",function (err3, result3) {
+            if (err3) {
+                console.log(err3);
+                res.status(400).send(err3);
+            }
+
+             
+            });
+
+        });
+
+         res.status(200).send(result1.rows);
+      });
+  };
+
 exports.delete = (req, res) => {
      if (!req.params.id) {
       res.status(400).send({
