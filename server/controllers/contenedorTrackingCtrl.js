@@ -115,6 +115,24 @@ exports.create = async (req,res)=>{
 	    		
 	    	}
 
+			if(result1 && result1.rows.length>0){
+				let query4='SELECT *FROM public.contenedor_detalle where fk_contenedor='+parseInt(req.params.fk_contenedor);
+	    		let result4=await client.query(query4);
+
+	    		if(result4 && result4.rows.length>0){
+	    			for(let x=0;x<result4.rows.length;x++){
+	    				 let query5 ={
+			                text: 'UPDATE public.tracking_detalle SET fk_contenedor_tracking=$2 WHERE id=$1 RETURNING *',
+			                values: [result4.rows[x].fk_tracking_detalle,result1.rows[0].id]
+			        	 };
+			        	 let result5= await client.query(query5);
+			        	 if(result5 && !result5.rows){
+			        	 	console.log('ERROR UpdateTrackingDetalle'+error);
+			        	 }
+	    			}
+	    		}
+			}
+
 	    	res.status(200).send({
         	message: "Ruta creada correctamente",
         	success:true,}); res.end(); res.connection.destroy();
@@ -184,6 +202,25 @@ exports.update = async (req,res)=>{
 	    		}
 	    		
 	    	}
+
+	    	if(result1 && result1.rows.length>0){
+				let query4='SELECT *FROM public.contenedor_detalle where fk_contenedor='+parseInt(result1.rows[0].fk_contenedor);
+	    		let result4=await client.query(query4);
+
+	    		if(result4 && result4.rows.length>0){
+	    			for(let x=0;x<result4.rows.length;x++){
+	    				 let query5 ={
+			                text: 'UPDATE public.tracking_detalle SET fk_contenedor_tracking=$2 WHERE id=$1 RETURNING *',
+			                values: [result4.rows[x].fk_tracking_detalle,result1.rows[0].id]
+			        	 };
+			        	 let result5= await client.query(query5);
+			        	 if(result5 && !result5.rows){
+			        	 	console.log('ERROR UpdateTrackingDetalle'+error);
+			        	 }
+	    			}
+	    		}
+			}
+
     	res.status(200).send({
     	message: "Ruta actualizada correctamente",
     	success:true,}); res.end(); res.connection.destroy();

@@ -229,7 +229,7 @@ exports.confirmContenedor = async (req,res)=>{
 	    }
 
 	    let viajeTracking=0;let ids=[];
-	    let result0=await client.query("SELECT *FROM public.contenedor_tracking where fk_contenedor="+parseInt(req.body.fk_contenedor));
+	    let result0=await client.query("SELECT *FROM public.contenedor_tracking where fk_contenedor="+parseInt(req.body.fk_contenedor))+" and estado=0";
 	    if(result0 && result0.rows.length>0){
 	    	viajeTracking=result0.rows[0].id;
 	    }
