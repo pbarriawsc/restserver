@@ -394,7 +394,7 @@ exports.create = async(req, res) => {
 
     if(exists && exists.rows.length===0){
     if(req.body.proveedor){
-    	if(parseInt(req.body.proveedor.id)===0 && req.body.proveedor.nombre.length>0){
+    	if(parseInt(req.body.proveedor.id)===0){
     		const query0 = {
 		        text: 'INSERT INTO public.proveedores(codigo, nombre,fk_cliente,"nombreChi") VALUES($1, $2, $3, $4) RETURNING *',
 		        values: [req.body.proveedor.codigo, req.body.proveedor.nombre,req.body.fk_cliente, req.body.proveedor.nombreChi],
