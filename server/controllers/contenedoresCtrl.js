@@ -23,8 +23,8 @@ exports.create = (req, res) => {
     }
 
     const query = {
-        text: 'INSERT INTO public.contenedor(codigo, reserva,viaje,volumen,estado) VALUES($1, $2, $3,$4,$5) RETURNING *',
-        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.volumen,req.body.estado],
+        text: 'INSERT INTO public.contenedor(codigo, reserva,viaje,volumen,estado,fk_linea_naviera,fk_embarcadora,numero_sello) VALUES($1, $2, $3,$4,$5,$6,$7,$8) RETURNING *',
+        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.volumen,req.body.estado,req.body.fk_linea_naviera,req.body.fk_embarcadora,req.body.numero_sello]
     };
 
     client.query(query,"",function (err, result) {
@@ -45,8 +45,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.contenedor SET codigo=$1,reserva=$2,viaje=$3,estado=$4,volumen=$5 WHERE id=$6 RETURNING *',
-        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.estado,req.body.volumen,req.body.id],
+        text: 'UPDATE public.contenedor SET codigo=$1,reserva=$2,viaje=$3,estado=$4,volumen=$5,fk_linea_naviera=$6,fk_embarcadora=$7,numero_sello=$8 WHERE id=$9 RETURNING *',
+        values: [req.body.codigo, req.body.reserva,req.body.viaje,req.body.estado,req.body.volumen,req.body.fk_linea_naviera,req.body.fk_embarcadora,req.body.numero_sello,req.body.id],
     };
 
     client.query(query,"",function (err, result) {
