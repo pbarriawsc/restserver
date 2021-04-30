@@ -97,8 +97,8 @@ exports.update = (req,res) =>{
             return;
     }
     const query = {
-        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5,rut=$6,fk_rol=$7,estado=$8 WHERE id=$9 RETURNING *',
-        values: [req.body.usuario, req.body.nombre, req.body.apellidos, req.body.email, req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado,req.body.id],
+        text: 'UPDATE public.usuario SET usuario=$1,nombre=$2,apellidos=$3,email=$4,telefono=$5,rut=$6,fk_rol=$7,estado=$8,password=$9 WHERE id=$10 RETURNING *',
+        values: [req.body.usuario, req.body.nombre, req.body.apellidos, req.body.email, req.body.telefono,req.body.rut,req.body.fk_rol,req.body.estado, bcrypt.hashSync(req.body.password,10),req.body.id],
     };
 
     client.query(query,"",function (err, result) {
