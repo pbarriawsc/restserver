@@ -13,7 +13,7 @@ exports.listByEstado = (req, res) => {
       return;
     }
     let arrayFinal=[];
-    client.query('SELECT cp.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos FROM public.contenedor_proforma cp inner join usuario u on u.id=cp.fk_usuario_creacion ORDER BY cp.id DESC', "", function (err, result) {
+    client.query('SELECT cp.*,u.nombre as fk_usuario_nombre,u.apellidos as fk_usuario_apellidos,(SELECT n2.nave_nombre FROM naves2 n2 LEFT JOIN naves_eta ne on ne.fk_nave=n2.nave_id LEFT JOIN contenedor_viajes_detalle cvd on cvd.fk_nave_eta=ne.id LEFT JOIN contenedor_tracking ct on ct.id=cvd.fk_contenedor_tracking  where ct.id=cp.fk_contenedor_tracking and ne.estado<2 order by ne.id asc limit 1) as nave_nombre,(SELECT ne.etd_fecha FROM naves_eta ne LEFT JOIN contenedor_viajes_detalle cvd on cvd.fk_nave_eta=ne.id LEFT JOIN contenedor_tracking ct on ct.id=cvd.fk_contenedor_tracking  where ct.id=cp.fk_contenedor_tracking order by ne.id asc limit 1) as fecha_salida,(SELECT ne.eta_fecha FROM naves_eta ne LEFT JOIN contenedor_viajes_detalle cvd on cvd.fk_nave_eta=ne.id LEFT JOIN contenedor_tracking ct on ct.id=cvd.fk_contenedor_tracking  where ct.id=cp.fk_contenedor_tracking order by ne.id desc limit 1) as fecha_llegada,c.codigo as fk_contenedor_codigo FROM public.contenedor_proforma cp inner join usuario u on u.id=cp.fk_usuario_creacion left join contenedor c on c.id=cp.fk_contenedor ORDER BY cp.id DESC', "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
