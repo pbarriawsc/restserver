@@ -229,7 +229,7 @@ exports.listByReadyToCharge = async(req, res) => {
 
         	let queryIn='';
 		        if(ids.length>0){
-		        	queryIn+='WHERE tracking_id IN (';
+		        	queryIn+='WHERE td.tracking_id IN (';
 		        	for(var x=0;x<ids.length;x++){
 		        		if(x!==ids.length-1){
 		        			queryIn+=ids[x]+','
@@ -240,10 +240,11 @@ exports.listByReadyToCharge = async(req, res) => {
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal="SELECT id,upload_id,fecha_recepcion,fecha_consolidado,codigo_interno,tipo_producto,producto,peso,volumen,observacion,tracking_id,estado,CASE WHEN foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,ancho,alto,altura,ubicacion FROM public.tracking_detalle "+queryIn;
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion FROM public.tracking_detalle td "+queryIn;
 		        if(req.params.estado===1 || req.params.estado==='1'){
-		        	queryFinal+=' and estado=1 and fk_consolidado_tracking_detalle is not null';
+		        	queryFinal+=' and td.estado=1 and td.fk_consolidado_tracking_detalle is not null and NOT EXISTS (SELECT *FROM public.contenedor_proforma_detalle cpd WHERE cpd.fk_tracking_detalle = td.id)';
 		        }
+
 		        client.query(queryFinal, "", function (err, result) {
 			        if (err) {
 			            console.log(err);
@@ -258,7 +259,11 @@ exports.listByReadyToCharge = async(req, res) => {
 			        		}else{
 			        			obj.tracking_detalle=[];
 			        		}
-			        		arrayFinal.push(obj);
+
+			        		if(obj.tracking_detalle && obj.tracking_detalle.length>0){
+			        			arrayFinal.push(obj);
+			        		}
+			        		
 			        	}
 		        		
 			        }
