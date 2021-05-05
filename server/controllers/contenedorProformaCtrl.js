@@ -288,8 +288,8 @@ exports.confirmContenedor = async (req,res)=>{
 
 
 	    	 const query6 = {
-			                text: 'UPDATE public.contenedor_proforma SET estado=$1 WHERE id=$2 RETURNING *',
-			                values: [1, parseInt(req.params.id)],
+			                text: 'UPDATE public.contenedor_proforma SET estado=$1,fk_contenedor=$2,fk_contenedor_tracking=$3 WHERE id=$4 RETURNING *',
+			                values: [1, req.body.fk_contenedor,viajeTracking,parseInt(req.params.id)],
 			            };
 			 let result6=await client.query(query6);
 			    
