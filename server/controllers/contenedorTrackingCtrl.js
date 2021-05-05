@@ -127,10 +127,22 @@ exports.create = async (req,res)=>{
 			        	 };
 			        	 let result5= await client.query(query5);
 			        	 if(result5 && !result5.rows){
-			        	 	console.log('ERROR UpdateTrackingDetalle'+error);
+			        	 	console.log('ERROR UpdateTrackingDetalle');
 			        	 }
 	    			}
 	    		}
+
+
+	    		let query6={
+	    			text: 'UPDATE public.contenedor_proforma SET fk_contenedor_tracking=$2 WHERE fk_contenedor=$1 and estado<2 RETURNING *',
+			        values: [req.params.fk_contenedor,result1.rows[0].id]
+	    		};
+
+	    		 let result6= await client.query(query6);
+	        	 if(result6 && !result6.rows){
+	        	 	console.log('ERROR UpdateProformaTracking');
+	        	 }
+
 			}
 
 	    	res.status(200).send({
