@@ -34,7 +34,8 @@ exports.listChn = async (req,res)=>{
 		        	queryIn+=')';
 		        }
 
-		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_currier,td.numero_seguimiento,c.nombre as fk_currier_nombre,c.nombre_chino as fk_currier_nombre_chino FROM public.tracking_detalle td left join public.currier c on c.id=td.fk_currier "+queryIn;
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_currier,td.numero_seguimiento,c.nombre as fk_currier_nombre,c.nombre_chino as fk_currier_nombre_chino,cpd.fk_contenedor_proforma FROM public.tracking_detalle td left join public.currier c on c.id=td.fk_currier left join contenedor_proforma_detalle cpd on cpd.fk_tracking_detalle=td.id "+queryIn;
+		        console.log(queryFinal);
 		        client.query(queryFinal, "", function (err, result) {
 			        if (err) {
 			            console.log(err);
