@@ -4,6 +4,74 @@ const lodash= require('lodash');
 const moment=require('moment');
 const path = require('path');
 var fs = require('fs');
+
+exports.listChn = async (req,res)=>{
+	try{
+		const arrayFinal=[];
+    client.query('SELECT t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,CASE WHEN t.packing_list1 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list1,CASE WHEN t.packing_list2 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list2,CASE WHEN t.invoice1 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice1,CASE WHEN t.invoice2 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice2,CASE WHEN t.foto1 IS NOT NULL THEN TRUE ELSE FALSE END AS foto1,CASE WHEN t.foto2 IS NOT NULL THEN TRUE ELSE FALSE END AS foto2,CASE WHEN t.foto3 IS NOT NULL THEN TRUE ELSE FALSE END AS foto3,CASE WHEN t.foto4 IS NOT NULL THEN TRUE ELSE FALSE END AS foto4,CASE WHEN t.foto5 IS NOT NULL THEN TRUE ELSE FALSE END AS foto5, ct.fk_consolidado, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,c.web as fk_cliente_web,c.telefono1 as fk_cliente_telefono1,c.telefono2 as fk_cliente_telefono2,c."dteEmail" as fk_cliente_email,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones,t.fk_bodega,b.nombre as fk_bodega_nombre,(SELECT SUM(peso) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS peso_recepcionado,(SELECT SUM(volumen) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS volumen_recepcionado,(SELECT count (t2.id) from public.tracking t2 INNER JOIN public.consolidado_tracking ct2 on t2.id=ct2.fk_tracking where t2.estado>=1 and ct2.fk_consolidado=(select ct2.fk_consolidado from consolidado_tracking ct2 where ct2.fk_tracking=t.id))::integer AS trackings_completos,(SELECT count (ct.id) from public.consolidado_tracking ct where ct.fk_consolidado=(select ct.fk_consolidado from consolidado_tracking ct where ct.fk_tracking=t.id))::integer AS trackings_totales FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id left join public.bodegas b on b.id=t.fk_bodega where t.estado<2 and t.estado>=0 ORDER BY T.id DESC', "", function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        const resultHeader=result;
+        const ids=[];
+        const idsClientes=[];
+        if(result.rows.length>0){
+        	for(var i=0;i<result.rows.length;i++){
+        		ids.push(result.rows[i].id);
+        	}
+
+        	let queryIn='';
+		        if(ids.length>0){
+		        	queryIn+='WHERE td.tracking_id IN (';
+		        	for(var x=0;x<ids.length;x++){
+		        		if(x!==ids.length-1){
+		        			queryIn+=ids[x]+','
+		        		}else{
+		        			queryIn+=ids[x]
+		        		}
+		        	}
+		        	queryIn+=')';
+		        }
+
+		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_currier,td.numero_seguimiento,c.nombre as fk_currier_nombre,c.nombre_chino as fk_currier_nombre_chino FROM public.tracking_detalle td left join public.currier c on c.id=td.fk_currier "+queryIn;
+		        client.query(queryFinal, "", function (err, result) {
+			        if (err) {
+			            console.log(err);
+			            res.status(400).send(err);
+			        }
+			        if(resultHeader.rows.length>0){
+			        	for(var i=0;i<resultHeader.rows.length;i++){
+			        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
+			        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
+			        		if(arrayFind){
+			        			obj.tracking_detalle=arrayFind;
+			        		}else{
+			        			obj.tracking_detalle=[];
+			        		}
+			        		arrayFinal.push(obj);
+			        	}
+		        		
+			        }
+
+
+
+			        res.status(200).send(arrayFinal);
+		        });
+        }else{
+        	res.status(200).send(arrayFinal);
+        }
+    });   
+
+	} catch (error) {
+	    res.status(400).send({
+	        message: "ERROR ListCHN:"+error,
+	        success:false,
+	    });
+	    res.end(); res.connection.destroy();
+    }
+}
+
 exports.list = (req, res) => {
 	try{
 	const arrayFinal=[];

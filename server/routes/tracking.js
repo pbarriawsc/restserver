@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const {verifyToken} = require('../middlewares/authotization');
 const prefix='/api/tracking';
+const prefix2='/api/tracking-chn';
 const trackingController=require('../controllers/trackingCtrl');
 
 app.post(`${prefix}`,verifyToken, trackingController.create);
@@ -22,6 +23,7 @@ app.get(`${prefix}/packingList1/:id`,[], trackingController.getPackingList1);
 app.get(`${prefix}/packingList2/:id`,[], trackingController.getPackingList2);
 app.get(`${prefix}/invoice1/:id`,[], trackingController.getInvoice1);
 app.get(`${prefix}/invoice2/:id`,[], trackingController.getInvoice1);
+app.get(`${prefix2}`,verifyToken, trackingController.listChn);
 /*
 app.put(`${prefix}/:id`, function (req, res) {
     let id=req.params.id;
