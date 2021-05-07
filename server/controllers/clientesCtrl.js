@@ -21,7 +21,8 @@ exports.GetClientesList = async (req,res) =>{ try {
 
     let Lista = await client.query(`
     SELECT
-    cli.id
+    (row_number() over ())::int as row_id
+    , cli.id
     , cli.rut
     , cli.codigo
     , cli."razonSocial" as razonsocial
@@ -34,7 +35,9 @@ exports.GetClientesList = async (req,res) =>{ try {
     where
     cli.estado is true
     `+condicion+`
-    order by cli.codigo asc`);
+    order by 
+    (row_number() over ())::int
+    asc`);
 
     res.status(200).send(Lista.rows); res.end(); res.connection.destroy();
 
@@ -53,7 +56,50 @@ exports.GetCliente = async (req,res) =>{ try {
 
     let Cliente = await client.query(`
     SELECT
-    *
+    id
+    , estado
+    , rut
+    , codigo
+    , "razonSocial"
+    , web
+    , telefono1
+    , telefono2
+    , "dteEmail"
+    , "aproComercial"
+    , "aproFinanciera"
+    , "codigoSii"
+    , giro
+    , "repLegalRut"
+    , "repLegalNombre"
+    , "repLegalApellido"
+    , "repLegalMail"
+    , fk_responsable
+    , fk_comercial
+
+    , CASE WHEN 
+    cedula_2 is not null and LENGTH(cedula_2)>0
+    and cedula_1_type is not null and LENGTH(cedula_1_type)>0
+    and cedula_1_ext is not null and LENGTH(cedula_1_ext)>0
+    then 'SI' else null end as cedula_1
+
+    , CASE WHEN 
+    cedula_2 is not null and LENGTH(cedula_2)>0
+    and cedula_2_type is not null and LENGTH(cedula_2_type)>0
+    and cedula_2_ext is not null and LENGTH(cedula_2_ext)>0
+    then 'SI' else null end as cedula_2
+     
+    , CASE WHEN 
+    podersimple_1 is not null and LENGTH(podersimple_1)>0
+    and podersimple_1_type is not null and LENGTH(podersimple_1_type)>0
+    and podersimple_1_ext is not null and LENGTH(podersimple_1_ext)>0
+    then 'SI' else null end as podersimple_1
+         
+    , CASE WHEN 
+    podersimple_2 is not null and LENGTH(podersimple_2)>0
+    and podersimple_2_type is not null and LENGTH(podersimple_2_type)>0
+    and podersimple_2_ext is not null and LENGTH(podersimple_2_ext)>0
+    then 'SI' else null end as podersimple_2
+    
     FROM public.clientes
     where id=`+parseInt(req.params.id)+`
     order by codigo asc`);

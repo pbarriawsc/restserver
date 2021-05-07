@@ -1,7 +1,14 @@
-const { Sequelize } = require('sequelize');
+'use strict';
 
-module.exports = (sequelize,Sequelize) => {
-	sequelize.define('clientes_usuarios', {
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    /**
+     * Add altering commands here.
+     *
+     * Example:
+     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
+     */
+     await queryInterface.createTable('clientes_usuarios', {
         id: {
             allowNull: false,
             autoIncrement: true,
@@ -39,5 +46,16 @@ module.exports = (sequelize,Sequelize) => {
             type: Sequelize.BOOLEAN,
             unique: false,
         },
-	});
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    /**
+     * Add reverting commands here.
+     *
+     * Example:
+     * await queryInterface.dropTable('users');
+     */
+     await queryInterface.dropTable('clientes_usuarios');
+  }
 };

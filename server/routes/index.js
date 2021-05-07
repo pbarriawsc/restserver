@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(require('./cli_serguimientoservicio'))
+app.use(require('./perfilcliente'))
 app.use(require('./bodegas_ubicaciones'))
 app.use(require('./bodegas'))
 app.use(require('./zonastarifarias'))
@@ -46,6 +48,7 @@ app.use(require('./gc_propuestas_cabeceras'));
 app.use(require('./gc_propuestas_tarifas'));
 app.use(require('./gc_propuestas_serviciosadicionales'));
 app.use(require('./gc_clientes'));
+app.use(require('./clientes_usuarios'));
 app.use(require('./clientes_contactos'));
 app.use(require('./clientes_direcciones'));
 app.use(require('./trackingDetalle'));
