@@ -39,7 +39,25 @@ exports.SLISEGSER_GetTodosList = async (req,res) =>{ try {
         where temp2.id=track.id
         limit 1
     ),'') as contenedor
-
+    , (
+    SELECT 
+    temp3.codigo
+    FROM public.contenedor_tracking as temp1
+    inner join public.contenedor_viajes as temp2 on temp1.id=temp2.fk_contenedor_tracking
+    inner join public.viajes as temp3 on temp2.fk_viaje=temp3.id
+    where
+    temp1.fk_contenedor=coalesce((
+        SELECT 
+        temp4.id
+        FROM public.tracking_detalle as temp1
+        inner join public.tracking as temp2 on temp1.tracking_id=temp2.id
+        inner join public.contenedor_detalle as temp3 on temp1.id=temp3.fk_tracking_detalle
+        inner join public.contenedor as temp4 on temp3.fk_contenedor=temp4.id
+        where temp2.id=track.id
+        limit 1
+    ),0)
+    limit 1
+    ) as viaje
     FROM public.usuario as usu
     inner join public.clientes_usuarios as cliusu on usu.id=cliusu.fk_usuario
     inner join public.clientes as cli on cliusu.fk_cliente=cli.id
@@ -88,16 +106,6 @@ exports.SLISEGSER_GetPorDespacharList = async (req,res) =>{ try {
     ,coalesce((
         SELECT SUM(temp1.peso) FROM public.tracking_detalle as temp1 WHERE const.fk_tracking=temp1.tracking_id
     ),0) as peso
-    ,coalesce((
-        SELECT 
-        temp4.codigo
-        FROM public.tracking_detalle as temp1
-        inner join public.tracking as temp2 on temp1.tracking_id=temp2.id
-        inner join public.contenedor_detalle as temp3 on temp1.id=temp3.fk_tracking_detalle
-        inner join public.contenedor as temp4 on temp3.fk_contenedor=temp4.id
-        where temp2.id=track.id
-        limit 1
-    ),'') as contenedor
     ,coalesce((
         SELECT 
         temp4.codigo
