@@ -13,6 +13,8 @@ app.post(`${prefix}`,verifyToken, usuarioController.create)
 app.delete(`${prefix}/:id`,verifyToken, usuarioController.delete)
 
 app.put(`${prefix}/:id`,verifyToken, usuarioController.update)
+
+app.put(`/api/cambiar-password`,verifyToken, usuarioController.updatePassword)
 /*
 app.put(`${prefix}/:id`, function (req, res) {
     let id=req.params.id;
