@@ -1,5 +1,7 @@
 const client = require('../config/db.client');
 const bcrypt= require('bcrypt');
+const jwt=require('jsonwebtoken');
+
 exports.create = async (req, res) => {
     // Validate request
     if (!req.body.nombre) {
@@ -109,3 +111,41 @@ exports.update = (req,res) =>{
         res.status(200).send(result.rows[0]);
     });
 };
+
+
+exports.updatePassword= (req,res) =>{
+
+    if (!req.body.p1) {
+        res.status(400).send({
+            message: "El password es obligatorio",
+            success:false
+            });
+            return;
+    }
+
+    let token= req.get('Authorization');
+    console.log(token);
+    jwt.verify(token, process.env.SECRET, (err,decoded)=>{
+    if(err){
+        console.log('ERROR',err);
+        return res.status(401).json({
+            success:false,
+            err
+        })
+    }
+    req.usuario = decoded.usuario;
+    });
+
+    const query = {
+        text: 'UPDATE public.usuario SET password=$1 WHERE id=$2 RETURNING *',
+        values: [bcrypt.hashSync(req.body.p1,10),req.usuario.id],
+    };
+
+    client.query(query,"",function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows[0]);
+    });
+}
