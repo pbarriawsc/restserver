@@ -24,6 +24,7 @@ app.get(`${prefix}/packingList2/:id`,[], trackingController.getPackingList2);
 app.get(`${prefix}/invoice1/:id`,[], trackingController.getInvoice1);
 app.get(`${prefix}/invoice2/:id`,[], trackingController.getInvoice1);
 app.get(`${prefix2}`,verifyToken, trackingController.listChn);
+app.delete(`${prefix}/:id`,verifyToken, trackingController.delete);
 /*
 app.put(`${prefix}/:id`, function (req, res) {
     let id=req.params.id;

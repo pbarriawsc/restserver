@@ -1314,3 +1314,34 @@ exports.getPackingList1 = async (req,res) =>{ try {
   }};
   /************************************************************/
   /************************************************************/
+
+  exports.delete = async (req,res) =>{
+  	try{
+  		if (!req.params.id) {
+        	res.status(400).send({
+            message: "El id es obligatorio",
+            success:false
+            });
+            return;
+   		}
+
+   		//gc_propuestas_proveedores
+   		const registro=await client.query(`SELECT *FROM public.tracking where id=`+parseInt(req.params.id));
+   		if(registro && registro.rows){
+   			await client.query(`DELETE FROM public.tracking_detalle where tracking_id=`+parseInt(req.params.id));
+   			await client.query(`DELETE FROM public.tracking where id=`+parseInt(req.params.id));
+   			if(registro.rows[0].fk_proveedor_cliente!==null){
+   				await client.query('UPDATE public.gc_propuestas_proveedores SET estado=999 WHERE id='+parseInt(registro.rows[0].fk_proveedor_cliente));
+   			}
+   		}	
+        res.status(200).send([]);
+        res.end(); res.connection.destroy();
+
+  	}catch (error) {
+	console.log("ERROR "+error);
+	res.status(400).send({
+	message: "ERROR AL ELIMINAR EL TRACKING",
+	success:false,
+	}); res.end(); res.connection.destroy();
+ 	 }
+  };
