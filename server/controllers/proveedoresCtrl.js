@@ -413,7 +413,7 @@ exports.PostProvCliente = async (req, res) => { try {
               qry_2 += ` `+req.body.volumen+`, `;
 
               qry_1 += ` tipo_carga, `;
-              qry_2 += ` 1, `;
+              qry_2 += ` '`+req.body.tipo+`', `;
 
               qry_1 += ` fk_proveedor, `;
               qry_2 += ` `+req.body.fk_proveedor+`, `;
@@ -595,7 +595,9 @@ exports.GetProveedorPropuesta = async (req, res) => {
         ELSE tabla_1.peso::TEXT END as peso
 
         , coalesce(tabla_1."devImpuesto",'NO') as devImpuesto
+        ,t.tipo_carga
         FROM public.gc_propuestas_proveedores as tabla_1
+        left join public.tracking t on t.fk_proveedor_cliente=tabla_1.id
         where tabla_1.id=`+parseInt(req.params.id));
 
         res.status(200).send(Lista.rows);
@@ -722,11 +724,12 @@ exports.PutProvCliente = async (req, res) => { try {
 
         qry_1 += ` bultos=`+req.body.bultos+`, `;
 
-        qry_1 += ` "devImpuesto"=`+req.body.devimpuesto+` `;
+        qry_1 += ` "devImpuesto"='`+req.body.devimpuesto+`' `;
 
           try {
 
-              await client.query(`UPDATE public.gc_propuestas_proveedores SET `+qry_1+` WHERE id=`+req.body.id );
+              let query0=`UPDATE public.gc_propuestas_proveedores SET `+qry_1+` WHERE id=`+req.body.id;
+              await client.query(query0);
               console.log('CONTADOR');
               console.log(ExisteCabecera.rows[0].cantidad);
               console.log('BULTOS');
@@ -742,6 +745,7 @@ exports.PutProvCliente = async (req, res) => { try {
               qry_1 += ` cantidad_bultos=`+req.body.bultos+`, `;
 
               qry_1 += ` peso=`+req.body.peso+`, `;
+              qry_1 += ` tipo_carga=`+req.body.tipo+`, `;
 
               qry_1 += ` volumen=`+req.body.volumen+` `;
 
