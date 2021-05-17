@@ -67,6 +67,19 @@ module.exports = {
         comentario: {
             type: Sequelize.STRING
         },
+         fk_usuario: {
+             type: Sequelize.INTEGER,
+             references: {
+                 model: {
+                     tableName: "usuario",
+                     schema: "public"
+                 },
+                 key: "id",
+                 onDelete: "RESTRICT",
+                 onUpdate: "RESTRICT",
+             },
+             allowNull: true
+         },
     });
   },
 

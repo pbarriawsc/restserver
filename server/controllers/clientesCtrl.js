@@ -75,31 +75,7 @@ exports.GetCliente = async (req,res) =>{ try {
     , "repLegalMail"
     , fk_responsable
     , fk_comercial
-
-    , CASE WHEN 
-    cedula_2 is not null and LENGTH(cedula_2)>0
-    and cedula_1_type is not null and LENGTH(cedula_1_type)>0
-    and cedula_1_ext is not null and LENGTH(cedula_1_ext)>0
-    then 'SI' else null end as cedula_1
-
-    , CASE WHEN 
-    cedula_2 is not null and LENGTH(cedula_2)>0
-    and cedula_2_type is not null and LENGTH(cedula_2_type)>0
-    and cedula_2_ext is not null and LENGTH(cedula_2_ext)>0
-    then 'SI' else null end as cedula_2
-     
-    , CASE WHEN 
-    podersimple_1 is not null and LENGTH(podersimple_1)>0
-    and podersimple_1_type is not null and LENGTH(podersimple_1_type)>0
-    and podersimple_1_ext is not null and LENGTH(podersimple_1_ext)>0
-    then 'SI' else null end as podersimple_1
-         
-    , CASE WHEN 
-    podersimple_2 is not null and LENGTH(podersimple_2)>0
-    and podersimple_2_type is not null and LENGTH(podersimple_2_type)>0
-    and podersimple_2_ext is not null and LENGTH(podersimple_2_ext)>0
-    then 'SI' else null end as podersimple_2
-    
+   
     FROM public.clientes
     where id=`+parseInt(req.params.id)+`
     order by codigo asc`);
@@ -173,8 +149,6 @@ exports.PostCliente = async (req,res) =>{ try {
 
       let ExisteRut = await client.query(` SELECT id FROM public.clientes WHERE rut='`+rut+`' and LENGTH(rut)>0 `);
 
-      let ExisteEmail = await client.query(` SELECT id FROM public.clientes WHERE "dteEmail"='`+dteEmail+`' and LENGTH("dteEmail")>0 `);
-
       if( ExisteCodigo.rows.length>0 ) {
         res.status(400).send({
         message: "EL NOMBRE CORTO YA ESTÁ INGRESADO",
@@ -184,12 +158,6 @@ exports.PostCliente = async (req,res) =>{ try {
       else if( ExisteRut.rows.length>0 ) {
         res.status(400).send({
         message: "EL RUT YA ESTÁ INGRESADO",
-        success:false
-        }); res.end(); res.connection.destroy();
-      }
-      else if( ExisteEmail.rows.length>0 ) {
-        res.status(400).send({
-        message: "EL EMAIL YA ESTÁ INGRESADO",
         success:false
         }); res.end(); res.connection.destroy();
       }
@@ -447,169 +415,6 @@ message: "NO SE PUEDE ELIMINAR, TIENE INFORMACIÓN RELACIONADA",
 success:false,
 }); res.end(); res.connection.destroy();
 } };
-/************************************************************/
-/************************************************************/
-exports.PFCLI_UploadFile = async (req,res) =>{ try {
-
-  const query = {
-    text: 'UPDATE public.clientes SET '+req.body.tipo+'=$1, '+req.body.tipo+'_type=$2, '+req.body.tipo+'_ext=$3 WHERE id=$4 RETURNING *',
-    values: [req.files.archivo.data, req.body.type, req.body.ext, req.body.id],
-  };
-
-  client.query(query,"",function (err, result) {
-    if (err) {
-        console.log(err);
-        res.status(400).send(err);
-    }
-    else
-    {
-        res.status(200).send("OK");
-    }
-  });
-
-} catch (error) {
-  console.log("ERROR "+error);
-  res.status(400).send({
-  message: "ERROR AL SUBIR ARCHIVO",
-  success:false,
-  }); res.end(); res.connection.destroy();
-}};
-/************************************************************/
-/************************************************************/
-exports.PFCLI_Cedula_1 = async (req,res) =>{ try {
-
-  var Archivo = await client.query(` 
-  SELECT 
-  id
-  ,cedula_1 as archivo
-  ,cedula_1_type as tipo
-  ,cedula_1_ext as extension
-  from public.clientes WHERE id=`+req.params.id+` 
-  `);
-
-  if(Archivo.rows.length<=0)
-  {
-    res.status(400).send({
-    message: "NO SE ENCONTRO UN ARCHIVO",
-    success:false }); res.end(); res.connection.destroy();
-  }
-  else
-  {
-    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
-    res.setHeader('Content-Disposition', 'attachment; filename=cedula_1_'+Archivo.rows[0].id+Archivo.rows[0].extension);
-    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
-    res.end(Archivo.rows[0].archivo, 'binary');
-	}
-
-} catch (error) {
-  console.log("ERROR "+error);
-  res.status(400).send({
-  message: "ERROR AL CARGAR EL ARCHIVO",
-  success:false,
-  }); res.end(); res.connection.destroy();
-}};
-/************************************************************/
-/************************************************************/
-exports.PFCLI_Cedula_2 = async (req,res) =>{ try {
-
-  var Archivo = await client.query(` 
-  SELECT 
-  id
-  ,cedula_2 as archivo
-  ,cedula_2_type as tipo
-  ,cedula_2_ext as extension
-  from public.clientes WHERE id=`+req.params.id+` 
-  `);
-
-  if(Archivo.rows.length<=0)
-  {
-    res.status(400).send({
-    message: "NO SE ENCONTRO UN ARCHIVO",
-    success:false }); res.end(); res.connection.destroy();
-  }
-  else
-  {
-    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
-    res.setHeader('Content-Disposition', 'attachment; filename=cedula_2_'+Archivo.rows[0].id+Archivo.rows[0].extension);
-    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
-    res.end(Archivo.rows[0].archivo, 'binary');
-	}
-
-} catch (error) {
-  console.log("ERROR "+error);
-  res.status(400).send({
-  message: "ERROR AL CARGAR EL ARCHIVO",
-  success:false,
-  }); res.end(); res.connection.destroy();
-}};
-/************************************************************/
-/************************************************************/
-exports.PFCLI_PoderSimple_1 = async (req,res) =>{ try {
-
-  var Archivo = await client.query(` 
-  SELECT 
-  id
-  ,podersimple_1 as archivo
-  ,podersimple_1_type as tipo
-  ,podersimple_1_ext as extension
-  from public.clientes WHERE id=`+req.params.id+` 
-  `);
-
-  if(Archivo.rows.length<=0)
-  {
-    res.status(400).send({
-    message: "NO SE ENCONTRO UN ARCHIVO",
-    success:false }); res.end(); res.connection.destroy();
-  }
-  else
-  {
-    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
-    res.setHeader('Content-Disposition', 'attachment; filename=podersimple_1_'+Archivo.rows[0].id+Archivo.rows[0].extension);
-    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
-    res.end(Archivo.rows[0].archivo, 'binary');
-	}
-
-} catch (error) {
-  console.log("ERROR "+error);
-  res.status(400).send({
-  message: "ERROR AL CARGAR EL ARCHIVO",
-  success:false,
-  }); res.end(); res.connection.destroy();
-}};
-/************************************************************/
-/************************************************************/
-exports.PFCLI_PoderSimple_2 = async (req,res) =>{ try {
-
-  var Archivo = await client.query(` 
-  SELECT 
-  id
-  ,podersimple_2 as archivo
-  ,podersimple_2_type as tipo
-  ,podersimple_2_ext as extension
-  from public.clientes WHERE id=`+req.params.id+` 
-  `);
-
-  if(Archivo.rows.length<=0)
-  {
-    res.status(400).send({
-    message: "NO SE ENCONTRO UN ARCHIVO",
-    success:false }); res.end(); res.connection.destroy();
-  }
-  else
-  {
-    res.setHeader('Content-Type', Archivo.rows[0].tipo); 
-    res.setHeader('Content-Disposition', 'attachment; filename=podersimple_2_'+Archivo.rows[0].id+Archivo.rows[0].extension);
-    res.setHeader('Content-Length', Archivo.rows[0].archivo.length);
-    res.end(Archivo.rows[0].archivo, 'binary');
-	}
-
-} catch (error) {
-  console.log("ERROR "+error);
-  res.status(400).send({
-  message: "ERROR AL CARGAR EL ARCHIVO",
-  success:false,
-  }); res.end(); res.connection.destroy();
-}};
 /************************************************************/
 /************************************************************/
 exports.update = (req, res) => {

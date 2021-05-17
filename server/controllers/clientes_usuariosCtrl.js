@@ -121,6 +121,7 @@ exports.CLIUSU_PostNuevo = async (req,res) =>{
             success:false }); res.end(); res.connection.destroy();
         }        
         else {
+
             var columna = ''; var valor = '';
             columna+=`nombre,`; valor+=`'`+nombre+`',`;
             columna+=`password,`; valor+=`'`+bcrypt.hashSync(contrasenia,10)+`',`;

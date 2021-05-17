@@ -8,18 +8,17 @@ html(lang="en")
             include ./view_mail_nuevo_usuario.css
     body
         h4 NUEVO USUARIO CREADO
-        br
         p Este correo es enviado de manera automática, favor no responder este correo.
-        br
-        br
         p Se ha creado un nuevo usuario en el sistema web de WSCargo, favor ingresar en <a href="https://cargows.cl/">HTTPS://CARGOWS.CL</a>, y acceder a la seccion ACCESO CLIENTES, usando la siguiente información
 
-        table
+        table(style="width:auto; border: none; font-family: Arial, Helvetica, sans-serif; font-size: 12px;")
             tr
-                td USUARIO
+                th(style="align-content: left; text-align: left; background-color: #D6D6D6; padding: 10px;") USUARIO
                 td
                     h2=usuario
             tr
-                td CONTRASEÑA
-                td
+                th(style="align-content: left; text-align: left; background-color: #D6D6D6; padding: 10px;") CONTRASEÑA
+                td(style="align-content: left; text-align: left; padding: 10px;")
                     h2=contrasenia
+
+        p <strong>Por favor no responder a este remitente, esta es una casilla sin supervisión.</strong>

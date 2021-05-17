@@ -31,7 +31,13 @@ table {
 th{
     align-content: left;
     text-align: left;
-    background-color: gainsboro;
+    background-color: #D6D6D6;
+    padding: 10;
+}
+
+td{
+    align-content: left;
+    text-align: left;
     padding: 10;
 }
 
