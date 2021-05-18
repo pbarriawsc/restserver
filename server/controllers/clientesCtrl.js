@@ -92,7 +92,7 @@ success:false,
 /************************************************************/
 /************************************************************/
 exports.PostCliente = async (req,res) =>{ try {
-
+    var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
     let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
     function LimpiarTexto (texto) { if(!texto) { return ''; } else { return texto.trim(); } }
 
@@ -168,6 +168,8 @@ exports.PostCliente = async (req,res) =>{ try {
           columnas=`codigo,`;             datos=`'`+codigo+`', `;
           columnas+=`estado, `;           datos+=`true, `;
           columnas+=`rut, `;              datos+=`'`+rut+`', `;
+          columnas+=`"fechaCreacion", `;        datos+=`'`+fecha+`', `;
+          columnas+=`"fechaActualizacion", `;   datos+=`'`+fecha+`', `;
           columnas+=`"razonSocial", `;    datos+=`'`+razonSocial+`', `;
           columnas+=`"codigoSii", `;      datos+=`'`+codigoSii+`', `;
           columnas+=`web, `;              datos+=`'`+web+`', `;
@@ -234,7 +236,7 @@ success:false,
 /************************************************************/
 /************************************************************/
 exports.PutCliente = async (req,res) =>{ try {
-
+    var moment = require('moment'); let fecha = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
     let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
 
     if (!req.body.id || req.body.id==0 ) {
@@ -329,6 +331,7 @@ exports.PutCliente = async (req,res) =>{ try {
           datos+=`codigo='`+codigo+`', `;
           datos+=`estado=true, `;
           datos+=`rut='`+rut+`', `;
+          datos+=`"fechaActualizacion"='`+fecha+`', `;
           datos+=`"razonSocial"='`+razonSocial+`', `;
           datos+=`"codigoSii"='`+codigoSii+`', `;
           datos+=`web='`+web+`', `;

@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 
+app.use(require('./rep_clientesnuevos'))
 app.use(require('./cli_serguimientoservicio'))
 app.use(require('./perfilcliente'))
 app.use(require('./bodegas_ubicaciones'))
