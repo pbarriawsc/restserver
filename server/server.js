@@ -30,9 +30,9 @@ app.get('/', function (req, res) {
   res.json('Bienvenido al server express')
 })
 
-http.createServer({}, app).listen(3001, function(){
+/*http.createServer({}, app).listen(3001, function(){
   console.log("My HTTP server listening on port 3001...");
-});
+});*/
 
 https.createServer({
   key: fs.readFileSync('../wscargo/cargows.key'),
