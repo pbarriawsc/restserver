@@ -1,8 +1,10 @@
 const client = require('../config/db.client');
 const jwt=require('jsonwebtoken');
 const lodash= require('lodash');
+const xlsx = require('node-xlsx');
 const moment=require('moment');
 const path = require('path');
+const fromExcelDate = require('js-excel-date-convert').fromExcelDate;
 var fs = require('fs');
 
 exports.listChn = async (req,res)=>{
@@ -1345,3 +1347,186 @@ exports.getPackingList1 = async (req,res) =>{ try {
 	}); res.end(); res.connection.destroy();
  	 }
   };
+  exports.exports_excel = async (req,res)=>{
+	  try{
+
+		async function insertar_tracking(codCliente,nombreProveedor,fecha1,fecha2,bultos,peso,volumen,estado)
+		{
+			let existeCliente=null;let idCliente=null;
+			let existeProveedor=null;let idProveedor=null;
+			if(typeof codCliente!='undefined'){
+				existeCliente = await client.query(` 
+					select
+					*
+					from
+					public.clientes
+					where
+					id=`+parseInt(codCliente));
+			}
+			
+			if(existeCliente!==null && existeCliente.rows[0] && existeCliente.rows[0].id){
+				//console.log(existeCliente.rows[0]);
+				idCliente=existeCliente.rows[0].id;
+			}
+
+			if(typeof nombreProveedor!='undefined'){
+				if(nombreProveedor.length>0){
+					nombreProveedor=nombreProveedor.replace(/'/g, " ");
+				}
+				
+				existeProveedor = await client.query(` 
+					select
+					*
+					from
+					public.proveedores
+					where
+					nombre='`+nombreProveedor+`'`);
+			}else{
+				nombreProveedor="";
+			}
+
+			if(existeProveedor!==null && existeProveedor.rows[0] && existeProveedor.rows[0].id){
+				idProveedor=existeProveedor.rows[0].id;
+			}else{
+				let query0=`INSERT INTO public.proveedores(codigo,fk_cliente,"codigoTributario",nombre,"nombreChi") VALUES(`+null+`,`+idCliente+`,`+null+`,'`+nombreProveedor+`','`+nombreProveedor+`') RETURNING *`;
+				let proveedor=await client.query(query0);
+				if(proveedor.rows && proveedor.rows.length>0){
+					idProveedor=proveedor.rows[0].id;
+				}
+			}
+
+			//let queryFinal=`INSERT INTO public.tracking(fecha_creacion,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,fk_proveedor,fk_cliente,tipo,estado)`;
+			//queryFinal+=` VALUES('`+fecha1+`','`+fecha2+`',`+bultos+`,`+peso+`,`+volumen+`,`+0+`,`+idProveedor+`,`+idCliente+`,`+0+`,`+parseInt(estado)+`)`;
+			
+			
+			//console.log(queryFinal);
+			//await client.query(queryFinal);
+
+			let insert_1 = '';     let insert_2 = '';
+			insert_1 += ` fecha_creacion, `;  
+			if(fecha1!=null){
+				insert_2 += ` '`+fecha1+`', `;
+			}else{
+				insert_2 += ` `+fecha1+`,`;
+			}
+
+			insert_1 += ` fecha_recepcion, `;  
+			if(fecha2!=null){
+				insert_2 += ` '`+fecha2+`', `;
+			}else{
+				insert_2 += ` `+fecha2+`,`;
+			}
+			
+			insert_1 += ` cantidad_bultos, `;  
+			insert_2 += ` `+bultos+`,`;
+
+			insert_1 += ` peso, `; 
+			insert_2 += ` `+peso+`,`;
+
+			insert_1 += ` volumen, `;  
+			insert_2 += ` `+volumen+`,`;
+
+			insert_1 += ` tipo_carga, `;  
+			insert_2 += ` `+0+`,`;
+
+			insert_1 += ` fk_proveedor, `;  
+			insert_2 += ` `+idProveedor+`,`;
+
+			insert_1 += ` fk_cliente, `;
+			insert_2 += ` `+idCliente+`,`;
+			
+			insert_1 += ` tipo, `;  
+			insert_2 += ` `+0+`,`;
+
+			insert_1 += ` estado `;  
+
+			insert_2 += ` `+parseInt(estado)+` `;
+
+
+
+			let queryFinal=` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ); `;
+			console.log(queryFinal);
+			await client.query(` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ); `);
+			/*if(existe[0].length<=0)
+			{
+				var insert_1 = ``;  
+				var insert_2 = ``;
+
+				insert_1 += ` fecha, `;  
+				insert_2 += ` '`+fecha+`', `;
+
+				insert_1 += ` monto, `;
+				insert_2 += ` `+monto+`, `;
+
+				insert_1 += ` folio, `;  
+				insert_2 += ` '`+folio+`', `;
+				
+				insert_1 += ` "createdAt", `;
+				insert_2 += ` '`+dateTime+`', `;
+
+				insert_1 += ` "updatedAt", `;
+				insert_2 += ` '`+dateTime+`', `;
+
+				insert_1 += ` fk_responsable, `;
+				insert_2 += ` '`+SessionRut+`', `;
+
+				insert_1 += ` codigo `;
+				insert_2 += ` '`+aux_random+`' `;
+
+				await db.query(` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ); `);
+			}*/
+		}
+		const Archivo_Excel = xlsx.parse(`uploads/importacion_tracking.xlsx`);
+		for(var row=1; row<Archivo_Excel[0].data.length; row++)
+		{
+			let fecha1=null;let fecha2=null;let peso=null;let volumen=null;let bultos=null;
+			if(Archivo_Excel[0].data[row][1]!==''){
+				fecha1=moment(fromExcelDate(Archivo_Excel[0].data[row][1])).add(1, 'days').format("DD-MM-YYYY");
+			}
+			if(Archivo_Excel[0].data[row][2]!=''){
+				fecha2=moment(fromExcelDate(Archivo_Excel[0].data[row][2])).add(1, 'days').format("DD-MM-YYYY");
+			}
+
+			if(Archivo_Excel[0].data[row][10]!==''){
+				bultos=parseInt(Archivo_Excel[0].data[row][10])
+			}
+
+			if(Archivo_Excel[0].data[row][13]!==''){
+				peso=parseFloat(Archivo_Excel[0].data[row][13]);
+			}
+
+			if(Archivo_Excel[0].data[row][12]!==''){
+				volumen=parseFloat(Archivo_Excel[0].data[row][12]);
+			}
+			
+
+			if(isNaN(bultos)){
+				bultos=null;
+			}
+			if(isNaN(peso)){
+				peso=null;
+			}
+
+			if(isNaN(volumen)){
+				volumen=null;
+			}
+			if(fecha1=='Invalid date'){
+				fecha1=null;
+			}
+
+			if(fecha2=='Invalid date'){
+				fecha2=null;
+			}
+			insertar_tracking(Archivo_Excel[0].data[row][3],Archivo_Excel[0].data[row][8],fecha1,fecha2,bultos,peso,volumen,Archivo_Excel[0].data[row][17]);
+		}
+
+		res.status(200).send([]);
+        res.end(); res.connection.destroy();
+	  }catch (error) {
+		//console.log("ERROR "+error);
+		res.status(400).send({
+		message: "ERROR AL IMPORTA EXCEL DEL TRACKING",
+		success:false,
+		}); res.end(); res.connection.destroy();
+ 	 }
+  }
