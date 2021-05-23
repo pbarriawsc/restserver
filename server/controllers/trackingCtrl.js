@@ -194,6 +194,7 @@ exports.list = (req, res) => {
         const resultHeader=result;
         const ids=[];
         const idsClientes=[];
+/*
         if(result.rows.length>0){
         	for(var i=0;i<result.rows.length;i++){
         		ids.push(result.rows[i].id);
@@ -247,7 +248,8 @@ exports.list = (req, res) => {
 		        });
         }else{
         	res.status(200).send(arrayFinal);
-        }
+        }*/
+		res.status(200).send(result.rows);
     });   
     } catch (error) {
 
@@ -1350,10 +1352,10 @@ exports.getPackingList1 = async (req,res) =>{ try {
   exports.exports_excel = async (req,res)=>{
 	  try{
 
-		async function insertar_tracking(codCliente,nombreProveedor,fecha1,fecha2,bultos,peso,volumen,estado)
+		async function insertar_tracking(codCliente,nombreProveedor,fecha1,fecha2,bultos,peso,volumen,estado,bultosPorLlegar,producto)
 		{
 			let existeCliente=null;let idCliente=null;
-			let existeProveedor=null;let idProveedor=null;
+			let existeProveedor=null;let idProveedor=null;let bultosFinales=0;
 			if(typeof codCliente!='undefined'){
 				existeCliente = await client.query(` 
 					select
@@ -1395,12 +1397,13 @@ exports.getPackingList1 = async (req,res) =>{ try {
 				}
 			}
 
-			//let queryFinal=`INSERT INTO public.tracking(fecha_creacion,fecha_recepcion,cantidad_bultos,peso,volumen,tipo_carga,fk_proveedor,fk_cliente,tipo,estado)`;
-			//queryFinal+=` VALUES('`+fecha1+`','`+fecha2+`',`+bultos+`,`+peso+`,`+volumen+`,`+0+`,`+idProveedor+`,`+idCliente+`,`+0+`,`+parseInt(estado)+`)`;
-			
-			
-			//console.log(queryFinal);
-			//await client.query(queryFinal);
+			if(parseInt(estado)===2){
+				if(bultosPorLlegar!==null){
+					bultosFinales=bultosPorLlegar;
+				}else if(bultos!==null){
+					bultosFinales=bultos;
+				}
+			}
 
 			let insert_1 = '';     let insert_2 = '';
 			insert_1 += ` fecha_creacion, `;  
@@ -1418,7 +1421,7 @@ exports.getPackingList1 = async (req,res) =>{ try {
 			}
 			
 			insert_1 += ` cantidad_bultos, `;  
-			insert_2 += ` `+bultos+`,`;
+			insert_2 += ` `+bultosFinales+`,`;
 
 			insert_1 += ` peso, `; 
 			insert_2 += ` `+peso+`,`;
@@ -1445,8 +1448,77 @@ exports.getPackingList1 = async (req,res) =>{ try {
 
 
 			let queryFinal=` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ); `;
-			console.log(queryFinal);
-			await client.query(` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ); `);
+			let newTracking=null;
+			if(parseInt(estado)===2){
+				newTracking=await client.query(` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ) RETURNING * `);
+			}
+
+			if(newTracking.rows && newTracking.rows.length>0){
+				if(bultosFinales>0){
+
+					for(let x=0; x<bultosFinales;x++){
+
+						let ins1='';let ins2=''; let pesoD=0; let volumenD=0;
+
+						if(peso!==null){
+							pesoD=peso/bultosFinales;
+						}
+
+						if(volumen!==null){
+							volumenD=volumen/bultosFinales;
+						}
+
+						if(typeof producto==='undefined'){
+							producto='NN';
+						}
+
+						ins1+=` fecha_recepcion, `; 
+
+						ins2+=` '`+moment().format('YYYYMMDD 000000')+`', `; 
+
+						ins1+=` fecha_consolidado, `; 
+
+						ins2+=` '`+moment().format('YYYYMMDD 000000')+`', `; 
+
+						ins1+=` tipo_producto, `; 
+
+						ins2+=` `+3+`,`;
+
+						ins1+=` producto, `; 
+
+						ins2+=` '`+producto+`', `; 
+
+						ins1+=` peso, `; 
+						ins2+=` `+pesoD+`,`;
+
+						ins1+=` volumen, `; 
+
+						ins2+=` `+volumenD+`,`;
+
+						ins1+=` observacion, `; 
+
+						ins2+=` 'CARGA MASIVA', `; 
+
+						ins1+=` tracking_id, `; 
+
+						ins2+=` `+newTracking.rows[0].id+`,`;
+
+						ins1+=` estado `;
+
+						ins2+=` `+2+` `;
+
+						let queryFinal2=` INSERT INTO public.tracking_detalle ( `+ins1+` ) values ( `+ins2+` ); `;
+						await client.query(queryFinal2);
+						console.log(queryFinal2);
+					}
+
+					
+				}
+				
+				
+
+
+			}
 			/*if(existe[0].length<=0)
 			{
 				var insert_1 = ``;  
@@ -1479,16 +1551,20 @@ exports.getPackingList1 = async (req,res) =>{ try {
 		const Archivo_Excel = xlsx.parse(`uploads/importacion_tracking.xlsx`);
 		for(var row=1; row<Archivo_Excel[0].data.length; row++)
 		{
-			let fecha1=null;let fecha2=null;let peso=null;let volumen=null;let bultos=null;
+			let fecha1=null;let fecha2=null;let peso=null;let volumen=null;let bultos=null;let bultosPorLlegar=null;
 			if(Archivo_Excel[0].data[row][1]!==''){
-				fecha1=moment(fromExcelDate(Archivo_Excel[0].data[row][1])).add(1, 'days').format("DD-MM-YYYY");
+				fecha1=moment(fromExcelDate(Archivo_Excel[0].data[row][1])).add(1, 'days').format("YYYYMMDD");
 			}
 			if(Archivo_Excel[0].data[row][2]!=''){
-				fecha2=moment(fromExcelDate(Archivo_Excel[0].data[row][2])).add(1, 'days').format("DD-MM-YYYY");
+				fecha2=moment(fromExcelDate(Archivo_Excel[0].data[row][2])).add(1, 'days').format("YYYYMMDD");
 			}
 
 			if(Archivo_Excel[0].data[row][10]!==''){
 				bultos=parseInt(Archivo_Excel[0].data[row][10])
+			}
+
+			if(Archivo_Excel[0].data[row][11]!==''){
+				bultosPorLlegar=parseInt(Archivo_Excel[0].data[row][11])
 			}
 
 			if(Archivo_Excel[0].data[row][13]!==''){
@@ -1503,6 +1579,11 @@ exports.getPackingList1 = async (req,res) =>{ try {
 			if(isNaN(bultos)){
 				bultos=null;
 			}
+
+			if(isNaN(bultosPorLlegar)){
+				bultosPorLlegar=null;
+			}
+
 			if(isNaN(peso)){
 				peso=null;
 			}
@@ -1517,7 +1598,7 @@ exports.getPackingList1 = async (req,res) =>{ try {
 			if(fecha2=='Invalid date'){
 				fecha2=null;
 			}
-			insertar_tracking(Archivo_Excel[0].data[row][3],Archivo_Excel[0].data[row][8],fecha1,fecha2,bultos,peso,volumen,Archivo_Excel[0].data[row][17]);
+			insertar_tracking(Archivo_Excel[0].data[row][3],Archivo_Excel[0].data[row][8],fecha1,fecha2,bultos,peso,volumen,Archivo_Excel[0].data[row][17],bultosPorLlegar,Archivo_Excel[0].data[row][9]);
 		}
 
 		res.status(200).send([]);
