@@ -78,7 +78,34 @@ exports.listChn = async (req,res)=>{
 exports.list = (req, res) => {
 	try{
 	const arrayFinal=[];
-    client.query('SELECT t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,CASE WHEN t.packing_list1 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list1,CASE WHEN t.packing_list2 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list2,CASE WHEN t.invoice1 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice1,CASE WHEN t.invoice2 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice2,CASE WHEN t.foto1 IS NOT NULL THEN TRUE ELSE FALSE END AS foto1,CASE WHEN t.foto2 IS NOT NULL THEN TRUE ELSE FALSE END AS foto2,CASE WHEN t.foto3 IS NOT NULL THEN TRUE ELSE FALSE END AS foto3,CASE WHEN t.foto4 IS NOT NULL THEN TRUE ELSE FALSE END AS foto4,CASE WHEN t.foto5 IS NOT NULL THEN TRUE ELSE FALSE END AS foto5, ct.fk_consolidado, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,c.web as fk_cliente_web,c.telefono1 as fk_cliente_telefono1,c.telefono2 as fk_cliente_telefono2,c."dteEmail" as fk_cliente_email,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT count(id) FROM public.tracking_observaciones WHERE fk_tracking=T.id)::integer AS observaciones,t.fk_bodega,b.nombre as fk_bodega_nombre,(SELECT SUM(peso) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS peso_recepcionado,(SELECT SUM(volumen) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS volumen_recepcionado,(SELECT count (t2.id) from public.tracking t2 INNER JOIN public.consolidado_tracking ct2 on t2.id=ct2.fk_tracking where t2.estado>=1 and ct2.fk_consolidado=(select ct2.fk_consolidado from consolidado_tracking ct2 where ct2.fk_tracking=t.id))::integer AS trackings_completos,(SELECT count (ct.id) from public.consolidado_tracking ct where ct.fk_consolidado=(select ct.fk_consolidado from consolidado_tracking ct where ct.fk_tracking=t.id))::integer AS trackings_totales FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id left join public.bodegas b on b.id=t.fk_bodega where t.estado<2 and t.estado>=0 ORDER BY T.id DESC', "", function (err, result) {
+	let query0='SELECT t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,';
+	query0+='ct.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo,';
+	query0+='p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,t.fk_bodega,b.nombre as fk_bodega_nombre,';
+	query0+='CASE WHEN t.packing_list1 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list1,';
+	query0+='CASE WHEN t.packing_list2 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list2,';
+	query0+='CASE WHEN t.invoice1 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice1,';
+	query0+='CASE WHEN t.invoice2 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice2,';
+	query0+='CASE WHEN t.foto1 IS NOT NULL THEN TRUE ELSE FALSE END AS foto1,';
+	query0+='CASE WHEN t.foto2 IS NOT NULL THEN TRUE ELSE FALSE END AS foto2,';
+	query0+='CASE WHEN t.foto3 IS NOT NULL THEN TRUE ELSE FALSE END AS foto3,';
+	query0+='CASE WHEN t.foto4 IS NOT NULL THEN TRUE ELSE FALSE END AS foto4,';
+	query0+='CASE WHEN t.foto5 IS NOT NULL THEN TRUE ELSE FALSE END AS foto5,';
+	query0+='CASE WHEN td.estado>=1 then SUM(1) ELSE SUM(0) END AS bultos_completos,';
+	query0+='CASE WHEN td.estado=0 then SUM(1) ELSE SUM(0) END AS bultos_pendientes,';
+	query0+='SUM(coalesce (td.peso,0)) as peso_recepcionado,';
+	query0+='SUM(coalesce (td.volumen,0)) as volumen_recepcionado ';
+	query0+='FROM public.tracking t ';
+	query0+='left join public.clientes c on c.id=t.fk_cliente ';
+	query0+='left join public.proveedores p on p.id=t.fk_proveedor ';
+	query0+='left join public.consolidado_tracking ct on ct.fk_tracking=t.id ';
+	query0+='left join public.bodegas b on b.id=t.fk_bodega ';
+	query0+='left join public.tracking_detalle td on td.tracking_id=t.id ';
+	query0+='where t.estado<2 and t.estado>=0 ';
+	query0+='group by t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,';
+	query0+='t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,';
+	query0+='td.estado,ct.fk_consolidado,c.codigo,c."razonSocial",p.codigo,p.nombre,p."nombreChi",t.fk_bodega,b.nombre ';
+	query0+=' ORDER BY T.prioridad DESC';
+    client.query(query0, "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -186,7 +213,35 @@ exports.list = (req, res) => {
   exports.listByEstado = (req, res) => {
   	try{
 	const arrayFinal=[];
-    client.query('SELECT t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,CASE WHEN t.packing_list1 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list1,CASE WHEN t.packing_list2 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list2,CASE WHEN t.invoice1 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice1,CASE WHEN t.invoice2 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice2,CASE WHEN t.foto1 IS NOT NULL THEN TRUE ELSE FALSE END AS foto1,CASE WHEN t.foto2 IS NOT NULL THEN TRUE ELSE FALSE END AS foto2,CASE WHEN t.foto3 IS NOT NULL THEN TRUE ELSE FALSE END AS foto3,CASE WHEN t.foto4 IS NOT NULL THEN TRUE ELSE FALSE END AS foto4,CASE WHEN t.foto5 IS NOT NULL THEN TRUE ELSE FALSE END AS foto5,ct.fk_consolidado, c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,t.fk_bodega,b.nombre as fk_bodega_nombre,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos,(SELECT SUM(peso) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS peso_recepcionado,(SELECT SUM(volumen) FROM public.tracking_detalle WHERE tracking_id=T.id)::real AS volumen_recepcionado FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor left join public.consolidado_tracking ct on ct.fk_tracking=t.id left join public.bodegas b on b.id=t.fk_bodega where t.estado=$1 ORDER BY T.prioridad DESC', [req.params.estado], function (err, result) {
+	let query0='SELECT t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,';
+	query0+='ct.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo,';
+	query0+='p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,t.fk_bodega,b.nombre as fk_bodega_nombre,';
+	query0+='CASE WHEN t.packing_list1 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list1,';
+	query0+='CASE WHEN t.packing_list2 IS NOT NULL THEN TRUE ELSE FALSE END AS packing_list2,';
+	query0+='CASE WHEN t.invoice1 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice1,';
+	query0+='CASE WHEN t.invoice2 IS NOT NULL THEN TRUE ELSE FALSE END AS invoice2,';
+	query0+='CASE WHEN t.foto1 IS NOT NULL THEN TRUE ELSE FALSE END AS foto1,';
+	query0+='CASE WHEN t.foto2 IS NOT NULL THEN TRUE ELSE FALSE END AS foto2,';
+	query0+='CASE WHEN t.foto3 IS NOT NULL THEN TRUE ELSE FALSE END AS foto3,';
+	query0+='CASE WHEN t.foto4 IS NOT NULL THEN TRUE ELSE FALSE END AS foto4,';
+	query0+='CASE WHEN t.foto5 IS NOT NULL THEN TRUE ELSE FALSE END AS foto5,';
+	query0+='CASE WHEN td.estado>=1 then SUM(1) ELSE SUM(0) END AS bultos_completos,';
+	query0+='CASE WHEN td.estado=0 then SUM(1) ELSE SUM(0) END AS bultos_pendientes,';
+	query0+='SUM(coalesce (td.peso,0)) as peso_recepcionado,';
+	query0+='SUM(coalesce (td.volumen,0)) as volumen_recepcionado ';
+	query0+='FROM public.tracking t ';
+	query0+='left join public.clientes c on c.id=t.fk_cliente ';
+	query0+='left join public.proveedores p on p.id=t.fk_proveedor ';
+	query0+='left join public.consolidado_tracking ct on ct.fk_tracking=t.id ';
+	query0+='left join public.bodegas b on b.id=t.fk_bodega ';
+	query0+='left join public.tracking_detalle td on td.tracking_id=t.id ';
+	query0+='where t.estado=$1 ';
+	query0+='group by t.id,t.fecha_creacion,t.fecha_recepcion,t.cantidad_bultos,t.peso,t.volumen,t.tipo_carga,t.fk_proveedor,t.fk_cliente,';
+	query0+='t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,';
+	query0+='td.estado,ct.fk_consolidado,c.codigo,c."razonSocial",p.codigo,p.nombre,p."nombreChi",t.fk_bodega,b.nombre ';
+	query0+=' ORDER BY T.prioridad DESC';
+
+    client.query(query0, [req.params.estado], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
@@ -194,7 +249,7 @@ exports.list = (req, res) => {
         const resultHeader=result;
         const ids=[];
         const idsClientes=[];
-/*
+
         if(result.rows.length>0){
         	for(var i=0;i<result.rows.length;i++){
         		ids.push(result.rows[i].id);
@@ -248,7 +303,7 @@ exports.list = (req, res) => {
 		        });
         }else{
         	res.status(200).send(arrayFinal);
-        }*/
+        }
 		res.status(200).send(result.rows);
     });   
     } catch (error) {
@@ -1355,7 +1410,7 @@ exports.getPackingList1 = async (req,res) =>{ try {
 		async function insertar_tracking(codCliente,nombreProveedor,fecha1,fecha2,bultos,peso,volumen,estado,bultosPorLlegar,producto)
 		{
 			let existeCliente=null;let idCliente=null;
-			let existeProveedor=null;let idProveedor=null;let bultosFinales=0;
+			let existeProveedor=null;let idProveedor=null;let bultosFinales=0;let bultosFor=0;
 			if(typeof codCliente!='undefined'){
 				existeCliente = await client.query(` 
 					select
@@ -1400,10 +1455,20 @@ exports.getPackingList1 = async (req,res) =>{ try {
 			if(parseInt(estado)===2){
 				if(bultosPorLlegar!==null){
 					bultosFinales=bultosPorLlegar;
+					bultosFor=bultosFinales;
 				}else if(bultos!==null){
 					bultosFinales=bultos;
+					bultosFor=bultos;
+				}
+			}else{
+				if(bultosPorLlegar!==null){
+					bultosFinales=bultosPorLlegar;
+				}
+				if(bultos!==null){
+					bultosFor=bultos;
 				}
 			}
+			
 
 			let insert_1 = '';     let insert_2 = '';
 			insert_1 += ` fecha_creacion, `;  
@@ -1449,23 +1514,21 @@ exports.getPackingList1 = async (req,res) =>{ try {
 
 			let queryFinal=` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ); `;
 			let newTracking=null;
-			if(parseInt(estado)===2){
-				newTracking=await client.query(` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ) RETURNING * `);
-			}
-
+			newTracking=await client.query(` INSERT INTO public.tracking ( `+insert_1+` ) values ( `+insert_2+` ) RETURNING * `);
+			
 			if(newTracking.rows && newTracking.rows.length>0){
-				if(bultosFinales>0){
+				if(bultosFor>0){
 
-					for(let x=0; x<bultosFinales;x++){
+					for(let x=0; x<bultosFor;x++){
 
 						let ins1='';let ins2=''; let pesoD=0; let volumenD=0;
 
 						if(peso!==null){
-							pesoD=peso/bultosFinales;
+							pesoD=peso/bultosFor;
 						}
 
 						if(volumen!==null){
-							volumenD=volumen/bultosFinales;
+							volumenD=volumen/bultosFor;
 						}
 
 						if(typeof producto==='undefined'){
@@ -1511,13 +1574,7 @@ exports.getPackingList1 = async (req,res) =>{ try {
 						await client.query(queryFinal2);
 						console.log(queryFinal2);
 					}
-
-					
 				}
-				
-				
-
-
 			}
 			/*if(existe[0].length<=0)
 			{
