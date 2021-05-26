@@ -29,7 +29,7 @@ exports.listChn = async (req,res)=>{
 	query0+='FROM public.tracking t ';
 	query0+='left join public.clientes c on c.id=t.fk_cliente ';
 	query0+='left join public.proveedores p on p.id=t.fk_proveedor ';
-	query0+='left join public.consolidado_tracking ct on ct.fk_tracking=t.id ';
+	query0+='inner join public.consolidado_tracking ct on ct.fk_tracking=t.id ';
 	query0+='left join public.bodegas b on b.id=t.fk_bodega ';
 	query0+='left join public.tracking_detalle td on td.tracking_id=t.id ';
 	query0+='where t.estado<2 and t.estado>=0 ';
@@ -117,6 +117,8 @@ exports.list = (req, res) => {
 	query0+='CASE WHEN t.foto3 IS NOT NULL THEN TRUE ELSE FALSE END AS foto3,';
 	query0+='CASE WHEN t.foto4 IS NOT NULL THEN TRUE ELSE FALSE END AS foto4,';
 	query0+='CASE WHEN t.foto5 IS NOT NULL THEN TRUE ELSE FALSE END AS foto5,';
+	query0+='(SELECT count (ct.id) from public.consolidado_tracking ct where ct.fk_consolidado=(select ct.fk_consolidado from consolidado_tracking ct where ct.fk_tracking=t.id))::integer AS trackings_totales,';
+	query0+='(SELECT count (t2.id) from public.tracking t2 INNER JOIN public.consolidado_tracking ct2 on t2.id=ct2.fk_tracking where t2.estado>=1 and ct2.fk_consolidado=(select ct2.fk_consolidado from consolidado_tracking ct2 where ct2.fk_tracking=t.id))::integer AS trackings_completos,';
 	query0+='CASE WHEN td.estado>=1 then SUM(1) ELSE SUM(0) END AS bultos_completos,';
 	query0+='CASE WHEN td.estado=0 then SUM(1) ELSE SUM(0) END AS bultos_pendientes,';
 	query0+='SUM(coalesce (td.peso,0)) as peso_recepcionado,';
@@ -132,6 +134,8 @@ exports.list = (req, res) => {
 	query0+='t.tipo,t.estado,t.currier,t.fk_propuesta,t.fk_consolidado_tracking,t.prioridad,t.fk_proveedor_cliente,t."devImpuesto",t.fk_bodega,';
 	query0+='td.estado,ct.fk_consolidado,c.codigo,c."razonSocial",p.codigo,p.nombre,p."nombreChi",t.fk_bodega,b.nombre ';
 	query0+=' ORDER BY T.id DESC';
+
+	console.log(query0);
     client.query(query0, "", function (err, result) {
         if (err) {
             console.log(err);
