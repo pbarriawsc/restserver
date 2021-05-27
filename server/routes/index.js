@@ -71,4 +71,5 @@ app.use(require('./lineasNavieras'));
 app.use(require('./embarcadoras'));
 app.use(require('./contenedorTracking'));
 app.use(require('./contenedorProforma'))
+app.use(require('./plDesconsolidado'))
 module.exports=app;
