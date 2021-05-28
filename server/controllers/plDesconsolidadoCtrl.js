@@ -50,8 +50,8 @@ exports.create = async (req, res) => {
         });
 
         const query={
-            text:'INSERT INTO public.pl_desconsolidado(fk_contenedor,fk_usuario_creacion,fk_usuario_modificacion,fecha_creacion,estado) VALUES ($1,$2,$3,$4,$5) RETURNING *',
-            values:[req.body.fk_contenedor,req.usuario.id,req.usuario.id,moment().format('YYYYMMDD HHmmss'),0]
+            text:'INSERT INTO public.pl_desconsolidado(fk_contenedor,fk_usuario_creacion,fk_usuario_modificacion,fecha_creacion,fecha_descarga,estado) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
+            values:[req.body.fk_contenedor,req.usuario.id,req.usuario.id,moment().format('YYYYMMDD HHmmss'),req.body.fecha_descarga,0]
         };
 
         const result=await client.query(query);
