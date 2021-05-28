@@ -8,6 +8,8 @@ app.get(`${prefix}`,verifyToken,plDesconsolidadoController.list);
 
 app.get(`${prefix}/:id`,verifyToken, plDesconsolidadoController.findOneBy)
 
+app.get(`${prefix}/contenedor/:fk_contenedor`,verifyToken, plDesconsolidadoController.findOneByContenedor)
+
 app.post(`${prefix}`,verifyToken, plDesconsolidadoController.create)
 
 app.delete(`${prefix}/:id`,verifyToken, plDesconsolidadoController.delete)
