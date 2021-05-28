@@ -8,5 +8,7 @@ app.post(`${prefix}/:id`,verifyToken, contenedorDetalleController.create);
 app.get(`${prefix}/contenedor/:id`,verifyToken, contenedorDetalleController.listByContenedor);
 app.put(`${prefix}/estadoTracking/:id`,verifyToken, contenedorDetalleController.updateEstadoTracking);
 app.delete(`${prefix}/:id`,verifyToken, contenedorDetalleController.delete);
+app.get(`${prefix}/contenedornoplanificado/:id`,verifyToken, contenedorDetalleController.listByContenedorNoPlanificado);
+
 
 module.exports=app;

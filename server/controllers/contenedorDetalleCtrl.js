@@ -277,3 +277,20 @@ exports.delete = (req, res) => {
             success:true
             });
 };
+
+exports.listByContenedorNoPlanificado = (req, res) => {
+	if (!req.params.id) {
+      res.status(400).send({
+        message: "El id es obligatorio",
+        success:false
+      });
+      return;
+    }
+    client.query('SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor as fk_contenedor_cd,td.*,t.fk_cliente,c."razonSocial" as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1 and NOT EXISTS (SELECT *FROM public.pl_desconsolidado_detalle dcd WHERE dcd.fk_tracking_detalle = td.id)', [req.params.id], function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });   
+};
