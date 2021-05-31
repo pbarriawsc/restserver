@@ -294,3 +294,45 @@ exports.listByContenedorNoPlanificado = (req, res) => {
         res.status(200).send(result.rows);
     });   
 };
+
+exports.getByClientAndContainer = async (req, res) => {
+    try {
+        if (!req.params.fk_cliente) {
+            res.status(400).send({
+              message: "El cliente es obligatorio",
+              success:false
+            });
+            return;
+        }
+
+        if (!req.params.fk_contenedor) {
+            res.status(400).send({
+              message: "El contenedor es obligatorio",
+              success:false
+            });
+            return;
+        }
+
+        const query={
+            text:'SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor as fk_contenedor_cd,td.*,t.fk_cliente,c."razonSocial" as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1 AND t.fk_cliente=$2',
+            values:[req.params.fk_contenedor,req.params.fk_cliente]
+        };
+        
+        let result=await client.query(query);
+
+        if(result && result.rows && result.rows.length>0){
+            res.status(200).send(result.rows);
+            res.end(); res.connection.destroy();
+        }else{
+            res.status(400).send({
+            message: "NO EXISTEN BULTOS ASOCIADOS AL CLIENTE EN ESTE CONTENEDOR",
+            success:false,}); res.end(); res.connection.destroy();
+        }
+
+    } catch (error) {
+        console.log('ERROR GET BY CLIENT AND CONTAINER DETAIL '+error); console.log(' '); console.log(' ');
+        res.status(400).send({
+        message: "ERROR AL OBTENER EL DETALLE DEL CONTENEDOR POR CLIENTE",
+        success:false,}); res.end(); res.connection.destroy();
+    }
+};

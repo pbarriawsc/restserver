@@ -9,6 +9,8 @@ app.get(`${prefix}/contenedor/:id`,verifyToken, contenedorDetalleController.list
 app.put(`${prefix}/estadoTracking/:id`,verifyToken, contenedorDetalleController.updateEstadoTracking);
 app.delete(`${prefix}/:id`,verifyToken, contenedorDetalleController.delete);
 app.get(`${prefix}/contenedornoplanificado/:id`,verifyToken, contenedorDetalleController.listByContenedorNoPlanificado);
+app.get(`${prefix}/contenedor/:fk_contenedor/cliente/:fk_cliente`,verifyToken, contenedorDetalleController.getByClientAndContainer);
+
 
 
 module.exports=app;
