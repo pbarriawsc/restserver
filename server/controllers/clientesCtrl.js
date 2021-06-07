@@ -451,13 +451,28 @@ exports.update = (req, res) => {
 }
 
   exports.list = (req, res) => {
-    client.query('SELECT id, estado, rut, codigo, "razonSocial", web, telefono1, telefono2, "dteEmail", "aproComercial", "aproFinanciera", "codigoSii", giro, "repLegalRut", "repLegalNombre", "repLegalApellido", "repLegalMail", fk_responsable, fk_comercial FROM public.clientes', "", function (err, result) {
+    try{
+      let token= req.get('Authorization'); jwt.verify(token, process.env.SECRET, (err,decoded)=>{ if(err){ return res.status(401).json({ success:false, err }) } req.usuario = decoded.usuario; });
+      let query='SELECT id, estado, rut, codigo, "razonSocial", web, telefono1, telefono2, "dteEmail", "aproComercial", "aproFinanciera", "codigoSii", giro, "repLegalRut", "repLegalNombre", "repLegalApellido", "repLegalMail", fk_responsable, fk_comercial FROM public.clientes';
+      if(req.usuario.fk_rol===2){
+        query=+' WHERE fk_comercial='+req.usuario.id;
+      }
+      client.query(query, "", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
         }
         res.status(200).send(result.rows);
-    });
+      });
+    }
+    catch (error) {
+      res.status(400).send({
+          message: "ERROR :"+error,
+          success:false,
+      });
+      res.end(); res.connection.destroy();
+  }
+    
   };
 
   exports.findOneBy = (req,res) =>{
