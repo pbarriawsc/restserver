@@ -145,7 +145,7 @@ exports.createBodega = async (req, res) => {
         });
         let trackingId=0;
         let idsPl=[];
-        
+       /* 
         if(req.body.detalle && req.body.detalle.length>0){
             trackingId=req.body.detalle[0].tracking_id;
             for(var i=0;i<req.body.detalle.length;i++){
@@ -231,7 +231,7 @@ exports.createBodega = async (req, res) => {
                     }
                 }
             }
-        }
+        }*/
         res.status(200).send([]);
         res.end(); res.connection.destroy();
     } catch (error) {
