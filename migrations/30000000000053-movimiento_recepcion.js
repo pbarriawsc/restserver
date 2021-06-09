@@ -8,14 +8,14 @@ module.exports = {
      * Example:
      * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
      */
-     await queryInterface.createTable('pl_desconsolidado_detalle', {
+     await queryInterface.createTable('movimiento_recepcion', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fk_pl_desconsolidado: {
+      fk_contenedor: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
@@ -23,13 +23,17 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      opcion: {
+      fk_usuario:{
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull:false
       },
-      fk_camion: {
+      opcion:{
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull:false
+      },
+      fecha:{
+        type: Sequelize.DATE,
+        allowNull:false
       },
       estado:{
         type: Sequelize.INTEGER,
@@ -45,6 +49,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-     await queryInterface.dropTable('pl_desconsolidado_detalle');
+     await queryInterface.dropTable('movimiento_recepcion');
   }
 };
