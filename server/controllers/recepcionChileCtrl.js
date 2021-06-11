@@ -145,10 +145,21 @@ exports.createBodega = async (req, res) => {
         });
         let trackingId=0;
         let idsPl=[];
-       /* 
+        let peso=0;
+        let volumen=0;
+        let saldo=0;
+        let pesoSaldo=0;
+        let volumenSaldo=0;
+        let codigoInterno='';
+        let fkUbicacion=0;
+       
         if(req.body.detalle && req.body.detalle.length>0){
             trackingId=req.body.detalle[0].tracking_id;
+            codigoInterno=req.body.detalle[0].codigo_interno;
+            fkUbicacion=req.body.detalle[0].fk_ubicacion;
             for(var i=0;i<req.body.detalle.length;i++){
+                peso=peso+req.body.detalle[i].peso;
+                volumen=volumen+req.body.detalle[i].volumen;
                 const result0=await client.query('SELECT *FROM movimiento_recepcion WHERE fk_contenedor='+parseInt(req.body.fk_contenedor)+' AND fk_tracking_detalle='+parseInt(req.body.detalle[i].id));
                 if(result0 && result0.rows && result0.rows.length>0){
                     console.log('EXISTE EL REGISTRO');
@@ -190,8 +201,54 @@ exports.createBodega = async (req, res) => {
                         }
                     }
 
+                    const result31=await client.query('SELECT *FROM public.bodega_ubicacion_detalle WHERE fk_bodega_ubicacion='+ req.body.detalle[i].fk_ubicacion+' AND fk_tracking_detalle='+req.body.detalle[i].id);
+
+                    if(result31 && result31.rows && result31.rows.length>0){
+
+                    }else{
+                        const query32={
+                            text:'INSERT INTO public.bodega_ubicacion_detalle(fk_bodega_ubicacion,fk_contenedor,fk_tracking_detalle,fk_usuario,fecha,estado)VALUES($1,$2,$3,$4,$5,$6) RETURNING *',
+                            values:[req.body.detalle[i].fk_ubicacion,req.body.fk_contenedor,req.body.detalle[i].id,req.usuario.id,moment().format('YYYYMMDD HHmmss'),0]
+                        };
+
+                        const result32=await client.query(query32);
+                        if(result32 && result32.rows && result32.rows.length>0){
+
+                        }else{
+                            console.log('ERROR AL INSERTAR TABLA BODEGA UBICACION DETALLE (MOVIMIENTO RECEPCION)');
+                        }
+                    }
                 }
             } 
+
+            //INSERCION KARDEX
+            const result33=await client.query(`SELECT *FROM public.kardex WHERE fk_contenedor=`+req.body.fk_contenedor+` and codigo_interno='`+codigoInterno+`' and fk_tracking=`+trackingId+' and fk_bodega_ubicacion='+fkUbicacion+' and entrada='+req.body.detalle.length+' and peso='+peso+' and volumen='+volumen);
+            if(result33 && result33.rows && result33.rows.length>0){
+                console.log('EXISTE REGISTRO EN KARDEX (MOVIMIENTO RECEPCION)');
+            }else{
+                const result34=await client.query(`SELECT *FROM public.kardex WHERE fk_bodega_ubicacion=`+fkUbicacion+` order by id desc limit 1`);
+
+                if(result34 && result34.rows && result34.rows.length>0){
+                    saldo=saldo+result34.rows[0].saldo;
+                    pesoSaldo=result34.rows[0].peso_saldo+peso;
+                    volumenSaldo=result34.rows[0].volumen_saldo+volumen;
+                }else{
+                    saldo=req.body.detalle.length;
+                    pesoSaldo=peso;
+                    volumenSaldo=volumen;
+                }
+
+                const query35={
+                    text:'INSERT INTO public.kardex(fk_contenedor,codigo_interno,fk_tracking,fk_bodega_ubicacion,entrada,peso,volumen,fk_usuario,fecha,estado,saldo,peso_saldo,volumen_saldo)VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *',
+                    values:[req.body.fk_contenedor,codigoInterno,trackingId,fkUbicacion,req.body.detalle.length,peso,volumen,req.usuario.id,moment().format('YYYYMMDD HHmmss'),0,saldo,pesoSaldo,volumenSaldo]
+                };
+                const result35=await client.query(query35);
+                if(result35 && result35.rows && result35.rows.length>0){
+                    console.log('EXITO AL INSERTAR TABLA KARDEX (MOVIMIENTO RECEPCION)');
+                }else{
+                    console.log('ERROR AL INSERTAR TABLA KARDEX (MOVIMIENTO RECEPCION)');
+                }
+            }
         }
 
         if(trackingId>0){
@@ -231,7 +288,7 @@ exports.createBodega = async (req, res) => {
                     }
                 }
             }
-        }*/
+        }
         res.status(200).send([]);
         res.end(); res.connection.destroy();
     } catch (error) {
