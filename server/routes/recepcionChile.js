@@ -6,6 +6,6 @@ const recepcionChileController=require('../controllers/recepcionChileCtrl');
 
 app.post(`${prefix}/simple`,verifyToken,recepcionChileController.createSimple);
 app.post(`${prefix}/bodega`,verifyToken,recepcionChileController.createBodega);
-
+app.post(`${prefix}/transporte`,verifyToken,recepcionChileController.createTransporte);
 
 module.exports=app;
