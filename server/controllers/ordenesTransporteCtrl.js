@@ -6,9 +6,43 @@ const moment=require('moment');
 
 exports.list = async (req, res) => {
     try {
-        const result=await client.query('SELECT *FROM public.orden_transporte');
-        if(result.rows){
-            res.status(200).send(result.rows);
+        const result=await client.query('SELECT ot.*,c.codigo as fk_contenedor_codigo,u.nombre as fk_usuario_creacion_nombre, u.apellidos as fk_usuario_creacion_apellidos,e.patente FROM public.orden_transporte ot LEFT JOIN public.contenedor c on c.id=ot.fk_contenedor INNER JOIN public.usuario u on u.id=ot.fk_usuario_creacion INNER JOIN public.equipos e on e.id=ot.fk_equipo ORDER BY ot.id DESC');
+        
+        const ids=[];
+        if(result.rows && result.rows.length){
+            const final=lodash.cloneDeep(result.rows);
+            for(var i=0;i<result.rows.length;i++){
+                ids.push(result.rows[i].id);
+            }
+
+            let queryIn='';
+            if(ids.length>0){
+                queryIn+='WHERE otd.fk_orden_transporte IN (';
+                for(var x=0;x<ids.length;x++){
+                    if(x!==ids.length-1){
+                        queryIn+=ids[x]+','
+                    }else{
+                        queryIn+=ids[x]
+                    }
+                }
+                queryIn+=')';
+            }
+
+            let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion,td.fk_currier,td.numero_seguimiento,c.nombre as fk_currier_nombre,c.nombre_chino as fk_currier_nombre_chino,ot.id as fk_orden_transporte,otd.id as fk_orden_transporte_detalle FROM public.tracking_detalle td inner join public.orden_transporte_detalle otd on otd.fk_tracking_detalle=td.id inner join public.orden_transporte ot on ot.id=otd.fk_orden_transporte left join public.currier c on c.id=td.fk_currier  "+queryIn;
+            const resultFinal= await client.query(queryFinal);
+
+            if(resultFinal && resultFinal.rows && resultFinal.rows.length>0){
+                for(var i=0;i<final.length;i++){
+                    const filterArray=resultFinal.rows.filter(y=>y.fk_orden_transporte===final[i].id);
+                    if(filterArray){
+                        final[i].detalle=filterArray;
+                    }else{
+                        final[i].detalle=[];
+                    }
+                }
+            }
+
+            res.status(200).send(final);
             res.end(); res.connection.destroy();
         }else{
             res.status(200).send([]);
