@@ -75,4 +75,5 @@ app.use(require('./plDesconsolidado'));
 app.use(require('./ordenesTransporte'));
 app.use(require('./recepcionChile'));
 app.use(require('./kardex'));
+app.use(require('./bodegaUbicacionesDetalle'));
 module.exports=app;
