@@ -33,6 +33,7 @@ exports.list = (req, res) => {
 	    query+=' INNER JOIN public.tracking t on t.id=td.tracking_id ';
 	    query+=' INNER JOIN public.clientes cl on cl.id=t.fk_cliente ';
 	    query+=' INNER JOIN public.proveedores p on p.id=t.fk_proveedor ';
+	    query+=' WHERE bud.estado=0 ';
 	    query+=' order by bud.id desc ';
 
 	    client.query(query,"",function (err, result)

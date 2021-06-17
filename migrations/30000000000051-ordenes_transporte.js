@@ -27,6 +27,10 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull:true
       },
+      fecha:{
+        type: Sequelize.DATE,
+        allowNull:true
+      },
       tipo:{
         type: Sequelize.INTEGER,
         allowNull:false

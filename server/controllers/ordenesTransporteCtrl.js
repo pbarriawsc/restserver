@@ -80,10 +80,10 @@ exports.create = async (req, res) => {
             });
 
             for(let i=0;i< req.body.ots.length;i++){
-                if(req.body.tipo===2 || req.body.tipo===3){//contenedor o camion
+               // if(req.body.tipo===2 || req.body.tipo===3){//contenedor o camion
                     query={
-                        text:'INSERT INTO public.orden_transporte(fk_usuario_creacion, fecha_creacion,tipo,fk_equipo,fk_contenedor,estado) VALUES($1,$2,$3,$4,$5,$6) RETURNING*',
-                        values:[req.usuario.id,moment().format('YYYYMMDD HHmmss'), req.body.ots[i].tipo,req.body.ots[i].fk_equipo,req.body.ots[i].fk_contenedor,req.body.ots[i].estado]
+                        text:'INSERT INTO public.orden_transporte(fk_usuario_creacion, fecha_creacion,tipo,fk_equipo,fk_contenedor,estado,fecha) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING*',
+                        values:[req.usuario.id,moment().format('YYYYMMDD HHmmss'), req.body.ots[i].tipo,req.body.ots[i].fk_equipo,req.body.ots[i].fk_contenedor,req.body.ots[i].estado,req.body.ots[i].fecha]
                     };
 
                     const result=await client.query(query);
@@ -97,12 +97,12 @@ exports.create = async (req, res) => {
                             const result2=await client.query(query2);
                         }
                     }
-                }else if(tipo===1){//bodega
+               // }else if(tipo===1){//bodega
                     /*query={
                         text:'INSERT INTO public.orden_transporte(fk_usuario_creacion, fecha_creacion,tipo,fk_equipo,fk_contenedor,estado) VALUES($1,$2,$3,$4,$5,$6) RETURNING*',
                         values:[moment().format('YYYYMMDD HHmmss')]
                     }*/
-                }
+                //}
                 
             }
         }
