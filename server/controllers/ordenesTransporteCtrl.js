@@ -136,3 +136,21 @@ exports.delete = async (req, res) => {
         success:false,}); res.end(); res.connection.destroy();
     }
 };
+
+exports.listByDate = async (req, res) => {
+    try {
+        const result=await client.query(`SELECT ot.*,c.codigo as fk_contenedor_codigo,u.nombre as fk_usuario_creacion_nombre, u.apellidos as fk_usuario_creacion_apellidos,e.patente FROM public.orden_transporte ot LEFT JOIN public.contenedor c on c.id=ot.fk_contenedor INNER JOIN public.usuario u on u.id=ot.fk_usuario_creacion INNER JOIN public.equipos e on e.id=ot.fk_equipo WHERE TO_CHAR(ot.fecha, 'DDMMYYYY')='`+req.params.fecha+`' ORDER BY ot.id DESC`);
+        if(result.rows && result.rows.length){
+            res.status(200).send(result.rows);
+            res.end(); res.connection.destroy();
+        }else{
+            res.status(200).send([]);
+            res.end(); res.connection.destroy();
+        }    
+    } catch (error) {
+        console.log('ERROR LIST ORDEN TRANSPORTE '+error); console.log(' '); console.log(' ');
+        res.status(400).send({
+        message: "ERROR AL OBTENER EL LISTADO DE ORDENES DE TRANSPORTE",
+        success:false,}); res.end(); res.connection.destroy();
+    }
+};

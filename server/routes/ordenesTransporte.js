@@ -5,6 +5,7 @@ const prefix='/api/ordenes_transporte';
 const ordenesTransporteController=require('../controllers/ordenesTransporteCtrl');
 
 app.get(`${prefix}`,verifyToken,ordenesTransporteController.list);
+app.get(`${prefix}/:fecha`,verifyToken,ordenesTransporteController.listByDate);
 app.post(`${prefix}`,verifyToken,ordenesTransporteController.create);
 app.delete(`${prefix}/:id`,verifyToken,ordenesTransporteController.delete);
 
