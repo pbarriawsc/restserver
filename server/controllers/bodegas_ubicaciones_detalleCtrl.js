@@ -34,6 +34,7 @@ exports.list = (req, res) => {
 	    query+=' INNER JOIN public.clientes cl on cl.id=t.fk_cliente ';
 	    query+=' INNER JOIN public.proveedores p on p.id=t.fk_proveedor ';
 	    query+=' WHERE bud.estado=0 ';
+	    query+=' and NOT EXISTS (SELECT *FROM public.orden_transporte_detalle otd WHERE otd.fk_tracking_detalle=bud.fk_tracking_detalle) ';
 	    query+=' order by bud.id desc ';
 
 	    client.query(query,"",function (err, result)
