@@ -372,16 +372,17 @@ exports.listByReadyToCharge = async(req, res) => {
 
 
 
-    let query='SELECT T.*,cst.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.estado=$1 AND t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 ORDER BY T.prioridad ASC';
+    let query='SELECT T.*,cst.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 ORDER BY T.prioridad ASC';
     if(bodega!==null){
-    	query='SELECT T.*,cst.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.estado=$1 AND t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 AND t.fk_bodega='+parseInt(bodega)+' ORDER BY T.prioridad ASC'
+    	query='SELECT T.*,cst.fk_consolidado,c.codigo as fk_cliente_codigo,c."razonSocial" as fk_cliente_nombre,p.codigo as fk_proveedor_codigo, p.nombre as fk_proveedor_nombre,p."nombreChi" as fk_proveedor_nombre_chino,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=0)::integer AS bultos_pendientes,(SELECT count(id) FROM public.tracking_detalle WHERE tracking_id=T.id and estado=1)::integer AS bultos_completos FROM public.tracking t left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor inner join public.consolidado_tracking cst on cst.id=t.fk_consolidado_tracking where t.fk_propuesta is not null AND t.fk_consolidado_tracking is not null and cst.estado=1 AND t.fk_bodega='+parseInt(bodega)+' ORDER BY T.prioridad ASC'
     }
-    client.query(query,[req.params.estado], function (err, result) {
+    client.query(query,"", function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);
         }
         const resultHeader=result;
+
         const ids=[];
         const idsClientes=[];
         if(result.rows.length>0){
@@ -403,19 +404,19 @@ exports.listByReadyToCharge = async(req, res) => {
 		        }
 
 		        let queryFinal="SELECT td.id,td.upload_id,td.fecha_recepcion,td.fecha_consolidado,td.codigo_interno,td.tipo_producto,td.producto,td.peso,td.volumen,td.observacion,td.tracking_id,td.estado,CASE WHEN td.foto1 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto1,CASE WHEN td.foto2 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto2,CASE WHEN td.foto3 IS NOT NULL THEN 'TRUE' ELSE 'FALSE' END AS foto3,td.ancho,td.alto,td.altura,td.ubicacion FROM public.tracking_detalle td "+queryIn;
-		        if(req.params.estado===1 || req.params.estado==='1'){
-		        	queryFinal+=' and td.estado=1 and td.fk_consolidado_tracking_detalle is not null and NOT EXISTS (SELECT *FROM public.contenedor_proforma_detalle cpd WHERE cpd.fk_tracking_detalle = td.id)';
-		        }
+		        //if(req.params.estado===1 || req.params.estado==='1'){
+		        	queryFinal+=' and td.fk_consolidado_tracking_detalle is not null and NOT EXISTS (SELECT *FROM public.contenedor_proforma_detalle cpd WHERE cpd.fk_tracking_detalle = td.id)';
+		        //}
 
-		        client.query(queryFinal, "", function (err, result) {
-			        if (err) {
-			            console.log(err);
-			            res.status(400).send(err);
+		        client.query(queryFinal, "", function (err2, result2) {
+			        if (err2) {
+			            console.log(err2);
+			            res.status(400).send(err2);
 			        }
 			        if(resultHeader.rows.length>0){
 			        	for(var i=0;i<resultHeader.rows.length;i++){
 			        		const obj=lodash.cloneDeep(resultHeader.rows[i]);
-			        		const arrayFind=result.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
+			        		const arrayFind=result2.rows.filter(y=>y.tracking_id===resultHeader.rows[i].id);
 			        		if(arrayFind){
 			        			obj.tracking_detalle=arrayFind;
 			        		}else{
@@ -429,8 +430,6 @@ exports.listByReadyToCharge = async(req, res) => {
 			        	}
 		        		
 			        }
-
-
 
 			        res.status(200).send(arrayFinal);
 		        });
