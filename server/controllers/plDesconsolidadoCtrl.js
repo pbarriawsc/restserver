@@ -63,6 +63,20 @@ exports.create = async (req, res) => {
                 };
                 await client.query(query2);
             }
+
+            /***ACTUALIZACION DE PAGOS***/
+            if(req.body.pagos && req.body.pagos.length>0){
+                for(let i=0;i<req.body.pagos.length;i++){
+                    let query3={
+                            text:'UPDATE public.tracking SET estado_pago=$1 where id=$2 RETURNING*',
+                            values:[req.body.pagos[i].estado_pago,req.body.pagos[i].fk_tracking]
+                    };
+                    await client.query(query3);
+                }
+            }
+
+            /***ACTUALIZACION DE PAGOS***/
+
             res.status(200).send(result.rows[0]);
             res.end(); res.connection.destroy();
         }else{
