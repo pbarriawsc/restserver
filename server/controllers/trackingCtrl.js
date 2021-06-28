@@ -1701,3 +1701,39 @@ exports.getPackingList1 = async (req,res) =>{ try {
 		}); res.end(); res.connection.destroy();
  	 }
   }
+
+  exports.updateDespachoComercial = async (req,res) => {
+  	try{
+  		if (!req.params.id) {
+	        res.status(400).send({
+	            message: "El id es obligatorio",
+	            success:false
+	            });
+	            return;
+	    }
+
+	    let query={
+	    	text:'UPDATE public.tracking SET direccion_manual=$1,observacion_despacho=$2,fecha_despacho=$3 WHERE id=$4 RETURNING*',
+	    	values:[req.body.direccion_manual,req.body.observacion_despacho,req.body.fecha_despacho,parseInt(req.params.id)]
+	    };
+
+	    let result=await client.query(query);
+	    
+
+	    if(result && result.rows && result.rows.length>0){
+	    	res.status(200).send(result.rows);
+       		res.end(); res.connection.destroy();
+	    }else{
+	    	res.status(400).send({
+			message: "ERROR AL INTENTAR ACTUALIZAR INFORMACION DEL DESPACHO  DEL TRACKING",
+			success:false,
+			}); res.end(); res.connection.destroy();
+	    }
+  	}catch (error) {
+		console.log("ERROR "+error);
+		res.status(400).send({
+		message: "ERROR AL ACTUALIZAR INFORMACION DEL DESPACHO  DEL TRACKING",
+		success:false,
+		}); res.end(); res.connection.destroy();
+ 	 }
+  }

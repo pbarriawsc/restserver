@@ -26,6 +26,7 @@ app.get(`${prefix}/invoice2/:id`,[], trackingController.getInvoice1);
 app.get(`${prefix2}`,verifyToken, trackingController.listChn);
 app.delete(`${prefix}/:id`,verifyToken, trackingController.delete);
 app.get(`/api/tracking-import`,[],trackingController.exports_excel);
+app.put(`${prefix}/despacho/comercial/:id`,verifyToken, trackingController.updateDespachoComercial);
 /*
 app.put(`${prefix}/:id`, function (req, res) {
     let id=req.params.id;

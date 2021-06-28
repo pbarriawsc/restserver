@@ -8,7 +8,7 @@ exports.listByContenedor = (req, res) => {
       });
       return;
     }
-    client.query('SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor as fk_contenedor_cd,td.*,t.fk_cliente,c."razonSocial" as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
+    client.query('SELECT cd.id as contenedor_detalle_id,cd.fk_contenedor as fk_contenedor_cd,td.*,t.fk_cliente_direccion_despacho,t.direccion_manual,t.observacion_despacho,t.fecha_despacho,t.fk_cliente,c."razonSocial" as fk_cliente_nombre,t.fk_proveedor, p.nombre as fk_proveedor_nombre FROM public.contenedor_detalle cd inner join public.tracking_detalle td on td.id=cd.fk_tracking_detalle inner join tracking t on t.id=td.tracking_id left join public.clientes c on c.id=t.fk_cliente left join public.proveedores p on p.id=t.fk_proveedor where cd.fk_contenedor=$1', [req.params.id], function (err, result) {
         if (err) {
             console.log(err);
             res.status(400).send(err);

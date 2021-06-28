@@ -234,3 +234,71 @@ exports.GetDireccion = (req,res) =>{
               });
         });
     };
+
+    exports.listByIdsClientes = (req, res) => {
+        try{
+        if (!req.body.ids) {
+            res.status(400).send({
+                message: "LOS IDS SON OBLIGATORIOS",
+                success:false
+              });
+              return;
+        }
+
+        let queryIn='';
+                if(req.body.ids.length>0){
+                    queryIn+='WHERE dir.fk_cliente IN (';
+                    for(var x=0;x<req.body.ids.length;x++){
+                        if(x!==req.body.ids.length-1){
+                            queryIn+=req.body.ids[x]+','
+                        }else{
+                            queryIn+=req.body.ids[x]
+                        }
+                    }
+                    queryIn+=')';
+                }
+    client.query(`
+      SELECT
+      dir.nombre
+      , dir.fk_cliente
+      , dir.fk_tipo
+      , dir_tipo.nombre as tipo_nombre
+      , dir.fk_pais
+      , pais.nombre as pais_nombre
+      , dir.fk_region
+      , region.nombre as region_nombre
+      , dir.fk_comuna
+      , comunas.nombre as comuna_nombre
+      , dir.direccion
+      , dir.numero
+      , dir.radio
+      , dir."codigoPostal"
+      , dir.referencia
+      , dir.lat
+      , dir.lon
+      , dir.comentario
+      , dir."fechaCreacion"
+      , dir."fechaActualizacion"
+      , dir.estado
+      , dir.id
+      , concat(dir.direccion,' ',dir.numero,', ',comunas.nombre,', ',region.nombre) as direccionCompleta
+      FROM public.clientes_direcciones as dir
+      inner join direcciones_tipos as dir_tipo on dir_tipo.id=dir.fk_tipo
+      inner join pais on pais.id=dir.fk_pais
+      inner join region on region.id=dir.fk_region
+      inner join comunas on comunas.id=dir.fk_comuna `+queryIn, "", function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(400).send(err);
+        }
+        res.status(200).send(result.rows);
+    });
+
+    }catch (error) {
+        console.log("ERROR "+error);
+        res.status(400).send({
+        message: "ERROR AL OBTENER LAS DIRECCIONES DE CLIENTES",
+        success:false,
+        }); res.end(); res.connection.destroy();
+     }
+  };
