@@ -295,6 +295,11 @@ exports.confirmContenedor = async (req,res)=>{
 			    
 			 /********************/
 
+			 const query7 = {
+			                text: 'UPDATE public.contenedor SET estado=$1 WHERE id=$2 RETURNING *',
+			                values: [2, req.body.fk_contenedor],
+			            };
+			 let result7=await client.query(query7);
 
 	    	res.status(200).send([]);
        		res.end(); res.connection.destroy();

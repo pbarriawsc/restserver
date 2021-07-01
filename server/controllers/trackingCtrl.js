@@ -1713,8 +1713,8 @@ exports.getPackingList1 = async (req,res) =>{ try {
 	    }
 
 	    let query={
-	    	text:'UPDATE public.tracking SET direccion_manual=$1,observacion_despacho=$2,fecha_despacho=$3 WHERE id=$4 RETURNING*',
-	    	values:[req.body.direccion_manual,req.body.observacion_despacho,req.body.fecha_despacho,parseInt(req.params.id)]
+	    	text:'UPDATE public.tracking SET fk_cliente_direccion_despacho=$1,observacion_despacho=$2,fecha_despacho=$3,tipo_despacho=$4 WHERE id=$5 RETURNING*',
+	    	values:[req.body.fk_direccion,req.body.observacion_despacho,req.body.fecha_despacho,req.body.tipo_despacho,parseInt(req.params.id)]
 	    };
 
 	    let result=await client.query(query);
