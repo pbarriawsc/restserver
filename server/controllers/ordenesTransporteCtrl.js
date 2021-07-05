@@ -139,7 +139,8 @@ exports.delete = async (req, res) => {
 
 exports.listByDate = async (req, res) => {
     try {
-        const result=await client.query(`SELECT ot.*,c.codigo as fk_contenedor_codigo,u.nombre as fk_usuario_creacion_nombre, u.apellidos as fk_usuario_creacion_apellidos,e.patente FROM public.orden_transporte ot LEFT JOIN public.contenedor c on c.id=ot.fk_contenedor INNER JOIN public.usuario u on u.id=ot.fk_usuario_creacion INNER JOIN public.equipos e on e.id=ot.fk_equipo WHERE TO_CHAR(ot.fecha, 'DDMMYYYY')='`+req.params.fecha+`' ORDER BY ot.id DESC`);
+        //const result=await client.query(`SELECT ot.*,c.codigo as fk_contenedor_codigo,u.nombre as fk_usuario_creacion_nombre, u.apellidos as fk_usuario_creacion_apellidos,e.patente FROM public.orden_transporte ot LEFT JOIN public.contenedor c on c.id=ot.fk_contenedor INNER JOIN public.usuario u on u.id=ot.fk_usuario_creacion INNER JOIN public.equipos e on e.id=ot.fk_equipo WHERE TO_CHAR(ot.fecha, 'DDMMYYYY')='`+req.params.fecha+`' ORDER BY ot.id DESC`);
+        const result=await client.query(`SELECT ot.*,c.codigo as fk_contenedor_codigo,u.nombre as fk_usuario_creacion_nombre, u.apellidos as fk_usuario_creacion_apellidos,e.patente FROM public.orden_transporte ot LEFT JOIN public.contenedor c on c.id=ot.fk_contenedor INNER JOIN public.usuario u on u.id=ot.fk_usuario_creacion INNER JOIN public.equipos e on e.id=ot.fk_equipo WHERE ot.estado=0 ORDER BY ot.id DESC`);
         if(result.rows && result.rows.length){
             res.status(200).send(result.rows);
             res.end(); res.connection.destroy();

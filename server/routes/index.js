@@ -76,4 +76,5 @@ app.use(require('./ordenesTransporte'));
 app.use(require('./recepcionChile'));
 app.use(require('./kardex'));
 app.use(require('./bodegaUbicacionesDetalle'));
+app.use(require('./clienteGestionDespacho'));
 module.exports=app;
