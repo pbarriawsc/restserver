@@ -27,6 +27,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      fk_orden_transporte:{
+         type: Sequelize.INTEGER,
+         allowNull: true,
+      },
       fk_camion: {
         type: Sequelize.INTEGER,
         allowNull: true,

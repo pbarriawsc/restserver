@@ -58,10 +58,18 @@ exports.create = async (req, res) => {
         if(result && result.rows && result.rows.length>0 && req.body.detalle && req.body.detalle.length>0){
             for(let i=0;i<req.body.detalle.length;i++){
                 let query2={
-                    text:'INSERT INTO public.pl_desconsolidado_detalle(fk_pl_desconsolidado,fk_tracking_detalle,opcion,estado,fk_camion) VALUES($1,$2,$3,$4,$5) RETURNING *',
-                    values:[result.rows[0].id,req.body.detalle[i].id,req.body.detalle[i].accion,0,req.body.detalle[i].camion]
+                    text:'INSERT INTO public.pl_desconsolidado_detalle(fk_pl_desconsolidado,fk_tracking_detalle,opcion,estado,fk_camion,fk_orden_transporte) VALUES($1,$2,$3,$4,$5,$6) RETURNING *',
+                    values:[result.rows[0].id,req.body.detalle[i].id,req.body.detalle[i].accion,0,req.body.detalle[i].camion,req.body.detalle[i].fk_orden_transporte]
                 };
                 await client.query(query2);
+
+                if(parseInt(req.body.detalle[i].fk_orden_transporte)>0){
+                    let query21={
+                                text:'INSERT INTO public.orden_transporte_detalle(fk_orden_transporte, fk_tracking_detalle,estado) VALUES($1,$2,$3) RETURNING*',
+                                values:[parseInt(req.body.detalle[i].fk_orden_transporte),req.body.detalle[i].id,0]
+                            };
+                    const result21=await client.query(query21);
+                }
             }
 
             /***ACTUALIZACION DE PAGOS***/
