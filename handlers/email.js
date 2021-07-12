@@ -76,3 +76,35 @@ exports.mail_notificacion_tarifa = async(opciones) => {
     });
     return estado;
 }
+
+/**********************************************/
+/**********************************************/
+/**********************************************/
+
+const view_mail_notificacion_planificacion_confirmada = (opciones) => {
+    const html = pug.renderFile('./views/emails/view_mail_notificacion_planificacion_confirmada.pug', opciones);
+    return juice(html);
+}
+
+exports.mail_notificacion_planificacion_confirmada = async(opciones) => {
+    const html = view_mail_notificacion_planificacion_confirmada(opciones);
+    const text = htmltoText.fromString(html);
+    
+    let opcionesEmail = {
+        from: 'wsc-qiao@wscargo.cl',
+        to: opciones.email,
+        //cc: 'pbarria.reyes@gmail.com',
+        subject: opciones.asunto,
+        text,
+        html
+    };
+
+    var estado = await transport_WSC.sendMail(opcionesEmail).then(function(info){
+        console.log(" ENVIO CORREO CONFIRMACION PLANFICACION OK ");
+        return true;
+    }).catch(function(err){
+        console.log(" ENVIO CORREO CONFIRMACION PLANFICACION ERROR "+err);
+        return false;
+    });
+    return estado;
+}

@@ -3,6 +3,7 @@ const bcrypt= require('bcrypt');
 const jwt=require('jsonwebtoken');
 const lodash= require('lodash');
 const moment=require('moment');
+const enviarEmail = require('../../handlers/email');
 
 exports.list = async (req, res) => {
     try {
@@ -84,6 +85,13 @@ exports.create = async (req, res) => {
             }
 
             /***ACTUALIZACION DE PAGOS***/
+
+            if(req.body.confirmar){
+                /**ENVIAR EMAIL**/
+                enviarEmail.mail_notificacion_planificacion_confirmada({ 
+                    asunto:"WS CARGO - PLANIFICACION CONFIRMADA " + moment().format('DD-MM-YYYY HH:mm:ss') ,fecha_descarga:moment(req.body.fecha_descarga).format('DD-MM-YYYY'),email:'pbarria.reyes@gmail.com',contenedor:req.body.fk_contenedor_codigo,clientes:req.body.clientes_email
+                 });
+            }
 
             res.status(200).send(result.rows[0]);
             res.end(); res.connection.destroy();
