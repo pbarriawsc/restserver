@@ -88,3 +88,40 @@ exports.create = async (req, res) => {
         success:false,}); res.end(); res.connection.destroy();
     }
 };
+
+exports.listByContenedor = async (req, res) => {
+    try{
+        if (!req.params.id) {
+            res.status(400).send({
+              message: "El contenedor es obligatorio",
+              success:false
+            });
+            return;
+        }
+
+        let result=await client.query(`
+            SELECT cgd.*,
+            concat(cdc.direccion,' ',cdc.numero,', ',comunas.nombre,', ',region.nombre) as fk_direccion_completa
+            FROM public.cliente_gestion_despacho cgd
+            left join public.clientes_direcciones cdc on cdc.id=cgd.fk_cliente_direccion_despacho 
+            left join pais on pais.id=cdc.fk_pais 
+            left join region on region.id=cdc.fk_region 
+            left join comunas on comunas.id=cdc.fk_comuna 
+            WHERE cgd.fk_contenedor=`+parseInt(req.params.id)+` AND cgd.estado=1
+            `);
+
+        if(result && result.rows){
+            res.status(200).send(result.rows);
+            res.end(); res.connection.destroy();
+        }else{
+            res.status(400).send({
+            message: "ERROR AL OBTENER LA INFORMACION CLIENTE GESTION DESPACHO POR CONTENEDOR",
+            success:false,}); res.end(); res.connection.destroy();
+        }
+    }catch (error) {
+        console.log('ERROR GET '+error); console.log(' '); console.log(' ');
+        res.status(400).send({
+        message: "ERROR GET CLIENTE GESTION DESPACHO",
+        success:false,}); res.end(); res.connection.destroy();
+    }
+};
