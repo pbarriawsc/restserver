@@ -50,26 +50,51 @@ exports.create = async (req, res) => {
         req.usuario = decoded.usuario;
         });
 
+        let estado=0;
+
+        if(req.body.confirmar){
+            estado=1;
+        }
         const query={
             text:'INSERT INTO public.pl_desconsolidado(fk_contenedor,fk_usuario_creacion,fk_usuario_modificacion,fecha_creacion,fecha_descarga,estado) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *',
-            values:[req.body.fk_contenedor,req.usuario.id,req.usuario.id,moment().format('YYYYMMDD HHmmss'),req.body.fecha_descarga,0]
+            values:[req.body.fk_contenedor,req.usuario.id,req.usuario.id,moment().format('YYYYMMDD HHmmss'),req.body.fecha_descarga,estado]
         };
 
         const result=await client.query(query);
         if(result && result.rows && result.rows.length>0 && req.body.detalle && req.body.detalle.length>0){
             for(let i=0;i<req.body.detalle.length;i++){
-                let query2={
-                    text:'INSERT INTO public.pl_desconsolidado_detalle(fk_pl_desconsolidado,fk_tracking_detalle,opcion,estado,fk_camion,fk_orden_transporte) VALUES($1,$2,$3,$4,$5,$6) RETURNING *',
-                    values:[result.rows[0].id,req.body.detalle[i].id,req.body.detalle[i].accion,0,req.body.detalle[i].camion,req.body.detalle[i].fk_orden_transporte]
+
+                let query20={
+                    text:'SELECT *FROM public.pl_desconsolidado_detalle where fk_tracking_detalle=$1 and estado=0',
+                    values:[req.body.detalle[i].id]
                 };
-                await client.query(query2);
+
+                let result20=await client.query(query20);
+                if(result20 && result20.rows && result20.rows.length>0){
+                    
+                }else{
+                     let query2={
+                        text:'INSERT INTO public.pl_desconsolidado_detalle(fk_pl_desconsolidado,fk_tracking_detalle,opcion,estado,fk_camion,fk_orden_transporte) VALUES($1,$2,$3,$4,$5,$6) RETURNING *',
+                        values:[result.rows[0].id,req.body.detalle[i].id,req.body.detalle[i].accion,0,req.body.detalle[i].camion,req.body.detalle[i].fk_orden_transporte]
+                    };
+                    await client.query(query2);
+                }
 
                 if(parseInt(req.body.detalle[i].fk_orden_transporte)>0){
                     let query21={
-                                text:'INSERT INTO public.orden_transporte_detalle(fk_orden_transporte, fk_tracking_detalle,estado) VALUES($1,$2,$3) RETURNING*',
-                                values:[parseInt(req.body.detalle[i].fk_orden_transporte),req.body.detalle[i].id,0]
-                            };
+                        text:'SELECT *FROM public.orden_transporte_detalle where fk_tracking_detalle=$1 and estado=0',
+                        values:[parseInt(req.body.detalle[i].id)]
+                    };
                     const result21=await client.query(query21);
+                    if(result21 && result21.rows && result21.rows.length>0){
+
+                    }else{
+                        let query22={
+                                    text:'INSERT INTO public.orden_transporte_detalle(fk_orden_transporte, fk_tracking_detalle,estado) VALUES($1,$2,$3) RETURNING*',
+                                    values:[parseInt(req.body.detalle[i].fk_orden_transporte),req.body.detalle[i].id,0]
+                                };
+                        const result22=await client.query(query22);
+                    }
                 }
             }
 
